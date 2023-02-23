@@ -1,4 +1,5 @@
-﻿using Discord.Commands;
+﻿using Discord;
+using Discord.Commands;
 using Discord.WebSocket;
 
 namespace BaseBotService.Modules;
@@ -25,7 +26,31 @@ public class UsersModule : ModuleBase<SocketCommandContext>
         [Summary("The (optional) user to get info from")]
         SocketUser? user = null)
     {
-        var userInfo = user ?? Context.Client.CurrentUser;
-        await ReplyAsync($"{userInfo.Username}#{userInfo.Discriminator}");
+        SocketUser userInfo = user ?? Context.Message.Author;
+
+        var msg = new EmbedBuilder()
+            .WithTitle("UserInfo")
+            .WithAuthor(Context.Message.Author)
+            .WithFields(new List<EmbedFieldBuilder>() {
+            new EmbedFieldBuilder()
+                .WithName("id")
+                .WithValue(userInfo.Id),
+            new EmbedFieldBuilder()
+                .WithName("name")
+                .WithValue($"{userInfo.Username}#{userInfo.Discriminator}")
+                .WithIsInline(true),
+            new EmbedFieldBuilder()
+                .WithName("status")
+                .WithValue(userInfo.Status)
+                .WithIsInline(true),
+            new EmbedFieldBuilder()
+                .WithName("created at")
+                .WithValue(userInfo.CreatedAt)
+            })
+            .WithThumbnailUrl(userInfo.GetAvatarUrl())
+            .WithColor(Color.LightOrange);
+
+
+        await ReplyAsync(embed: msg.Build());
     }
 }

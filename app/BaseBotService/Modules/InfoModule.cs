@@ -17,12 +17,11 @@ public class InfoModule : ModuleBase<SocketCommandContext>
 
         // Create embedded message with bot information
         var embed = new EmbedBuilder()
-            .WithTitle("Honeycomb")
-            .WithAuthor(name)
-            .WithDescription($"This is a simple discord bot for artists.")
-            .WithUrl("https://github.com/Anheledir/Honeycomb") // TODO move this to a resource file
-            .WithFooter($"Version {version} [alpha]")
-            .WithColor(Color.Green);
+            .WithTitle(name)
+            .WithAuthor("anheledir.NET")
+            .WithDescription($"This is a simple discord bot for artists")
+            .WithFooter($"Version {version}")
+            .WithColor(Color.DarkPurple);
 
         // Send embedded message to default channel
         ReplyAsync(embed: embed.Build());

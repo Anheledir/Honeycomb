@@ -30,9 +30,6 @@ namespace BaseBotService.Base
 
         internal async Task InstallCommandsAsync()
         {
-            // Hook the MessageReceived event into our command handler.
-            _client.MessageReceived += HandleCommandAsync;
-
             // Here we discover all of the command modules in the entry assembly and load them.
             await _commands.AddModulesAsync(assembly: Assembly.GetEntryAssembly(), services: null);
             _commands.CommandExecuted += OnCommandExecutedAsync;
