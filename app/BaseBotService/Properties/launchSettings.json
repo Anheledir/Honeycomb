@@ -7,16 +7,10 @@
       }
     },
     "Docker BumblePrince": {
-      "commandName": "Docker",
-      "environmentVariables": {
-        "DISCORD_BOT_TOKEN": "MTA3ODMyMDk3MjI4NjkxODY4Ng.GVBMTJ.kYB9LyDZ4nWno0PCzOmQJwWEK0OH_bSe-FX_GM"
-      }
+      "commandName": "Docker"
     },
     "Docker FrenchCookie": {
-      "commandName": "Docker",
-      "environmentVariables": {
-        "DISCORD_BOT_TOKEN": "MTA3ODMyMTg5OTU0MjY4Nzc1NQ.GShLog.Yl8enGQwdkjZTNYoogURmN6sfi3GAIpLTV1omY"
-      }
+      "commandName": "Docker"
     }
   }
 }
