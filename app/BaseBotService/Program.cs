@@ -17,15 +17,15 @@ static class Program
             .WriteTo.Console()
             .CreateLogger();
 
-        // Create Discord bot client
+        // Create Discord bot client and initialize commands
         var _client = new DiscordSocketClient();
-
-        // Create new instance of CommandService
-        var _commands = new CommandService();
+        var _commandService = new CommandService();
+        var commands = new CommandHandler(_client, _commandService);
 
         // Register event handlers
         _client.Log += LogAsync;
         _client.Ready += ReadyAsync;
+        _commandService.Log += LogAsync;
 
         // Read environmental variables to initialize configuration
         string? token = Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN");
@@ -35,11 +35,8 @@ static class Program
             return;
         }
 
-        // Initialize new instance of CommandHandler
-        var command = new CommandHandler(_client, _commands);
-
         // Install all command modules within the assembly
-        await command.InstallCommandsAsync();
+        await commands.InstallCommandsAsync();
 
         // Connect to Discord API
         await _client.LoginAsync(TokenType.Bot, token);
@@ -55,6 +52,12 @@ static class Program
     /// <param name="logMessage">The discord log-message.</param>
     private static Task LogAsync(LogMessage logMessage)
     {
+        if (logMessage.Exception is CommandException cmdException)
+        {
+            Log.Write(LogEventLevel.Error, logMessage.Exception, $"{cmdException.Context.User} failed to execute '{cmdException.Command.Name}' in {cmdException.Context.Channel}.");
+            return Task.CompletedTask;
+        }
+
         Log.Write(GetLogLevel(logMessage), logMessage.Exception, logMessage.Message);
         return Task.CompletedTask;
     }

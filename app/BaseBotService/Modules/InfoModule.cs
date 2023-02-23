@@ -6,7 +6,6 @@ namespace BaseBotService.Modules;
 
 public class InfoModule : ModuleBase<SocketCommandContext>
 {
-    // ~say hello world -> hello world
     [Command("info")]
     [Summary("Returns the basic information of the bot.")]
     public Task InfoAsync()

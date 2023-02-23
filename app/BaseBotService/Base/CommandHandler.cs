@@ -1,5 +1,8 @@
-﻿using Discord.Commands;
+﻿using Discord;
+using Discord.Commands;
 using Discord.WebSocket;
+using Serilog;
+using Serilog.Events;
 using System.Reflection;
 
 namespace BaseBotService.Base
@@ -18,7 +21,7 @@ namespace BaseBotService.Base
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
 
-        // Retrieve client and CommandService instance via ctor
+        // Retrieve client and CommandService instance via constructor.
         internal CommandHandler(DiscordSocketClient client, CommandService commands)
         {
             _commands = commands;
@@ -27,13 +30,14 @@ namespace BaseBotService.Base
 
         internal async Task InstallCommandsAsync()
         {
-            // Hook the MessageReceived event into our command handler
+            // Hook the MessageReceived event into our command handler.
             _client.MessageReceived += HandleCommandAsync;
 
             // Here we discover all of the command modules in the entry assembly and load them.
-            // Starting from Discord.NET 2.0, a service provider is required to be passed into
-            // the module registration method to inject the required dependencies.
             await _commands.AddModulesAsync(assembly: Assembly.GetEntryAssembly(), services: null);
+            _commands.CommandExecuted += OnCommandExecutedAsync;
+            _client.MessageReceived += HandleCommandAsync;
+
         }
 
         private async Task HandleCommandAsync(SocketMessage messageParam)
@@ -48,15 +52,43 @@ namespace BaseBotService.Base
             // Determine if the message is a command based on the prefix and make sure no bots trigger commands
             if (!(message.HasCharPrefix(Prefix, ref argPos) ||
                 message.HasMentionPrefix(_client.CurrentUser, ref argPos)) ||
-                message.Author.IsBot)
-                return;
+                message.Author.IsBot) return;
 
-            // Create a WebSocket-based command context based on the message
             var context = new SocketCommandContext(_client, message);
-
-            // Execute the command with the command context we just
-            // created, along with the service provider for precondition checks.
             await _commands.ExecuteAsync(context: context, argPos: argPos, services: null);
+        }
+
+        public async Task OnCommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result)
+        {
+            string commandName = command.IsSpecified ? command.Value.Name : "A command";
+            switch (result)
+            {
+                case CommandResult cmdResult:
+                    if (!string.IsNullOrEmpty(cmdResult.Reason))
+                    {
+                        var msg = new EmbedBuilder()
+                            .WithTitle("An error occurred!")
+                            .WithAuthor(commandName)
+                            .WithDescription(cmdResult.Reason)
+                            .WithColor(Color.Red);
+                        await context.Channel.SendMessageAsync(embed: msg.Build());
+                    }
+                    break;
+                default:
+                    if (!string.IsNullOrEmpty(result.ErrorReason))
+                    {
+                        var msg = new EmbedBuilder()
+                            .WithTitle("An error occurred!")
+                            .WithAuthor(commandName)
+                            .WithDescription(result.ErrorReason)
+                            .WithColor(Color.Red);
+                        await context.Channel.SendMessageAsync(embed: msg.Build());
+
+                    }
+                    break;
+            }
+
+            Log.Write(LogEventLevel.Information, $"{commandName} was executed at {DateTime.UtcNow}.");
         }
     }
 }
