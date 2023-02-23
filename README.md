@@ -1,2 +1,2 @@
-# bumbleprince
-A discord bot for the public art server of Aralyre
+# Honeycomb
+A discord bot in development.
