@@ -14,6 +14,7 @@ static class Program
         // Configure Serilog logger
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
+            .Enrich.FromLogContext()
             .WriteTo.Console()
             .CreateLogger();
 
@@ -54,11 +55,11 @@ static class Program
     {
         if (logMessage.Exception is CommandException cmdException)
         {
-            Log.Write(LogEventLevel.Error, logMessage.Exception, $"{cmdException.Context.User} failed to execute '{cmdException.Command.Name}' in {cmdException.Context.Channel}.");
+            Log.Write(LogEventLevel.Error, logMessage.Exception, $"[{cmdException.Source}] {cmdException.Context.User} failed to execute '{cmdException.Command.Name}' in {cmdException.Context.Channel}.");
             return Task.CompletedTask;
         }
 
-        Log.Write(GetLogLevel(logMessage), logMessage.Exception, logMessage.Message);
+        Log.Write(GetLogLevel(logMessage), logMessage.Exception, "[{Source}] {Message}", logMessage.Source, logMessage.Message);
         return Task.CompletedTask;
     }
 
@@ -80,7 +81,7 @@ static class Program
             case LogSeverity.Info:
                 return LogEventLevel.Information;
             case LogSeverity.Verbose:
-                return LogEventLevel.Debug;
+                return LogEventLevel.Verbose;
             case LogSeverity.Debug:
                 return LogEventLevel.Debug;
             default:
