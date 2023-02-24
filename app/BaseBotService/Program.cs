@@ -2,14 +2,32 @@
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Events;
 
 namespace Honeycomb;
 
-static class Program
+public class Program
 {
-    static async Task Main(string[] args)
+    private readonly IServiceProvider _serviceProvider;
+
+    public Program()
+    {
+        var services = new ServiceCollection();
+
+        // Setting up all services for DI
+        services.AddSingleton<DiscordSocketClient, DiscordSocketClient>();
+        services.AddSingleton<CommandService, CommandService>();
+        services.AddSingleton(provider => new CommandHandler(provider!.GetService<DiscordSocketClient>(), provider!.GetService<CommandService>()));
+
+        _serviceProvider = services.BuildServiceProvider();
+
+    }
+
+    static void Main(string[] args) => new Program().RunAsync(args).GetAwaiter().GetResult();
+
+    async Task RunAsync(string[] args)
     {
         // Configure Serilog logger
         Log.Logger = new LoggerConfiguration()
@@ -19,9 +37,9 @@ static class Program
             .CreateLogger();
 
         // Create Discord bot client and initialize commands
-        var _client = new DiscordSocketClient();
-        var _commandService = new CommandService();
-        var commands = new CommandHandler(_client, _commandService);
+        var _client = _serviceProvider.GetService<DiscordSocketClient>();
+        var _commandService = _serviceProvider.GetService<CommandService>();
+        var _commands = _serviceProvider.GetService<CommandHandler>();
 
         // Register event handlers
         _client.Log += LogAsync;
@@ -37,7 +55,7 @@ static class Program
         }
 
         // Install all command modules within the assembly
-        await commands.InstallCommandsAsync();
+        await _commands.InstallCommandsAsync();
 
         // Connect to Discord API
         await _client.LoginAsync(TokenType.Bot, token);
@@ -92,7 +110,7 @@ static class Program
     /// <summary>
     /// This method is executes when the bot finished startup, loaded all guilds and finished login.
     /// </summary>
-    private static async Task ReadyAsync()
+    private async Task ReadyAsync()
     {
         Log.Information("Honeycomb is connected and ready.");
         await Task.CompletedTask;
