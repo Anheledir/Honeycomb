@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using BaseBotService.Interfaces;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Serilog;
@@ -16,14 +17,14 @@ namespace BaseBotService.Base
         /// The prefix that the bot is looking for to execute a command.
         /// </summary>
         // TODO Move the prefix to a configurable setting
-        const char Prefix = ';';
+        const char Prefix = '!';
 
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
         private readonly ILogger _logger;
 
         // Retrieve client and CommandService instance via constructor.
-        internal CommandHandler(ILogger logger, DiscordSocketClient client, CommandService commands)
+        public CommandHandler(ILogger logger, DiscordSocketClient client, CommandService commands)
         {
             _logger = logger;
             _commands = commands;

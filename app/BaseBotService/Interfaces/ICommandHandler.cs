@@ -1,7 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
 
-namespace BaseBotService.Base
+namespace BaseBotService.Interfaces
 {
     internal interface ICommandHandler
     {

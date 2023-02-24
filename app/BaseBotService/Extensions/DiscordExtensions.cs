@@ -1,9 +1,9 @@
 ﻿using Discord;
 using Serilog.Events;
 
-namespace BaseBotService.Helpers
+namespace BaseBotService.Extensions
 {
-    public static class DiscordHelpers
+    public static class DiscordExtensions
     {
 
         /// <summary>

@@ -3,7 +3,7 @@ using Serilog;
 
 namespace BaseBotService.Extensions;
 
-internal static class ServiceCollectionHelpers
+internal static class ServiceCollectionExtensions
 {
 
     public static IServiceCollection AddSerilogServices(this IServiceCollection services, LoggerConfiguration configuration)

@@ -1,4 +1,4 @@
-﻿namespace BaseBotService.Services
+﻿namespace BaseBotService.Interfaces
 {
     public interface IAssemblyService
     {
