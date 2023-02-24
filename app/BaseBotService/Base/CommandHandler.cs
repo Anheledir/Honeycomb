@@ -10,7 +10,7 @@ namespace BaseBotService.Base
     /// <summary>
     /// The command handler to register with discord.
     /// </summary>
-    internal class CommandHandler
+    public class CommandHandler : ICommandHandler
     {
         /// <summary>
         /// The prefix that the bot is looking for to execute a command.
@@ -20,15 +20,17 @@ namespace BaseBotService.Base
 
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
+        private readonly ILogger _logger;
 
         // Retrieve client and CommandService instance via constructor.
-        internal CommandHandler(DiscordSocketClient client, CommandService commands)
+        internal CommandHandler(ILogger logger, DiscordSocketClient client, CommandService commands)
         {
+            _logger = logger;
             _commands = commands;
             _client = client;
         }
 
-        internal async Task InstallCommandsAsync()
+        public async Task InstallCommandsAsync()
         {
             // Here we discover all of the command modules in the entry assembly and load them.
             await _commands.AddModulesAsync(assembly: Assembly.GetEntryAssembly(), services: null);
@@ -85,7 +87,7 @@ namespace BaseBotService.Base
                     break;
             }
 
-            Log.Write(LogEventLevel.Information, $"{commandName} was executed at {DateTime.UtcNow}.");
+            _logger.Write(LogEventLevel.Information, $"{commandName} was executed at {DateTime.UtcNow}.");
         }
     }
 }

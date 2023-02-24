@@ -1,4 +1,5 @@
 ﻿using BaseBotService.Base;
+using BaseBotService.Helpers;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -14,14 +15,7 @@ public class Program
 
     public Program()
     {
-        var services = new ServiceCollection();
-
-        // Setting up all services for DI
-        services.AddSingleton<DiscordSocketClient, DiscordSocketClient>();
-        services.AddSingleton<CommandService, CommandService>();
-        services.AddSingleton(provider => new CommandHandler(provider!.GetService<DiscordSocketClient>(), provider!.GetService<CommandService>()));
-
-        _serviceProvider = services.BuildServiceProvider();
+        _serviceProvider = ServiceHelpers.RegisterServices();
 
     }
 
@@ -29,17 +23,12 @@ public class Program
 
     async Task RunAsync(string[] args)
     {
-        // Configure Serilog logger
-        Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Debug()
-            .Enrich.FromLogContext()
-            .WriteTo.Console()
-            .CreateLogger();
+        ILogger _logger = _serviceProvider.GetService<ILogger>();
 
         // Create Discord bot client and initialize commands
         var _client = _serviceProvider.GetService<DiscordSocketClient>();
         var _commandService = _serviceProvider.GetService<CommandService>();
-        var _commands = _serviceProvider.GetService<CommandHandler>();
+        var _commands = _serviceProvider.GetService<ICommandHandler>();
 
         // Register event handlers
         _client.Log += LogAsync;
@@ -50,7 +39,7 @@ public class Program
         string? token = Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN");
         if (token == null)
         {
-            Log.Fatal("Environment variable 'DISCORD_BOT_TOKEN' not set.");
+            _logger.Fatal("Environment variable 'DISCORD_BOT_TOKEN' not set.");
             return;
         }
 
@@ -77,34 +66,8 @@ public class Program
             return Task.CompletedTask;
         }
 
-        Log.Write(GetLogLevel(logMessage), logMessage.Exception, "[{Source}] {Message}", logMessage.Source, logMessage.Message);
+        Log.Write(logMessage.GetSerilogSeverity(), logMessage.Exception, "[{Source}] {Message}", logMessage.Source, logMessage.Message);
         return Task.CompletedTask;
-    }
-
-    /// <summary>
-    /// Map a discord log-level to the corresponding serilog log-level.
-    /// </summary>
-    /// <param name="logMessage">The origin discord log-message.</param>
-    /// <returns>The mapped serilog log-severity.</returns>
-    private static LogEventLevel GetLogLevel(LogMessage logMessage)
-    {
-        switch (logMessage.Severity)
-        {
-            case LogSeverity.Critical:
-                return LogEventLevel.Fatal;
-            case LogSeverity.Error:
-                return LogEventLevel.Error;
-            case LogSeverity.Warning:
-                return LogEventLevel.Warning;
-            case LogSeverity.Info:
-                return LogEventLevel.Information;
-            case LogSeverity.Verbose:
-                return LogEventLevel.Verbose;
-            case LogSeverity.Debug:
-                return LogEventLevel.Debug;
-            default:
-                return LogEventLevel.Verbose;
-        }
     }
 
     /// <summary>
