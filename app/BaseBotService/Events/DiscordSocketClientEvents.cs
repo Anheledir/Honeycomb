@@ -1,8 +1,8 @@
 ﻿using BaseBotService.Enumeration;
 using BaseBotService.Extensions;
-using BaseBotService.Helpers;
 using BaseBotService.Interfaces;
 using BaseBotService.Modules;
+using BaseBotService.Services;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -15,12 +15,12 @@ internal class DiscordSocketClientEvents
 {
     private readonly ILogger _logger;
     private readonly IAssemblyService _assemblyService;
-    private readonly IEnvironmentHelper _environmentHelper;
-    private readonly CommandHelpers _commandHelpers;
+    private readonly IEnvironmentService _environmentHelper;
+    private readonly CommandManager _commandHelpers;
     private readonly InfoModule _infoModule;
     private readonly UsersModule _usersModule;
 
-    public DiscordSocketClientEvents(ILogger logger, IAssemblyService assemblyService, IEnvironmentHelper environmentHelper, CommandHelpers commandHelpers, InfoModule infoModule, UsersModule usersModule)
+    public DiscordSocketClientEvents(ILogger logger, IAssemblyService assemblyService, IEnvironmentService environmentHelper, CommandManager commandHelpers, InfoModule infoModule, UsersModule usersModule)
     {
         _logger = logger;
         _assemblyService = assemblyService;
@@ -55,13 +55,13 @@ internal class DiscordSocketClientEvents
 
         switch (_environmentHelper.RegisterCommands)
         {
-            case RegisterCommandsOnStartupEnum.NoRegistration:
+            case RegisterCommandsOnStartup.NoRegistration:
                 _logger.Information("Skipping global application command registration.");
                 break;
-            case RegisterCommandsOnStartupEnum.YesWithoutOverwrite:
+            case RegisterCommandsOnStartup.YesWithoutOverwrite:
                 await _commandHelpers.RegisterGlobalCommandsAsync(false);
                 break;
-            case RegisterCommandsOnStartupEnum.YesWithOverwrite:
+            case RegisterCommandsOnStartup.YesWithOverwrite:
                 await _commandHelpers.RegisterGlobalCommandsAsync(true);
                 break;
         }

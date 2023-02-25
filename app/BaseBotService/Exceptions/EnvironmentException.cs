@@ -1,18 +1,42 @@
-﻿namespace BaseBotService.Exceptions
+﻿using BaseBotService.Enumeration;
+using System.Runtime.Serialization;
+
+namespace BaseBotService.Exceptions;
+
+[Serializable]
+public class EnvironmentException : Exception
 {
-    public enum EnvironmentSettingEnum
+    public EnvironmentSetting Setting { get; set; }
+
+    public EnvironmentException()
     {
-        Unknown = 0,
-        DiscordBotToken = 1
+        Setting = EnvironmentSetting.Unknown;
     }
 
-    public class EnvironmentException : Exception
+    public EnvironmentException(EnvironmentSetting setting)
     {
-        public EnvironmentSettingEnum Setting { get; set; }
+        Setting = setting;
+    }
 
-        public EnvironmentException(EnvironmentSettingEnum setting, string message) : base(message)
-        {
-            Setting = setting;
-        }
+    public EnvironmentException(EnvironmentSetting setting, string? message) : base(message)
+    {
+        Setting = setting;
+    }
+
+    public EnvironmentException(EnvironmentSetting setting, string? message, Exception? innerException) : base(message, innerException)
+    {
+        Setting = setting;
+    }
+
+    public EnvironmentException(string? message) : this(EnvironmentSetting.Unknown, message)
+    {
+    }
+
+    public EnvironmentException(string? message, Exception? innerException) : this(EnvironmentSetting.Unknown, message, innerException)
+    {
+    }
+
+    protected EnvironmentException(SerializationInfo serializationInfo, StreamingContext streamingContext) : base(serializationInfo, streamingContext)
+    {
     }
 }

@@ -1,8 +1,7 @@
-﻿namespace BaseBotService.Interfaces
+﻿namespace BaseBotService.Interfaces;
+
+public interface IAssemblyService
 {
-    public interface IAssemblyService
-    {
-        string Name { get; }
-        string Version { get; }
-    }
+    string Name { get; }
+    string Version { get; }
 }

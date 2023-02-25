@@ -12,18 +12,16 @@ namespace Honeycomb;
 public class Program
 {
 
-    public static IServiceProvider ServiceProvider { get; } = ServiceHelpers.RegisterServices();
+    public static IServiceProvider ServiceProvider { get; } = Services.RegisterServices();
 
     static void Main(string[] args) => new Program().RunAsync().GetAwaiter().GetResult();
 
     async Task RunAsync()
     {
-        var logger = ServiceProvider.GetService<ILogger>();
-
         // Load instances from DI
         var _client = ServiceProvider.GetRequiredService<DiscordSocketClient>();
         var _commandService = ServiceProvider.GetRequiredService<CommandService>();
-        var _environment = ServiceProvider.GetRequiredService<IEnvironmentHelper>();
+        var _environment = ServiceProvider.GetRequiredService<IEnvironmentService>();
         var _events = ServiceProvider.GetRequiredService<DiscordSocketClientEvents>();
 
         // Register event handlers

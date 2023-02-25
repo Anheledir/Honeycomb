@@ -2,9 +2,9 @@
 
 namespace BaseBotService.Interfaces
 {
-    public interface IEnvironmentHelper
+    public interface IEnvironmentService
     {
         string DiscordBotToken { get; }
-        RegisterCommandsOnStartupEnum RegisterCommands { get; }
+        RegisterCommandsOnStartup RegisterCommands { get; }
     }
 }
