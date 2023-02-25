@@ -1,36 +1,17 @@
 ﻿using Discord;
-using Discord.Commands;
 using Discord.WebSocket;
 
 namespace BaseBotService.Modules;
 
-public class UsersModule : ModuleBase<SocketCommandContext>
+internal class UsersModule
 {
-    /// <summary>
-    /// Returns info about the current user, or <paramref name="user"/>, if one was passed.
-    /// </summary>
-    /// <param name="user">(optional) The user to return information for.</param>
-    /// <example>
-    /// ~users userinfo --> foxbot#0282
-    /// ~users userinfo @Khionu --> Khionu#8708
-    /// ~users userinfo Khionu#8708 --> Khionu#8708
-    /// ~users userinfo Khionu --> Khionu#8708
-    /// ~users user 96642168176807936 --> Khionu#8708
-    /// ~users whois 96642168176807936 --> Khionu#8708
-    /// </example>
-    [Command("userinfo")]
-    [Summary
-    ("Returns info about the current user, or the user parameter, if one is passed.")]
-    [Alias("user", "whois")]
-    public async Task UserInfoAsync(
-        [Summary("The (optional) user to get info from")]
-        SocketUser? user = null)
+    internal async Task UserinfoCommandAsync(SocketSlashCommand cmd)
     {
-        SocketUser userInfo = user ?? Context.Message.Author;
+        IUser userInfo = cmd.Data.Options.FirstOrDefault()?.Value as IUser ?? cmd.User;
 
         var msg = new EmbedBuilder()
             .WithTitle("UserInfo")
-            .WithAuthor(Context.Message.Author)
+            .WithAuthor(cmd.User)
             .WithFields(new List<EmbedFieldBuilder>() {
             new EmbedFieldBuilder()
                 .WithName("id")
@@ -48,9 +29,27 @@ public class UsersModule : ModuleBase<SocketCommandContext>
                 .WithValue(userInfo.CreatedAt)
             })
             .WithThumbnailUrl(userInfo.GetAvatarUrl())
-            .WithColor(Color.LightOrange);
+            .WithColor(Color.LightOrange)
+            .WithCurrentTimestamp();
 
+        await cmd.RespondAsync(embed: msg.Build());
+    }
 
-        await ReplyAsync(embed: msg.Build());
+    internal async Task ListRoleCommandAsync(SocketSlashCommand cmd)
+    {
+        // extract the user parameter from the command
+        // since we only have one option and it's required, we can just use the first option
+        SocketGuildUser? guildUser = cmd.Data.Options.FirstOrDefault()?.Value as SocketGuildUser ?? cmd.User as SocketGuildUser;
+
+        var roleList = string.Join(",\n", guildUser.Roles.Where(x => !x.IsEveryone).Select(x => x.Mention));
+
+        var response = new EmbedBuilder()
+            .WithAuthor(guildUser.ToString(), guildUser.GetAvatarUrl() ?? guildUser.GetDefaultAvatarUrl())
+            .WithTitle("Roles")
+            .WithDescription(roleList)
+            .WithColor(Color.Green)
+            .WithCurrentTimestamp();
+
+        await cmd.RespondAsync(embed: response.Build());
     }
 }

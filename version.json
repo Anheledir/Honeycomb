@@ -1,0 +1,26 @@
+{
+    "$schema": "https://raw.githubusercontent.com/dotnet/Nerdbank.GitVersioning/master/src/NerdBank.GitVersioning/version.schema.json",
+    "version": "0.1-alpha",
+    "publicReleaseRefSpec": [
+        "^refs/heads/main$",
+        "^refs/heads/v\\d+(?:\\.\\d+)?$"
+    ],
+    "cloudBuild": {
+        "setVersionVariables": true,
+        "buildNumber": {
+            "enabled": true,
+            "includeCommitId": {
+                "when": "nonPublicReleaseOnly",
+                "where": "buildMetadata"
+            }
+        }
+    },
+    "gitCommitIdShortAutoMinimum": 0,
+    "release": {
+        "tagName": "v{version}",
+        "branchName": "v{version}",
+        "versionIncrement": "minor",
+        "firstUnstableTag": "alpha"
+    },
+    "inherit": false
+}

@@ -5,7 +5,21 @@ VisualStudioVersion = 17.4.33403.182
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaseBotService", "BaseBotService\BaseBotService.csproj", "{A270D271-1837-4073-B0FE-9134DEFCEDF9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseBotServiceTests", "BaseBotServiceTests\BaseBotServiceTests.csproj", "{435B1B91-5A3F-4E66-9BCC-4B62078407AB}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHub Root", "GitHub Root", "{7FF9A706-6EBA-4A59-A241-05EF82703296}"
+	ProjectSection(SolutionItems) = preProject
+		..\.gitattributes = ..\.gitattributes
+		..\.gitignore = ..\.gitignore
+		..\CODE_OF_CONDUCT.md = ..\CODE_OF_CONDUCT.md
+		..\Directory.Build.props = ..\Directory.Build.props
+		..\LICENSE = ..\LICENSE
+		..\README.md = ..\README.md
+		..\version.json = ..\version.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F92AD6C5-7DEA-4394-B334-40C78E768330}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +31,6 @@ Global
 		{A270D271-1837-4073-B0FE-9134DEFCEDF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A270D271-1837-4073-B0FE-9134DEFCEDF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A270D271-1837-4073-B0FE-9134DEFCEDF9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{435B1B91-5A3F-4E66-9BCC-4B62078407AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{435B1B91-5A3F-4E66-9BCC-4B62078407AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{435B1B91-5A3F-4E66-9BCC-4B62078407AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{435B1B91-5A3F-4E66-9BCC-4B62078407AB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

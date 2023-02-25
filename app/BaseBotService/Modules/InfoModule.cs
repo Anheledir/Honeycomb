@@ -1,30 +1,28 @@
-﻿using Discord;
-using Discord.Commands;
-using System.Reflection;
+﻿using BaseBotService.Interfaces;
+using Discord;
+using Discord.WebSocket;
 
 namespace BaseBotService.Modules;
 
-public class InfoModule : ModuleBase<SocketCommandContext>
+internal class InfoModule
 {
-    [Command("info")]
-    [Summary("Returns the basic information of the bot.")]
-    public Task InfoAsync()
+    private readonly IAssemblyService _assemblyService;
+
+    public InfoModule(IAssemblyService assemblyService)
     {
-        // Get bot name and version from assembly information
-        var assembly = Assembly.GetExecutingAssembly();
-        var name = assembly.GetName().Name;
-        var version = assembly.GetName().Version;
-
+        _assemblyService = assemblyService;
+    }
+    internal async Task InfoCommandAsync(SocketSlashCommand cmd)
+    {
         // Create embedded message with bot information
-        var embed = new EmbedBuilder()
-            .WithTitle(name)
-            .WithAuthor("anheledir.NET")
-            .WithDescription($"This is a simple discord bot for artists")
-            .WithFooter($"Version {version}")
-            .WithColor(Color.DarkPurple);
+        var response = new EmbedBuilder()
+            .WithTitle(_assemblyService.Name)
+            .WithAuthor("github.com/anheledir")
+            .WithDescription($"This is a simple discord bot to provide useful tools for artists.")
+            .WithFooter($"Version {_assemblyService.Version}")
+            .WithColor(Color.DarkPurple)
+            .WithCurrentTimestamp();
 
-        // Send embedded message to default channel
-        ReplyAsync(embed: embed.Build());
-        return Task.CompletedTask;
+        await cmd.RespondAsync(embed: response.Build());
     }
 }
