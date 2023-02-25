@@ -23,17 +23,14 @@ public class Program
         // Load instances from DI
         var _client = ServiceProvider.GetRequiredService<DiscordSocketClient>();
         var _commandService = ServiceProvider.GetRequiredService<CommandService>();
-        var _commands = ServiceProvider.GetRequiredService<ICommandHandler>();
         var _environment = ServiceProvider.GetRequiredService<IEnvironmentHelper>();
+        var _events = ServiceProvider.GetRequiredService<DiscordSocketClientEvents>();
 
         // Register event handlers
-        _client.Log += DiscordSocketClientEvents.LogAsync;
-        _client.Ready += DiscordSocketClientEvents.ReadyAsync;
-        _client.SlashCommandExecuted += DiscordSocketClientEvents.SlashCommandExecuted;
-        _commandService.Log += DiscordSocketClientEvents.LogAsync;
-
-        // Install all command modules within the assembly
-        await _commands.InstallCommandsAsync();
+        _client.Log += _events.LogAsync;
+        _client.Ready += _events.ReadyAsync;
+        _client.SlashCommandExecuted += _events.SlashCommandExecuted;
+        _commandService.Log += _events.LogAsync;
 
         // Connect to Discord API
         await _client.LoginAsync(TokenType.Bot, _environment?.DiscordBotToken);

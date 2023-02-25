@@ -1,19 +1,17 @@
 ﻿using Discord;
-using Discord.Interactions;
 using Discord.WebSocket;
 
 namespace BaseBotService.Modules;
 
-internal class UsersModule : InteractionModuleBase
+internal class UsersModule
 {
-    [SlashCommand("user-info", "Returns info about the current user, or the user parameter, if one is passed.")]
     internal async Task UserinfoCommandAsync(SocketSlashCommand cmd)
     {
-        IUser userInfo = (IUser)cmd.Data.Options.FirstOrDefault()?.Value ?? Context.Interaction.User;
+        IUser userInfo = cmd.Data.Options.FirstOrDefault()?.Value as IUser ?? cmd.User;
 
         var msg = new EmbedBuilder()
             .WithTitle("UserInfo")
-            .WithAuthor(Context.Interaction.User)
+            .WithAuthor(cmd.User)
             .WithFields(new List<EmbedFieldBuilder>() {
             new EmbedFieldBuilder()
                 .WithName("id")
@@ -34,15 +32,14 @@ internal class UsersModule : InteractionModuleBase
             .WithColor(Color.LightOrange)
             .WithCurrentTimestamp();
 
-        await ReplyAsync(embed: msg.Build());
+        await cmd.RespondAsync(embed: msg.Build());
     }
 
-    [SlashCommand("user-roles", "Lists all roles of a user.")]
     internal async Task ListRoleCommandAsync(SocketSlashCommand cmd)
     {
         // extract the user parameter from the command
         // since we only have one option and it's required, we can just use the first option
-        SocketGuildUser guildUser = (SocketGuildUser)cmd.Data.Options.FirstOrDefault()?.Value ?? (SocketGuildUser)Context.Interaction.User;
+        SocketGuildUser? guildUser = cmd.Data.Options.FirstOrDefault()?.Value as SocketGuildUser ?? cmd.User as SocketGuildUser;
 
         var roleList = string.Join(",\n", guildUser.Roles.Where(x => !x.IsEveryone).Select(x => x.Mention));
 

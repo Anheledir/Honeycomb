@@ -1,9 +1,10 @@
-﻿using BaseBotService.Base;
+﻿using BaseBotService.Events;
 using BaseBotService.Extensions;
 using BaseBotService.Interfaces;
 using BaseBotService.Modules;
 using BaseBotService.Services;
 using Discord.Commands;
+using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -21,21 +22,37 @@ namespace BaseBotService.Helpers
                 .Enrich.FromLogContext()
                 .WriteTo.Console();
 
-            var services = new ServiceCollection();
+            var config = new DiscordSocketConfig()
+            {
+                LogGatewayIntentWarnings = false
+            };
 
-            // base services
-            services.AddSerilogServices(loggerConfig);
-            services.AddSingleton<DiscordSocketClient, DiscordSocketClient>();
-            services.AddSingleton<CommandService, CommandService>();
-            services.AddSingleton<ICommandHandler, CommandHandler>();
+            var servConfig = new InteractionServiceConfig()
+            {
+                DefaultRunMode = Discord.Interactions.RunMode.Async
+            };
+
+            var services = new ServiceCollection()
+
+            // logging
+                .AddSerilogServices(loggerConfig)
+
+            // discord services
+                .AddSingleton(config)
+                .AddSingleton<DiscordSocketClient>()
+                .AddSingleton(servConfig)
+                .AddSingleton<CommandService>()
+                .AddSingleton<InteractionService>()
 
             // misc services
-            services.AddTransient<IAssemblyService, AssemblyService>();
-            services.AddTransient<IEnvironmentHelper, EnvironmentHelper>();
+                .AddSingleton<DiscordSocketClientEvents>()
+                .AddSingleton<CommandHelpers>()
+                .AddSingleton<IAssemblyService, AssemblyService>()
+                .AddSingleton<IEnvironmentHelper, EnvironmentHelper>()
 
-            // module services
-            services.AddTransient(typeof(InfoModule));
-            services.AddTransient(typeof(UsersModule));
+            // modules
+                .AddSingleton<InfoModule>()
+                .AddSingleton<UsersModule>();
 
             return services.BuildServiceProvider();
         }

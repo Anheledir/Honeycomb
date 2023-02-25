@@ -21,7 +21,8 @@ namespace BaseBotService.Helpers
         {
             _logger.Information($"Register global application commands (overwrite mode: {overwrite})");
 
-            List<SlashCommandBuilder> commands = new List<SlashCommandBuilder> {
+            List<SlashCommandBuilder> commands = new()
+            {
                 // info module
                 new SlashCommandBuilder()
                     .WithName("info")
@@ -44,7 +45,7 @@ namespace BaseBotService.Helpers
                 if (overwrite)
                 {
                     List<ApplicationCommandProperties> applicationCommandProperties = new();
-                    commands.ForEach(async cmd =>
+                    commands.ForEach(cmd =>
                     {
                         _logger.Information($"Register global command '{cmd.Name}'");
                         applicationCommandProperties.Add(cmd.Build());

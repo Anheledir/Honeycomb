@@ -1,68 +1,88 @@
-﻿using BaseBotService.Extensions;
+﻿using BaseBotService.Enumeration;
+using BaseBotService.Extensions;
 using BaseBotService.Helpers;
+using BaseBotService.Interfaces;
 using BaseBotService.Modules;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Honeycomb;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using Serilog;
 using Serilog.Events;
 
 namespace BaseBotService.Events;
 
-internal static class DiscordSocketClientEvents
+internal class DiscordSocketClientEvents
 {
-    private static readonly ILogger _logger = Program.ServiceProvider.GetRequiredService<ILogger>();
+    private readonly ILogger _logger;
+    private readonly IAssemblyService _assemblyService;
+    private readonly IEnvironmentHelper _environmentHelper;
+    private readonly CommandHelpers _commandHelpers;
+    private readonly InfoModule _infoModule;
+    private readonly UsersModule _usersModule;
+
+    public DiscordSocketClientEvents(ILogger logger, IAssemblyService assemblyService, IEnvironmentHelper environmentHelper, CommandHelpers commandHelpers, InfoModule infoModule, UsersModule usersModule)
+    {
+        _logger = logger;
+        _assemblyService = assemblyService;
+        _environmentHelper = environmentHelper;
+        _commandHelpers = commandHelpers;
+        _infoModule = infoModule;
+        _usersModule = usersModule;
+    }
 
     /// <summary>
     /// Event-handler for the discord client to log messages with serilog.
     /// </summary>
     /// <param name="logMessage">The discord log-message.</param>
-    internal static Task LogAsync(LogMessage logMessage)
+    internal Task LogAsync(LogMessage logMessage)
     {
         if (logMessage.Exception is CommandException cmdException)
         {
-            Log.Write(LogEventLevel.Error, logMessage.Exception, $"[{cmdException.Source}] {cmdException.Context.User} failed to execute '{cmdException.Command.Name}' in {cmdException.Context.Channel}.");
+            _logger.Write(LogEventLevel.Error, logMessage.Exception, $"[{cmdException.Source}] {cmdException.Context.User} failed to execute '{cmdException.Command.Name}' in {cmdException.Context.Channel}.");
             return Task.CompletedTask;
         }
 
-        Log.Write(logMessage.GetSerilogSeverity(), logMessage.Exception, "[{Source}] {Message}", logMessage.Source, logMessage.Message);
+        _logger.Write(logMessage.GetSerilogSeverity(), logMessage.Exception, "[{Source}] {Message}", logMessage.Source, logMessage.Message);
         return Task.CompletedTask;
     }
 
     /// <summary>
     /// This method is executes when the bot finished startup, loaded all guilds and finished login.
     /// </summary>
-    internal static async Task ReadyAsync()
+    internal async Task ReadyAsync()
     {
-        _logger.Information("Honeycomb is connected and ready.");
+        _logger.Information($"{_assemblyService.Name} v{_assemblyService.Version} is connected and ready.");
 
-        var _client = Program.ServiceProvider.GetRequiredService<DiscordSocketClient>();
-        var cmdHelper = new CommandHelpers(_logger, _client);
+        switch (_environmentHelper.RegisterCommands)
+        {
+            case RegisterCommandsOnStartupEnum.NoRegistration:
+                _logger.Information("Skipping global application command registration.");
+                break;
+            case RegisterCommandsOnStartupEnum.YesWithoutOverwrite:
+                await _commandHelpers.RegisterGlobalCommandsAsync(false);
+                break;
+            case RegisterCommandsOnStartupEnum.YesWithOverwrite:
+                await _commandHelpers.RegisterGlobalCommandsAsync(true);
+                break;
+        }
 
-        await cmdHelper.RegisterGlobalCommandsAsync(false);
     }
 
-    internal static async Task SlashCommandExecuted(SocketSlashCommand cmd)
+    internal async Task SlashCommandExecuted(SocketSlashCommand cmd)
     {
-        var json = JsonConvert.SerializeObject(cmd, Formatting.Indented);
-        _logger.Debug(json);
-
         switch (cmd.Data.Name)
         {
             // info module
             case "info":
-                await Program.ServiceProvider.GetRequiredService<InfoModule>()?.InfoCommandAsync();
+                await _infoModule.InfoCommandAsync(cmd);
                 break;
 
             // users module
             case "user-info":
-                await Program.ServiceProvider.GetRequiredService<UsersModule>()?.UserinfoCommandAsync(cmd);
+                await _usersModule.UserinfoCommandAsync(cmd);
                 break;
             case "user-roles":
-                await Program.ServiceProvider.GetRequiredService<UsersModule>()?.ListRoleCommandAsync(cmd);
+                await _usersModule.ListRoleCommandAsync(cmd);
                 break;
 
             // unknown
