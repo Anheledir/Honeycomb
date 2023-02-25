@@ -2,7 +2,6 @@
 using BaseBotService.Extensions;
 using BaseBotService.Interfaces;
 using BaseBotService.Modules;
-using BaseBotService.Services;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -16,11 +15,11 @@ internal class DiscordSocketClientEvents
     private readonly ILogger _logger;
     private readonly IAssemblyService _assemblyService;
     private readonly IEnvironmentService _environmentHelper;
-    private readonly CommandManager _commandHelpers;
+    private readonly ICommandManager _commandHelpers;
     private readonly InfoModule _infoModule;
     private readonly UsersModule _usersModule;
 
-    public DiscordSocketClientEvents(ILogger logger, IAssemblyService assemblyService, IEnvironmentService environmentHelper, CommandManager commandHelpers, InfoModule infoModule, UsersModule usersModule)
+    public DiscordSocketClientEvents(ILogger logger, IAssemblyService assemblyService, IEnvironmentService environmentHelper, ICommandManager commandHelpers, InfoModule infoModule, UsersModule usersModule)
     {
         _logger = logger;
         _assemblyService = assemblyService;
