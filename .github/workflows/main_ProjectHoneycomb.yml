@@ -31,7 +31,7 @@ jobs:
       with:
         push: true
         tags: index.docker.io/${{ secrets.AzureAppService_ContainerUsername_0d8bed7092a543ecb0d268a6a000d8e3 }}/honeycomb:${{ github.sha }}
-        file: ./Dockerfile
+        file: ./app/BaseBotService/Dockerfile
 
   deploy:
     runs-on: ubuntu-latest
