@@ -10,6 +10,9 @@
 *.userosscache
 *.sln.docstates
 
+# Docker launch settings file with secrets
+launchSettings.json
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
