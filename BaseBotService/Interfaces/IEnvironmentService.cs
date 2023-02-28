@@ -6,5 +6,6 @@ namespace BaseBotService.Interfaces
     {
         string DiscordBotToken { get; }
         RegisterCommandsOnStartup RegisterCommands { get; }
+        string EnvironmentName { get; }
     }
 }
