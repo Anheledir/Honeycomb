@@ -39,4 +39,6 @@ public class EnvironmentService : IEnvironmentService
     public string DiscordBotToken { get; }
 
     public RegisterCommandsOnStartup RegisterCommands { get; }
+
+    public string EnvironmentName { get; } = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "unknown";
 }

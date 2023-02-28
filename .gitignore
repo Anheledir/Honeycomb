@@ -10,6 +10,9 @@
 *.userosscache
 *.sln.docstates
 
+# Docker launch settings file with secrets
+launchSettings.json
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
@@ -349,3 +352,4 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 /app/BaseBotService/Properties/launchSettings.json
+/app/BaseBotService/Settings.job
