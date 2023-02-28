@@ -349,3 +349,4 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 /app/BaseBotService/Properties/launchSettings.json
+/app/BaseBotService/Settings.job
