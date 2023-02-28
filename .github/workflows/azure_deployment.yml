@@ -6,7 +6,7 @@ name: Build and deploy ASP.Net Core app to Azure Web App - ProjectHoneycomb
 on:
   push:
     branches:
-      - feature/9-deployment
+      - main
   workflow_dispatch:
 
 jobs:
