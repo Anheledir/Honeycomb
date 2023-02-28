@@ -50,7 +50,7 @@ internal class DiscordSocketClientEvents
     /// </summary>
     internal async Task ReadyAsync()
     {
-        _logger.Information($"{_assemblyService.Name} v{_assemblyService.Version} is connected and ready.");
+        _logger.Information($"{_assemblyService.Name} v{_assemblyService.Version} ({_environmentHelper.EnvironmentName}) is connected and ready.");
 
         switch (_environmentHelper.RegisterCommands)
         {
