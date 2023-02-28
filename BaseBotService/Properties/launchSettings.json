@@ -1,0 +1,18 @@
+{
+  "profiles": {
+    "BaseBotService": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DISCORD_BOT_TOKEN": "MTA3ODMyMDk3MjI4NjkxODY4Ng.GJqn0f.dGwlRkcTRa_iXV1yabXvHktyY43j7KepiUvXyg",
+        "COMMAND_REGISTER": "0"
+      }
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "environmentVariables": {
+        "COMMAND_REGISTER": "0",
+        "DISCORD_BOT_TOKEN": "MTA3ODMyMDk3MjI4NjkxODY4Ng.GJqn0f.dGwlRkcTRa_iXV1yabXvHktyY43j7KepiUvXyg"
+      }
+    }
+  }
+}
