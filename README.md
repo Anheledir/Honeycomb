@@ -1,5 +1,7 @@
 # Honeycomb
 
+![Discord](https://img.shields.io/discord/409333951212158977?color=7289da) ![GitHub Sponsors](https://img.shields.io/github/sponsors/Anheledir) ![GitHub](https://img.shields.io/github/license/Anheledir/Honeycomb) ![GitHub contributors](https://img.shields.io/github/contributors/Anheledir/Honeycomb) ![GitHub last commit](https://img.shields.io/github/last-commit/Anheledir/Honeycomb) ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Anheledir/Honeycomb/codeql.yml?label=CodeQL) ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Anheledir/Honeycomb/main_projecthoneycomb.yml?label=Azure%20Deployment)
+
 Project Honeycomb is a Discord bot, that is meant to provide artists some useful functions:
 - creating a portfolio and showing random entries from it
 - commission price-list
@@ -15,5 +17,3 @@ Maybe there will also be some simple moderation-tools. But there are already eno
 There will be a hosted at some point, but can also be self-hosted within a Docker-Container.
 
 Right now the project is in a ramp-up phase, so a lot of basic functionalities are added to the code, creating a solid base.
-
-You can also join the projects discord-server: https://discord.gg/Ktz2EeUwfH
