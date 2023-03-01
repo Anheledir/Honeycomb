@@ -34,6 +34,20 @@ public class EnvironmentService : IEnvironmentService
                 RegisterCommands = RegisterCommandsOnStartup.NoRegistration;
                 break;
         }
+
+        string? healthPort = Environment.GetEnvironmentVariable("HEALTH_PORT");
+        if (string.IsNullOrWhiteSpace(healthPort))
+        {
+            logger.Warning("Environment variable 'HEALTH_PORT' not set, using default.");
+        }
+        if (int.TryParse(healthPort, out int port))
+        {
+            HealthPort = port;
+        }
+        else
+        {
+            logger.Warning("Environment variable 'HEALTH_PORT' has an invalid value, using default.");
+        }
     }
 
     public string DiscordBotToken { get; }
@@ -41,4 +55,6 @@ public class EnvironmentService : IEnvironmentService
     public RegisterCommandsOnStartup RegisterCommands { get; }
 
     public string EnvironmentName { get; } = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "unknown";
+
+    public int HealthPort { get; } = 8080;
 }
