@@ -41,35 +41,30 @@ public class HealthCheckService : BackgroundService
     {
         var listener = new TcpListener(IPAddress.Any, _environment.HealthPort);
         listener.Start();
-        _logger.Information($"Listening on port {_environment.HealthPort}...");
+        _logger.Information($"Listening for health-probe on port ::{_environment.HealthPort}.");
 
         while (!stoppingToken.IsCancellationRequested)
         {
             using var client = await listener.AcceptTcpClientAsync();
             _logger.Debug("Client connected");
 
-            var stream = client.GetStream();
-
-            byte[] buffer = new byte[1024];
-            int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, stoppingToken);
-            string request = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-            _logger.Debug("Received request");
-
-            string response;
-            switch (await CheckHealthAsync())
+            using (NetworkStream stream = client.GetStream())
             {
-                case HealthCheckResult.Healthy:
-                    response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nOK";
-                    break;
-                default:
-                    response = "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/plain\r\n\r\nERROR";
-                    break;
+                string response;
+                switch (await CheckHealthAsync())
+                {
+                    case HealthCheckResult.Healthy:
+                        response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nOK";
+                        break;
+                    default:
+                        response = "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/plain\r\n\r\nERROR";
+                        break;
+                }
+                byte[] responseBytes = Encoding.UTF8.GetBytes(response);
+                await stream.WriteAsync(responseBytes, stoppingToken);
+                _logger.Debug("Response sent");
             }
-
-            byte[] responseBytes = Encoding.UTF8.GetBytes(response);
-            await stream.WriteAsync(responseBytes, 0, responseBytes.Length, stoppingToken);
-
-            _logger.Debug("Response sent");
         }
+        _logger.Information($"Stopped listener for health-probe on port ::{_environment.HealthPort}");
     }
 }

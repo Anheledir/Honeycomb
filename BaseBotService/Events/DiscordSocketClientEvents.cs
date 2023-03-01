@@ -18,9 +18,8 @@ internal class DiscordSocketClientEvents
     private readonly ICommandManager _commandHelpers;
     private readonly InfoModule _infoModule;
     private readonly UsersModule _usersModule;
-    private readonly DiscordSocketClient _client;
 
-    public DiscordSocketClientEvents(ILogger logger, IAssemblyService assemblyService, IEnvironmentService environmentHelper, ICommandManager commandHelpers, InfoModule infoModule, UsersModule usersModule, DiscordSocketClient client)
+    public DiscordSocketClientEvents(ILogger logger, IAssemblyService assemblyService, IEnvironmentService environmentHelper, ICommandManager commandHelpers, InfoModule infoModule, UsersModule usersModule)
     {
         _logger = logger;
         _assemblyService = assemblyService;
@@ -28,14 +27,12 @@ internal class DiscordSocketClientEvents
         _commandHelpers = commandHelpers;
         _infoModule = infoModule;
         _usersModule = usersModule;
-        _client = client;
     }
 
-    internal async Task DisconnectedAsync(Exception arg)
+    internal Task DisconnectedAsync(Exception ex)
     {
-        _logger.Warning("Lost connection to Discord, trying to reconnect...");
-        await _client.LoginAsync(TokenType.Bot, _environmentHelper?.DiscordBotToken);
-        await _client.StartAsync();
+        _logger.Warning(ex, "Lost connection to Discord.");
+        return Task.CompletedTask;
     }
 
     /// <summary>
