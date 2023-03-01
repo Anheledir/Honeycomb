@@ -27,6 +27,7 @@ public class Program
         // Register event handlers
         _client.Log += _events.LogAsync;
         _client.Ready += _events.ReadyAsync;
+        _client.Disconnected += _events.DisconnectedAsync;
         _client.SlashCommandExecuted += _events.SlashCommandExecuted;
         _commandService.Log += _events.LogAsync;
 
