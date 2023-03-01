@@ -46,15 +46,14 @@ public class HealthCheckService : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
             using var client = await listener.AcceptTcpClientAsync();
-            _logger.Debug("Client connected!");
+            _logger.Debug("Client connected");
 
             var stream = client.GetStream();
 
             byte[] buffer = new byte[1024];
             int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, stoppingToken);
             string request = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-            _logger.Debug("Received request:");
-            _logger.Debug(request);
+            _logger.Debug("Received request");
 
             string response;
             switch (await CheckHealthAsync())
@@ -70,7 +69,7 @@ public class HealthCheckService : BackgroundService
             byte[] responseBytes = Encoding.UTF8.GetBytes(response);
             await stream.WriteAsync(responseBytes, 0, responseBytes.Length, stoppingToken);
 
-            _logger.Information("Response sent.");
+            _logger.Debug("Response sent");
         }
     }
 }
