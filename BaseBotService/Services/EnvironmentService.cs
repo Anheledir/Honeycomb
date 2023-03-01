@@ -34,19 +34,24 @@ public class EnvironmentService : IEnvironmentService
                 RegisterCommands = RegisterCommandsOnStartup.NoRegistration;
                 break;
         }
+        logger.Information($"Environment variable 'COMMAND_REGISTER' set to '{(int)RegisterCommands}' ({RegisterCommands}).");
+
+        logger.Information($"Environment variable 'ASPNETCORE_ENVIRONMENT' set to '{EnvironmentName}'.");
 
         string? healthPort = Environment.GetEnvironmentVariable("HEALTH_PORT");
         if (string.IsNullOrWhiteSpace(healthPort))
         {
             logger.Warning("Environment variable 'HEALTH_PORT' not set, using default.");
         }
-        if (int.TryParse(healthPort, out int port))
+        else if (int.TryParse(healthPort, out int port))
         {
+            logger.Information($"Environment variable 'HEALTH_PORT' set to '{port}'.");
             HealthPort = port;
         }
         else
         {
             logger.Warning("Environment variable 'HEALTH_PORT' has an invalid value, using default.");
+
         }
     }
 
