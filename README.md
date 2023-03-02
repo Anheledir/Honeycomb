@@ -1,6 +1,13 @@
 # Project Honeycomb 🐝
 
-![Discord](https://img.shields.io/discord/409333951212158977?color=7289da) ![GitHub Sponsors](https://img.shields.io/github/sponsors/Anheledir) ![GitHub](https://img.shields.io/github/license/Anheledir/Honeycomb) ![GitHub contributors](https://img.shields.io/github/contributors/Anheledir/Honeycomb) ![GitHub last commit](https://img.shields.io/github/last-commit/Anheledir/Honeycomb) ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Anheledir/Honeycomb/codeql.yml?label=CodeQL) ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Anheledir/Honeycomb/main_projecthoneycomb.yml?label=Azure%20Deployment)
+[![Discord](https://img.shields.io/discord/409333951212158977?color=7289da)](https://discord.gg/NQP7NA7RDG)
+[![GitHub Sponsors](https://img.shields.io/github/sponsors/Anheledir)](https://github.com/sponsors/Anheledir)
+[![GitHub](https://img.shields.io/github/license/Anheledir/Honeycomb)](https://github.com/Anheledir/Honeycomb/blob/main/LICENSE)
+[![GitHub contributors](https://img.shields.io/github/contributors/Anheledir/Honeycomb)](https://github.com/Anheledir/Honeycomb/graphs/contributors)
+[![GitHub last commit](https://img.shields.io/github/last-commit/Anheledir/Honeycomb)](https://github.com/Anheledir/Honeycomb/commits/main)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Anheledir/Honeycomb/codeql.yml?label=CodeQL)](https://github.com/Anheledir/Honeycomb/actions/workflows/codeql.yml)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Anheledir/Honeycomb/main_projecthoneycomb.yml?label=Azure%20Deployment)](https://github.com/Anheledir/Honeycomb/actions/workflows/main_projecthoneycomb.yml)
+
 
 Project Honeycomb is a Discord bot designed to provide artists with some useful functions to enhance their experience on Discord. With its features, artists can create a portfolio, display random entries from it, manage a commission price list, and keep track of their commission queue.
 
