@@ -14,6 +14,9 @@ internal class InfoModule
         _assemblyService = assemblyService;
         _environmentService = environmentService;
     }
+    /// <summary>
+    /// Returns the basic information of the bot.
+    /// </summary>
     internal async Task InfoCommandAsync(SocketSlashCommand cmd)
     {
         // Create embedded message with bot information
