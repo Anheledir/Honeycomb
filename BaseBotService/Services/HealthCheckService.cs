@@ -9,7 +9,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-namespace BaseBotService.Helpers;
+namespace BaseBotService.Services;
 public class HealthCheckService : BackgroundService
 {
     private readonly ILogger _logger;
@@ -18,6 +18,8 @@ public class HealthCheckService : BackgroundService
 
     public HealthCheckService()
     {
+        // Not using the regular DI here, as of using the AddHostedService of the IServiceCollection in program.cs
+        // Maybe this can be refactored to you our ServiceProvider instead via ctor?
         _logger = Program.ServiceProvider.GetRequiredService<ILogger>();
         _client = Program.ServiceProvider.GetRequiredService<DiscordSocketClient>();
         _environment = Program.ServiceProvider.GetRequiredService<IEnvironmentService>();

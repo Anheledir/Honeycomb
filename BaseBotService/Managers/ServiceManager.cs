@@ -9,9 +9,9 @@ using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 
-namespace BaseBotService.Helpers;
+namespace BaseBotService.Managers;
 
-public static class Services
+public static class ServiceManager
 {
 
     public static IServiceProvider RegisterServices()
@@ -44,13 +44,16 @@ public static class Services
             .AddSingleton<CommandService>()
             .AddSingleton<InteractionService>()
 
-        // misc services
+        // event services
             .AddSingleton<DiscordSocketClientEvents>()
+
+        // misc services
+            .AddSingleton<HealthCheckService>()
             .AddSingleton<ICommandManager, CommandManager>()
             .AddSingleton<IAssemblyService, AssemblyService>()
             .AddSingleton<IEnvironmentService, EnvironmentService>()
 
-        // modules
+        // command modules
             .AddSingleton<InfoModule>()
             .AddSingleton<UsersModule>();
 

@@ -1,18 +1,18 @@
 ﻿using BaseBotService.Events;
-using BaseBotService.Helpers;
+using BaseBotService.Managers;
 using BaseBotService.Interfaces;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using BaseBotService.Services;
 
 namespace Honeycomb;
 
 public class Program
 {
-
-    public static IServiceProvider ServiceProvider { get; } = Services.RegisterServices();
+    public static IServiceProvider ServiceProvider { get; } = ServiceManager.RegisterServices();
 
     static void Main(string[] args) => new Program().RunAsync().GetAwaiter().GetResult();
 
