@@ -1,5 +1,4 @@
 ﻿using BaseBotService.Enumeration;
-using Serilog;
 
 namespace BaseBotService.Interfaces
 {
@@ -10,5 +9,9 @@ namespace BaseBotService.Interfaces
         string EnvironmentName { get; }
         int HealthPort { get; }
         string DatabaseFile { get; }
+        bool UseAzureStorage { get; }
+        string? AzureStorageAccount { get; }
+        string? AzureStorageKey { get; }
+        string? AzureStorageContainer { get; }
     }
 }

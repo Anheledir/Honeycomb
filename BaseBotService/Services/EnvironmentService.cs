@@ -1,5 +1,6 @@
 ﻿using BaseBotService.Enumeration;
 using BaseBotService.Exceptions;
+using BaseBotService.Extensions;
 using BaseBotService.Interfaces;
 using Serilog;
 
@@ -20,6 +21,7 @@ public class EnvironmentService : IEnvironmentService
             throw new EnvironmentException(EnvironmentSetting.DiscordBotToken, "Token was null or empty.");
         }
         DiscordBotToken = token;
+        _logger.Information($"Environment variable 'DISCORD_BOT_TOKEN' set to '{DiscordBotToken.MaskToken()}.'");
 
         string? cmdReg = Environment.GetEnvironmentVariable("COMMAND_REGISTER");
         if (string.IsNullOrWhiteSpace(cmdReg))
@@ -66,6 +68,13 @@ public class EnvironmentService : IEnvironmentService
             DatabaseFile = dbPath;
         }
 
+        if (UseAzureStorage)
+        {
+            _logger.Information($"Environment variable 'STORAGE_ACCOUNT_NAME' set to '{AzureStorageAccount}'.");
+            _logger.Information($"Environment variable 'STORAGE_ACCOUNT_KEY' set to '{AzureStorageKey!.MaskToken()}'.");
+            _logger.Information($"Environment variable 'STORAGE_ACCOUNT_CONTAINER' set to '{AzureStorageContainer}'.");
+        }
+
         // logging the remaining values
         _logger.Information($"Environment variable 'ASPNETCORE_ENVIRONMENT' set to '{EnvironmentName}'.");
     }
@@ -79,4 +88,12 @@ public class EnvironmentService : IEnvironmentService
     public int HealthPort { get; } = 8080;
 
     public string DatabaseFile { get; } = "honeycomb.db";
+
+    public bool UseAzureStorage => !string.IsNullOrWhiteSpace(AzureStorageKey) && !string.IsNullOrWhiteSpace(AzureStorageAccount) && !string.IsNullOrWhiteSpace(AzureStorageContainer);
+
+    public string? AzureStorageAccount { get; } = Environment.GetEnvironmentVariable("STORAGE_ACCOUNT_NAME");
+
+    public string? AzureStorageKey { get; } = Environment.GetEnvironmentVariable("STORAGE_ACCOUNT_KEY");
+
+    public string? AzureStorageContainer { get; } = Environment.GetEnvironmentVariable("STORAGE_ACCOUNT_CONTAINER");
 }

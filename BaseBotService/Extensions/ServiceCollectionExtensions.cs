@@ -1,40 +1,37 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using Serilog.Events;
 
 namespace BaseBotService.Extensions;
 
 internal static class ServiceCollectionExtensions
 {
 
-    public static IServiceCollection AddSerilogServices(this IServiceCollection services, LoggerConfiguration configuration)
+    public static IServiceCollection AddSerilogServices(this IServiceCollection services)
     {
-        switch (Environment.GetEnvironmentVariable("LOGLEVEL"))
+        var loggerConfig = new LoggerConfiguration()
+            .Enrich.FromLogContext()
+            .WriteTo.Console();
+
+        if (Enum.TryParse<LogEventLevel>(Environment.GetEnvironmentVariable("LOGLEVEL"), true, out var logLevel))
         {
-            case "information":
-            case "info":
-                configuration.MinimumLevel.Information();
-                break;
-            case "debug":
-                configuration.MinimumLevel.Debug();
-                break;
-            case "verbose":
-                configuration.MinimumLevel.Verbose();
-                break;
-            case "warning":
-                configuration.MinimumLevel.Warning();
-                break;
-            case "error":
-                configuration.MinimumLevel.Error();
-                break;
-            case "fatal":
-                configuration.MinimumLevel.Fatal();
-                break;
-            default:
-                configuration.MinimumLevel.Information();
-                break;
+            loggerConfig.MinimumLevel.Is(logLevel);
+        }
+        else
+        {
+            loggerConfig.MinimumLevel.Information();
         }
 
-        Log.Logger = configuration.CreateLogger();
+        loggerConfig.Destructure.ByTransforming<LogEvent>(logEvent =>
+        {
+            if (logEvent.Properties.TryGetValue("token", out var tokenValue) && tokenValue is ScalarValue token)
+            {
+                return new LogEventProperty("token", new ScalarValue(token.Value.ToString()!.MaskToken()));
+            }
+            return logEvent;
+        });
+
+        Log.Logger = loggerConfig.CreateLogger();
         return services.AddSingleton(Log.Logger);
     }
 }
