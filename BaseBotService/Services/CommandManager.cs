@@ -33,11 +33,11 @@ public class CommandManager : ICommandManager
             new SlashCommandBuilder()
                 .WithName("user-info")
                 .WithDescription("Returns info about the current user, or the user parameter, if one is passed.")
-                .AddOption("user", ApplicationCommandOptionType.User, "The users who's information you want to see", isRequired: false),
+                .AddOption("user", ApplicationCommandOptionType.User, "The users who's information you want to see.", isRequired: false),
             new SlashCommandBuilder()
                 .WithName("user-roles")
                 .WithDescription("Lists all roles of a user.")
-                .AddOption("user", ApplicationCommandOptionType.User, "The users who's roles you want to be listed", isRequired: false),
+                .AddOption("user", ApplicationCommandOptionType.User, "The users who's roles you want to be listed.", isRequired: false),
         };
 
         try

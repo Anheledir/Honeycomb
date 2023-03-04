@@ -1,6 +1,7 @@
 ﻿using BaseBotService.Events;
-using BaseBotService.Helpers;
 using BaseBotService.Interfaces;
+using BaseBotService.Managers;
+using BaseBotService.Services;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -11,8 +12,7 @@ namespace Honeycomb;
 
 public class Program
 {
-
-    public static IServiceProvider ServiceProvider { get; } = Services.RegisterServices();
+    public static IServiceProvider ServiceProvider { get; } = ServiceManager.RegisterServices();
 
     static void Main(string[] args) => new Program().RunAsync().GetAwaiter().GetResult();
 
@@ -23,6 +23,7 @@ public class Program
         var _commandService = ServiceProvider.GetRequiredService<CommandService>();
         var _environment = ServiceProvider.GetRequiredService<IEnvironmentService>();
         var _events = ServiceProvider.GetRequiredService<DiscordSocketClientEvents>();
+        var _db = ServiceProvider.GetRequiredService<IPersistenceService>();
 
         // Register event handlers
         _client.Log += _events.LogAsync;

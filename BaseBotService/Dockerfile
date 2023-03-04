@@ -17,4 +17,4 @@ RUN dotnet publish "BaseBotService.csproj" -c Release -o /app/publish /p:UseAppH
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "BaseBotService.dll"]
+ENTRYPOINT ["dotnet", "Honeycomb.dll"]

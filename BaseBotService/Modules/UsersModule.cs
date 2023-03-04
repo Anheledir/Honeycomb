@@ -1,10 +1,15 @@
 ﻿using Discord;
+using Discord.Interactions;
 using Discord.WebSocket;
 
 namespace BaseBotService.Modules;
 
 internal class UsersModule
 {
+    /// <summary>
+    /// Returns info about the current user, or the user parameter, if one is passed.
+    /// </summary>
+    /// <param name="user" isRequired="false">The users who's information you want to see.</param>
     internal async Task UserinfoCommandAsync(SocketSlashCommand cmd)
     {
         IUser userInfo = cmd.Data.Options.FirstOrDefault()?.Value as IUser ?? cmd.User;
@@ -35,17 +40,24 @@ internal class UsersModule
         await cmd.RespondAsync(embed: msg.Build());
     }
 
+    /// <summary>
+    /// Lists all roles of a user.
+    /// </summary>
+    /// <param name="user" isRequired="false">The users who's roles you want to be listed.</param>
     internal async Task ListRoleCommandAsync(SocketSlashCommand cmd)
     {
-        // extract the user parameter from the command
-        // since we only have one option and it's required, we can just use the first option
-        SocketGuildUser? guildUser = cmd.Data.Options.FirstOrDefault()?.Value as SocketGuildUser ?? cmd.User as SocketGuildUser;
+        SocketGuildUser? listUser = cmd.Data.Options.SingleOrDefault(o => o.Name.Equals("user", StringComparison.InvariantCultureIgnoreCase))?.Value as SocketGuildUser ?? cmd.User as SocketGuildUser;
+        if (listUser == null)
+        {
+            await cmd.RespondAsync("This command does not work in DMs.", ephemeral: true);
+            return;
+        }
 
-        var roleList = string.Join(",\n", guildUser.Roles.Where(x => !x.IsEveryone).Select(x => x.Mention));
+        string roleList = string.Join(",\n", listUser.Roles.Where(x => !x.IsEveryone).Select(x => x.Mention));
 
         var response = new EmbedBuilder()
-            .WithAuthor(guildUser.ToString(), guildUser.GetAvatarUrl() ?? guildUser.GetDefaultAvatarUrl())
-            .WithTitle("Roles")
+            .WithAuthor(listUser.ToString(), listUser.GetAvatarUrl() ?? listUser.GetDefaultAvatarUrl())
+            .WithTitle($"Roles in {listUser.Guild.Name}")
             .WithDescription(roleList)
             .WithColor(Color.Green)
             .WithCurrentTimestamp();

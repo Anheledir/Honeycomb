@@ -7,21 +7,14 @@ using Discord.Commands;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
-using Serilog;
 
-namespace BaseBotService.Helpers;
+namespace BaseBotService.Managers;
 
-public static class Services
+public static class ServiceManager
 {
 
     public static IServiceProvider RegisterServices()
     {
-        // Create our Serilog configuration
-        var loggerConfig = new LoggerConfiguration()
-            .MinimumLevel.Debug()
-            .Enrich.FromLogContext()
-            .WriteTo.Console();
-
         var config = new DiscordSocketConfig()
         {
             LogGatewayIntentWarnings = false
@@ -34,8 +27,11 @@ public static class Services
 
         var services = new ServiceCollection()
 
-        // logging
-            .AddSerilogServices(loggerConfig)
+        // log service
+            .AddSerilogServices()
+
+        // persistence services
+            .AddSingleton<IPersistenceService, PersistenceService>()
 
         // discord services
             .AddSingleton(config)
@@ -44,13 +40,16 @@ public static class Services
             .AddSingleton<CommandService>()
             .AddSingleton<InteractionService>()
 
-        // misc services
+        // event services
             .AddSingleton<DiscordSocketClientEvents>()
+
+        // misc services
+            .AddSingleton<HealthCheckService>()
             .AddSingleton<ICommandManager, CommandManager>()
             .AddSingleton<IAssemblyService, AssemblyService>()
             .AddSingleton<IEnvironmentService, EnvironmentService>()
 
-        // modules
+        // command modules
             .AddSingleton<InfoModule>()
             .AddSingleton<UsersModule>();
 
