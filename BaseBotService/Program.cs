@@ -1,12 +1,12 @@
 ﻿using BaseBotService.Events;
-using BaseBotService.Managers;
 using BaseBotService.Interfaces;
+using BaseBotService.Managers;
+using BaseBotService.Services;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using BaseBotService.Services;
 
 namespace Honeycomb;
 
@@ -30,6 +30,9 @@ public class Program
         _client.Disconnected += _events.DisconnectedAsync;
         _client.SlashCommandExecuted += _events.SlashCommandExecuted;
         _commandService.Log += _events.LogAsync;
+
+        // Set log level from configuration
+
 
         // Connect to Discord API
         await _client.LoginAsync(TokenType.Bot, _environment?.DiscordBotToken);

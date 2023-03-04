@@ -1,4 +1,5 @@
 ﻿using BaseBotService.Enumeration;
+using Serilog;
 
 namespace BaseBotService.Interfaces
 {
@@ -8,5 +9,6 @@ namespace BaseBotService.Interfaces
         RegisterCommandsOnStartup RegisterCommands { get; }
         string EnvironmentName { get; }
         int HealthPort { get; }
+        string DatabaseFile { get; }
     }
 }

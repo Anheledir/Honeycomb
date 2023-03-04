@@ -18,7 +18,6 @@ public static class ServiceManager
     {
         // Create our Serilog configuration
         var loggerConfig = new LoggerConfiguration()
-            .MinimumLevel.Debug()
             .Enrich.FromLogContext()
             .WriteTo.Console();
 
