@@ -23,6 +23,7 @@ public class Program
         var _commandService = ServiceProvider.GetRequiredService<CommandService>();
         var _environment = ServiceProvider.GetRequiredService<IEnvironmentService>();
         var _events = ServiceProvider.GetRequiredService<DiscordSocketClientEvents>();
+        var _db = ServiceProvider.GetRequiredService<IPersistenceService>();
 
         // Register event handlers
         _client.Log += _events.LogAsync;
@@ -30,9 +31,6 @@ public class Program
         _client.Disconnected += _events.DisconnectedAsync;
         _client.SlashCommandExecuted += _events.SlashCommandExecuted;
         _commandService.Log += _events.LogAsync;
-
-        // Set log level from configuration
-
 
         // Connect to Discord API
         await _client.LoginAsync(TokenType.Bot, _environment?.DiscordBotToken);

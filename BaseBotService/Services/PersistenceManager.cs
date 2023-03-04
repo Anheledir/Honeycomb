@@ -13,16 +13,20 @@ public class PersistenceService : IPersistenceService
 
     public PersistenceService(ILogger logger, IEnvironmentService environment)
     {
+        _logger = logger;
         string connectionString = $"Filename={environment.DatabaseFile};";
 
         if (environment.UseAzureStorage)
         {
             connectionString += $"Mode=azure;AccountName={environment.AzureStorageAccount};AccountKey={environment.AzureStorageKey};Container={environment.AzureStorageContainer};";
+            _logger.Information($"LiteDB connection string: {connectionString.Replace(environment.AzureStorageKey!, environment.AzureStorageKey!.MaskToken())}");
+        }
+        else
+        {
+            _logger.Information($"LiteDB connection string: {connectionString}");
         }
 
-        _logger.Information($"LiteDB connection string: {connectionString.Replace(environment.AzureStorageKey!, environment.AzureStorageKey!.MaskToken())}");
         _database = new LiteDatabase(connectionString);
-        _logger = logger;
     }
 
     public ILiteCollection<T> GetCollection<T>()
