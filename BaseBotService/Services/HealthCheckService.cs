@@ -27,7 +27,7 @@ public class HealthCheckService : BackgroundService
 
     public Task<HealthCheckResult> CheckHealthAsync()
     {
-        _logger.Information($"Checking health of Discord client: {_client.ConnectionState}");
+        _logger.Debug($"Checking health of Discord client: {_client.ConnectionState}");
         switch (_client.ConnectionState)
         {
             case Discord.ConnectionState.Connected:
