@@ -16,8 +16,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
-
+          fetch-depth: 0 # avoid shallow clone to calculate semVer
+          
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v1
         with:
@@ -55,5 +55,5 @@ jobs:
         with:
           app-name: 'ProjectHoneycomb'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_B7FD0DE155DB4B65881EE2E1F43C9264 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_5B6644ABC5B64C489A4E08567AC939ED }}
           package: .

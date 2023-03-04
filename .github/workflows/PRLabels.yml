@@ -26,18 +26,15 @@ jobs:
                 labels: ['bug']
               - type: 'feature'
                 nouns: ['FEATURE', 'Feature', 'feature', 'FEAT', 'Feat', 'feat']
-                labels: ['feature']
+                labels: ['enhancement']
               - type: 'breaking_change'
                 nouns: ['BREAKING CHANGE', 'BREAKING', 'MAJOR']
-                labels: ['BREAKING CHANGE']
+                labels: ['breaking change']
               - type: 'documentation'
                 nouns: ['doc','docu','document','documentation']
                 labels: ['documentation']
               - type: 'build'
                 nouns: ['build','rebuild','ci']
                 labels: ['build']
-              - type: 'config'
-                nouns: ['config', 'conf', 'cofiguration', 'configure']
-                labels: ['config']
           maintain-labels-not-matched: false
           apply-changes: true
