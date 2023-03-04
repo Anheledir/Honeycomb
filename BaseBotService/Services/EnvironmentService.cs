@@ -1,5 +1,4 @@
 ﻿using BaseBotService.Enumeration;
-using BaseBotService.Exceptions;
 using BaseBotService.Extensions;
 using BaseBotService.Interfaces;
 using Serilog;
@@ -18,7 +17,7 @@ public class EnvironmentService : IEnvironmentService
         if (string.IsNullOrWhiteSpace(token))
         {
             _logger.Fatal("Environment variable 'DISCORD_BOT_TOKEN' not set.");
-            throw new EnvironmentException(EnvironmentSetting.DiscordBotToken, "Token was null or empty.");
+            throw new ArgumentException("Environment variable 'DISCORD_BOT_TOKEN' not set.");
         }
         DiscordBotToken = token;
         _logger.Information($"Environment variable 'DISCORD_BOT_TOKEN' set to '{DiscordBotToken.MaskToken()}.'");

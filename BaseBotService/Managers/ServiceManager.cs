@@ -27,8 +27,11 @@ public static class ServiceManager
 
         var services = new ServiceCollection()
 
-        // logging
+        // log service
             .AddSerilogServices()
+
+        // persistence services
+            .AddSingleton<IPersistenceService, PersistenceService>()
 
         // discord services
             .AddSingleton(config)
