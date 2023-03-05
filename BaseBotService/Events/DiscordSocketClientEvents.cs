@@ -16,15 +16,17 @@ internal class DiscordSocketClientEvents
     private readonly IAssemblyService _assemblyService;
     private readonly IEnvironmentService _environmentHelper;
     private readonly ICommandManager _commandHelpers;
+    private readonly IActivityPointsService _activityPoints;
     private readonly InfoModule _infoModule;
     private readonly UsersModule _usersModule;
 
-    public DiscordSocketClientEvents(ILogger logger, IAssemblyService assemblyService, IEnvironmentService environmentHelper, ICommandManager commandHelpers, InfoModule infoModule, UsersModule usersModule)
+    public DiscordSocketClientEvents(ILogger logger, IAssemblyService assemblyService, IEnvironmentService environmentHelper, ICommandManager commandHelpers, IActivityPointsService activityPoints, InfoModule infoModule, UsersModule usersModule)
     {
         _logger = logger;
         _assemblyService = assemblyService;
         _environmentHelper = environmentHelper;
         _commandHelpers = commandHelpers;
+        _activityPoints = activityPoints;
         _infoModule = infoModule;
         _usersModule = usersModule;
     }
@@ -48,6 +50,16 @@ internal class DiscordSocketClientEvents
         }
 
         _logger.Write(logMessage.GetSerilogSeverity(), logMessage.Exception, "[{Source}] {Message}", logMessage.Source, logMessage.Message);
+        return Task.CompletedTask;
+    }
+
+    internal Task MessageReceived(SocketMessage arg)
+    {
+        IGuildUser? usr = arg.Author as IGuildUser;
+        if (usr?.IsBot == true && usr.IsWebhook && (usr?.IsPending ?? false))
+        {
+            return _activityPoints.AddActivityTick(usr);
+        }
         return Task.CompletedTask;
     }
 

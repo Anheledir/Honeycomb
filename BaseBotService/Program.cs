@@ -22,15 +22,18 @@ public class Program
         var _client = ServiceProvider.GetRequiredService<DiscordSocketClient>();
         var _commandService = ServiceProvider.GetRequiredService<CommandService>();
         var _environment = ServiceProvider.GetRequiredService<IEnvironmentService>();
-        var _events = ServiceProvider.GetRequiredService<DiscordSocketClientEvents>();
+        var _clientEvents = ServiceProvider.GetRequiredService<DiscordSocketClientEvents>();
         var _db = ServiceProvider.GetRequiredService<IPersistenceService>();
 
+        // Register logging events
+        _client.Log += _clientEvents.LogAsync;
+        _commandService.Log += _clientEvents.LogAsync;
+
         // Register event handlers
-        _client.Log += _events.LogAsync;
-        _client.Ready += _events.ReadyAsync;
-        _client.Disconnected += _events.DisconnectedAsync;
-        _client.SlashCommandExecuted += _events.SlashCommandExecuted;
-        _commandService.Log += _events.LogAsync;
+        _client.Ready += _clientEvents.ReadyAsync;
+        _client.Disconnected += _clientEvents.DisconnectedAsync;
+        _client.SlashCommandExecuted += _clientEvents.SlashCommandExecuted;
+        _client.MessageReceived += _clientEvents.MessageReceived;
 
         // Connect to Discord API
         await _client.LoginAsync(TokenType.Bot, _environment?.DiscordBotToken);

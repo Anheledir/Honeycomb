@@ -5,7 +5,7 @@ using Discord.WebSocket;
 using Newtonsoft.Json;
 using Serilog;
 
-namespace BaseBotService.Services;
+namespace BaseBotService.Managers;
 
 public class CommandManager : ICommandManager
 {

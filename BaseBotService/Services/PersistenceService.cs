@@ -1,5 +1,4 @@
-﻿using BaseBotService.Extensions;
-using BaseBotService.Interfaces;
+﻿using BaseBotService.Interfaces;
 using LiteDB;
 using Serilog;
 
@@ -9,25 +8,24 @@ public class PersistenceService : IPersistenceService
 {
     private readonly LiteDatabase _database;
     private readonly ILogger _logger;
+    private readonly Timer _timer;
+    private readonly object _lock = new object();
     private bool disposedValue;
 
     public PersistenceService(ILogger logger, IEnvironmentService environment)
     {
         _logger = logger;
+
         string connectionString = $"Filename={environment.DatabaseFile};";
-
-        if (environment.UseAzureStorage)
-        {
-            connectionString += $"Mode=azure;AccountName={environment.AzureStorageAccount};AccountKey={environment.AzureStorageKey};Container={environment.AzureStorageContainer};";
-            _logger.Information($"LiteDB connection string: {connectionString.Replace(environment.AzureStorageKey!, environment.AzureStorageKey!.MaskToken())}");
-        }
-        else
-        {
-            _logger.Information($"LiteDB connection string: {connectionString}");
-        }
-
+        _logger.Information($"LiteDB connection string: {connectionString}");
         _database = new LiteDatabase(connectionString);
+
+        // Set up the timer to trigger every minute
+        _timer = new Timer(HandleAutoSaveTimer);
+        _timer.Change(TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
     }
+
+    private void HandleAutoSaveTimer(object? state) => Commit();
 
     public ILiteCollection<T> GetCollection<T>()
     {
@@ -35,10 +33,13 @@ public class PersistenceService : IPersistenceService
         return _database.GetCollection<T>();
     }
 
-    public void Commit()
+    private void Commit()
     {
-        _logger.Information("Commit transaction.");
-        _database.Commit();
+        lock (_lock)
+        {
+            _logger.Debug("Commit transaction to database file.");
+            _database.Commit();
+        }
     }
 
     protected virtual void Dispose(bool disposing)
@@ -47,6 +48,7 @@ public class PersistenceService : IPersistenceService
         {
             if (disposing)
             {
+                _timer.Dispose();
                 _database.Dispose();
             }
 
