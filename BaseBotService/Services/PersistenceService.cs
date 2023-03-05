@@ -29,7 +29,7 @@ public class PersistenceService : IPersistenceService
 
     public ILiteCollection<T> GetCollection<T>()
     {
-        _logger.Debug($"GetCollection<{nameof(T)}>()");
+        _logger.Debug($"GetCollection<{typeof(T)}>()");
         return _database.GetCollection<T>();
     }
 
