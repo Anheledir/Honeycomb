@@ -1,6 +1,5 @@
 ﻿using BaseBotService.Interfaces;
 using BaseBotService.Models;
-using Discord;
 using LiteDB;
 using Serilog;
 
@@ -17,16 +16,16 @@ public class ActivityPointsService : IActivityPointsService
         _guildMembers = guildMembers;
     }
 
-    public Task AddActivityTick(IGuildUser user)
+    public Task AddActivityTick(ulong guildId, ulong userId)
     {
         try
         {
-            GuildMemberHC usr = _guildMembers.FindOne(a => a.GuildId == user.GuildId && a.MemberId == user.Id);
+            GuildMemberHC usr = _guildMembers.FindOne(a => a.GuildId == guildId && a.MemberId == userId);
             if (usr == null)
             {
                 // First time seeing this user in this guild
-                _guildMembers.Insert(new GuildMemberHC { MemberId = user.Id, GuildId = user.GuildId, ActivityPoints = 1, LastActive = DateTime.UtcNow, LastActivityPoint = DateTime.UtcNow });
-                _logger.Debug($"First activity tick for '{user.DisplayName}' ({user.Id}) in '{user.Guild.Name}' ({user.GuildId}).");
+                _logger.Information($"First time seeing user '{userId}' in '{guildId}'.");
+                _guildMembers.Insert(new GuildMemberHC { MemberId = userId, GuildId = guildId, ActivityPoints = 1, LastActive = DateTime.UtcNow, LastActivityPoint = DateTime.UtcNow });
             }
             else
             {
@@ -34,19 +33,24 @@ public class ActivityPointsService : IActivityPointsService
 
                 if (usr.LastActivityPoint.Add(ActivityPointInterval) < DateTime.UtcNow)
                 {
+                    _logger.Information($"Adding activity tick to user '{userId}' in '{guildId}'.");
                     usr.ActivityPoints++;
                     usr.LastActivityPoint = DateTime.UtcNow;
                 }
 
                 _guildMembers.Update(usr);
-
-                _logger.Debug($"Activity Tick for '{user.DisplayName}' ({user.Id}) in '{user.Guild.Name}' ({user.GuildId}), total points '{usr.ActivityPoints}'.");
             }
+            return Task.CompletedTask;
+        }
+        catch (InvalidCastException ex)
+        {
+            // There was a casting error, probably because of some deprecated data
+            _logger.Error(ex, $"Error happened in collection '{typeof(GuildMemberHC)}' for '{userId}' in '{guildId}'.");
             return Task.CompletedTask;
         }
         catch (Exception ex)
         {
-            _logger.Error(ex, $"Error adding activity tick for '{user.DisplayName}' ({user.Id}) in '{user.Guild.Name}' ({user.GuildId}).");
+            _logger.Error(ex, $"Error adding activity tick for '{userId}' in '{guildId}'.");
             throw;
         }
     }

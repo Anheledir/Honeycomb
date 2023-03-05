@@ -53,13 +53,23 @@ internal class DiscordSocketClientEvents
         return Task.CompletedTask;
     }
 
-    internal Task MessageReceived(SocketMessage arg)
+    internal Task MessageReceived(SocketMessage message)
     {
-        IGuildUser? usr = arg.Author as IGuildUser;
-        if (usr?.IsBot == true && usr.IsWebhook && (usr?.IsPending ?? false))
+        if (message.Channel is IDMChannel)
         {
-            return _activityPoints.AddActivityTick(usr);
+            _logger.Debug($"DM from [{message.Author.Username}#{message.Author.Discriminator}]");
+            return Task.CompletedTask;
         }
+
+        if (message.Author.IsBot || message.Author.IsWebhook)
+        {
+            _logger.Debug($"Message from [{message.Author.Username}#{message.Author.Discriminator}]: isBot = {message.Author.IsBot}, isWebhook = {message.Author.IsWebhook}");
+            return Task.CompletedTask;
+        }
+
+        ulong userId = message.Author.Id;
+        ulong guildId = message.Channel is IGuildChannel guildChannel ? guildChannel.GuildId : 0;
+        _ = _activityPoints.AddActivityTick(guildId, userId);
         return Task.CompletedTask;
     }
 
