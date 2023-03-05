@@ -23,7 +23,6 @@ public class Program
         var _commandService = ServiceProvider.GetRequiredService<CommandService>();
         var _environment = ServiceProvider.GetRequiredService<IEnvironmentService>();
         var _clientEvents = ServiceProvider.GetRequiredService<DiscordSocketClientEvents>();
-        var _db = ServiceProvider.GetRequiredService<IPersistenceService>();
 
         // Register logging events
         _client.Log += _clientEvents.LogAsync;

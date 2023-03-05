@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BaseBotService.Models;
 
-public class HCModelBase
+public abstract class HCModelBase
 {
     public static ILiteCollection<T> GetServiceRegistration<T>(IServiceProvider services)
     {
