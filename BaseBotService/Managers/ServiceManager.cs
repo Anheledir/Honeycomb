@@ -1,6 +1,7 @@
 ﻿using BaseBotService.Events;
 using BaseBotService.Extensions;
 using BaseBotService.Interfaces;
+using BaseBotService.Models;
 using BaseBotService.Modules;
 using BaseBotService.Services;
 using Discord.Commands;
@@ -30,9 +31,6 @@ public static class ServiceManager
         // log service
             .AddSerilogServices()
 
-        // persistence services
-            .AddSingleton<IPersistenceService, PersistenceService>()
-
         // discord services
             .AddSingleton(config)
             .AddSingleton<DiscordSocketClient>()
@@ -48,10 +46,16 @@ public static class ServiceManager
             .AddSingleton<ICommandManager, CommandManager>()
             .AddSingleton<IAssemblyService, AssemblyService>()
             .AddSingleton<IEnvironmentService, EnvironmentService>()
+            .AddScoped<IActivityPointsService, ActivityPointsService>()
 
-        // command modules
+            // command modules
             .AddSingleton<InfoModule>()
-            .AddSingleton<UsersModule>();
+            .AddSingleton<UsersModule>()
+
+        // persistence services
+            .AddSingleton<IPersistenceService, PersistenceService>()
+            .AddScoped(MemberHC.GetServiceRegistration)
+            .AddScoped(GuildMemberHC.GetServiceRegistration);
 
         return services.BuildServiceProvider();
     }
