@@ -15,12 +15,12 @@ internal class DiscordSocketClientEvents
     private readonly ILogger _logger;
     private readonly IAssemblyService _assemblyService;
     private readonly IEnvironmentService _environmentHelper;
-    private readonly ICommandManager _commandHelpers;
+    private readonly IHcCommandService _commandHelpers;
     private readonly IActivityPointsService _activityPoints;
     private readonly InfoModule _infoModule;
     private readonly UsersModule _usersModule;
 
-    public DiscordSocketClientEvents(ILogger logger, IAssemblyService assemblyService, IEnvironmentService environmentHelper, ICommandManager commandHelpers, IActivityPointsService activityPoints, InfoModule infoModule, UsersModule usersModule)
+    public DiscordSocketClientEvents(ILogger logger, IAssemblyService assemblyService, IEnvironmentService environmentHelper, IHcCommandService commandHelpers, IActivityPointsService activityPoints, InfoModule infoModule, UsersModule usersModule)
     {
         _logger = logger;
         _assemblyService = assemblyService;
@@ -57,7 +57,7 @@ internal class DiscordSocketClientEvents
     {
         if (message.Channel is IDMChannel)
         {
-            _logger.Debug($"DM from [{message.Author.Username}#{message.Author.Discriminator}]");
+            _logger.Debug($"DM from [{message.Author.Username}#{message.Author.Discriminator}]: {message.CleanContent}");
             return Task.CompletedTask;
         }
 
@@ -69,9 +69,14 @@ internal class DiscordSocketClientEvents
 
         ulong userId = message.Author.Id;
         ulong guildId = message.Channel is IGuildChannel guildChannel ? guildChannel.GuildId : 0;
-        _ = _activityPoints.AddActivityTick(guildId, userId);
+        _logger.Debug($"Guild ID: {guildId}, User ID: {userId}");
+        if (guildId > 0)
+        {
+            _ = _activityPoints.AddActivityTick(guildId, userId);
+        }
         return Task.CompletedTask;
     }
+
 
     /// <summary>
     /// This method is executes when the bot finished startup, loaded all guilds and finished login.

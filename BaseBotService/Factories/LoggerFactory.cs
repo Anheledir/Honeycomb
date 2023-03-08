@@ -1,13 +1,13 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using BaseBotService.Extensions;
 using Serilog;
 using Serilog.Events;
 
-namespace BaseBotService.Extensions;
+namespace BaseBotService.Factories;
 
-internal static class ServiceCollectionExtensions
+public static class LoggerFactory
 {
 
-    public static IServiceCollection AddSerilogServices(this IServiceCollection services)
+    public static ILogger CreateLogger()
     {
         var loggerConfig = new LoggerConfiguration()
             .Enrich.FromLogContext()
@@ -32,6 +32,7 @@ internal static class ServiceCollectionExtensions
         });
 
         Log.Logger = loggerConfig.CreateLogger();
-        return services.AddSingleton(Log.Logger);
+
+        return Log.Logger;
     }
 }

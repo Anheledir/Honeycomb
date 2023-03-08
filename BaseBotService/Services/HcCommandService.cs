@@ -5,14 +5,14 @@ using Discord.WebSocket;
 using Newtonsoft.Json;
 using Serilog;
 
-namespace BaseBotService.Managers;
+namespace BaseBotService.Services;
 
-public class CommandManager : ICommandManager
+public class HcCommandService : IHcCommandService
 {
     private readonly ILogger _logger;
     private readonly DiscordSocketClient _client;
 
-    public CommandManager(ILogger logger, DiscordSocketClient client)
+    public HcCommandService(ILogger logger, DiscordSocketClient client)
     {
         _logger = logger;
         _client = client;

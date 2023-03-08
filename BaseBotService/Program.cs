@@ -1,6 +1,6 @@
 ﻿using BaseBotService.Events;
+using BaseBotService.Factories;
 using BaseBotService.Interfaces;
-using BaseBotService.Managers;
 using BaseBotService.Services;
 using Discord;
 using Discord.Commands;
@@ -42,7 +42,6 @@ public class Program
         IHost host = Host.CreateDefaultBuilder()
             .ConfigureServices(services => services.AddHostedService<HealthCheckService>())
             .Build();
-
 
         await host.RunAsync();
     }

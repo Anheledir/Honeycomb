@@ -39,9 +39,6 @@ public class EnvironmentService : IEnvironmentService
 
         EnvironmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "unknown";
         logger.Information($"Environment identifier is '{EnvironmentName}'.");
-
-        TelemetryConnectionString = Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING");
-        logger.Information($"Connection string for the Azure Application Insight telemetry: '{TelemetryConnectionString?.MaskToken()}'.");
     }
 
     public string DiscordBotToken { get; }
@@ -53,6 +50,4 @@ public class EnvironmentService : IEnvironmentService
     public int HealthPort { get; }
 
     public string DatabaseFile { get; }
-
-    public string? TelemetryConnectionString { get; }
 }

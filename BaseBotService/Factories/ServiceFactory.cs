@@ -1,5 +1,4 @@
 ﻿using BaseBotService.Events;
-using BaseBotService.Extensions;
 using BaseBotService.Interfaces;
 using BaseBotService.Models;
 using BaseBotService.Modules;
@@ -7,11 +6,9 @@ using BaseBotService.Services;
 using Discord.Commands;
 using Discord.Interactions;
 using Discord.WebSocket;
-using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace BaseBotService.Managers;
+namespace BaseBotService.Factories;
 
 public static class ServiceFactory
 {
@@ -27,17 +24,9 @@ public static class ServiceFactory
             DefaultRunMode = Discord.Interactions.RunMode.Async
         };
 
-        var telemetryConfig = TelemetryConfiguration.CreateDefault();
-
-        using var channel = new InMemoryChannel();
-
         var services = new ServiceCollection()
-
-        // log service
-            .AddSerilogServices()
-            .Configure<TelemetryConfiguration>(config => config.TelemetryChannel = channel)
-
-            //.AddSingleton<ITelemetryInitializer>(new MyTelemetryInitializer())
+        // log services
+            .AddSingleton(LoggerFactory.CreateLogger())
 
             // discord services
             .AddSingleton(config)
@@ -50,7 +39,7 @@ public static class ServiceFactory
             .AddSingleton<DiscordSocketClientEvents>()
 
         // misc services
-            .AddSingleton<ICommandManager, CommandManager>()
+            .AddSingleton<IHcCommandService, HcCommandService>()
             .AddSingleton<IAssemblyService, AssemblyService>()
             .AddSingleton<IEnvironmentService, EnvironmentService>()
             .AddScoped<IActivityPointsService, ActivityPointsService>()

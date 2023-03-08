@@ -9,6 +9,5 @@ namespace BaseBotService.Interfaces
         string EnvironmentName { get; }
         int HealthPort { get; }
         string DatabaseFile { get; }
-        string? TelemetryConnectionString { get; }
     }
 }

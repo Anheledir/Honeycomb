@@ -1,6 +1,6 @@
 ﻿namespace BaseBotService.Interfaces;
 
-public interface ICommandManager
+public interface IHcCommandService
 {
     Task RegisterGlobalCommandsAsync(bool overwrite = false);
 }
