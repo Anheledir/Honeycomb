@@ -54,4 +54,44 @@ public class ActivityPointsService : IActivityPointsService
             throw;
         }
     }
+
+    public uint GetActivityPoints(ulong guildId, ulong userId)
+    {
+        try
+        {
+            GuildMemberHC usr = _guildMembers.FindOne(a => a.GuildId == guildId && a.MemberId == userId);
+            return usr?.ActivityPoints ?? 0;
+        }
+        catch (InvalidCastException ex)
+        {
+            // There was a casting error, probably because of some deprecated data
+            _logger.Error(ex, $"Error happened in collection '{typeof(GuildMemberHC)}' for '{userId}' in '{guildId}'.");
+            return 0;
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, $"Error reading activity points for '{userId}' in '{guildId}'.");
+            throw;
+        }
+    }
+
+    public DateTime GetLastActive(ulong guildId, ulong userId)
+    {
+        try
+        {
+            GuildMemberHC usr = _guildMembers.FindOne(a => a.GuildId == guildId && a.MemberId == userId);
+            return usr?.LastActive ?? DateTime.MinValue;
+        }
+        catch (InvalidCastException ex)
+        {
+            // There was a casting error, probably because of some deprecated data
+            _logger.Error(ex, $"Error happened in collection '{typeof(GuildMemberHC)}' for '{userId}' in '{guildId}'.");
+            return DateTime.MinValue;
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, $"Error reading last activity date/time for '{userId}' in '{guildId}'.");
+            throw;
+        }
+    }
 }

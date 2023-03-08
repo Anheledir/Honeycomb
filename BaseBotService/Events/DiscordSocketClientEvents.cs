@@ -97,34 +97,41 @@ internal class DiscordSocketClientEvents
                 await _commandHelpers.RegisterGlobalCommandsAsync(true);
                 break;
         }
-
     }
 
     internal async Task SlashCommandExecuted(SocketSlashCommand cmd)
     {
-        switch (cmd.Data.Name)
+        try
         {
-            // info module
-            case "info":
-                await _infoModule.InfoCommandAsync(cmd);
-                _logger.Debug("Slash Command Executed: {@cmd}", cmd);
-                break;
+            switch (cmd.Data.Name)
+            {
+                // info module
+                case "info":
+                    await _infoModule.InfoCommandAsync(cmd);
+                    _logger.Debug("Slash Command Executed: {@cmd}", cmd);
+                    break;
 
-            // users module
-            case "user-info":
-                await _usersModule.UserinfoCommandAsync(cmd);
-                _logger.Debug("Slash Command Executed: {@cmd}", cmd);
-                break;
-            case "user-roles":
-                await _usersModule.ListRoleCommandAsync(cmd);
-                _logger.Debug("Slash Command Executed: {@cmd}", cmd);
-                break;
+                // users module
+                case "user-info":
+                    await _usersModule.UserinfoCommandAsync(cmd);
+                    _logger.Debug("Slash Command Executed: {@cmd}", cmd);
+                    break;
+                case "user-roles":
+                    await _usersModule.ListRoleCommandAsync(cmd);
+                    _logger.Debug("Slash Command Executed: {@cmd}", cmd);
+                    break;
 
-            // unknown
-            default:
-                await cmd.RespondAsync($"Unknown command {cmd.Data.Name}", ephemeral: true);
-                _logger.Warning("Unknown command {@cmd}", cmd);
-                break;
+                // unknown
+                default:
+                    await cmd.RespondAsync($"Unknown command {cmd.Data.Name}", ephemeral: true);
+                    _logger.Warning("Unknown command {@cmd}", cmd);
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Error executing command {@cmd}", cmd);
+            await cmd.RespondAsync($"An error occurred while executing the command: {ex.Message}", ephemeral: true);
         }
     }
 
