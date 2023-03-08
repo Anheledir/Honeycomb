@@ -7,27 +7,17 @@ namespace BaseBotService.Services;
 
 public class EnvironmentService : IEnvironmentService
 {
-    private readonly ILogger _logger;
-
     public EnvironmentService(ILogger logger)
     {
-        _logger = logger;
-
-        string? token = Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN");
-        if (string.IsNullOrWhiteSpace(token))
+        DiscordBotToken = Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN")!;
+        if (string.IsNullOrWhiteSpace(DiscordBotToken))
         {
-            _logger.Fatal("Environment variable 'DISCORD_BOT_TOKEN' not set.");
-            throw new ArgumentException("Environment variable 'DISCORD_BOT_TOKEN' not set.");
+            logger.Fatal("Environment variable 'DISCORD_BOT_TOKEN' not set.");
+            throw new ArgumentException("The Discord token must not be empty.");
         }
-        DiscordBotToken = token;
-        _logger.Information($"Environment variable 'DISCORD_BOT_TOKEN' set to '{DiscordBotToken.MaskToken()}.'");
+        logger.Information($"Environment variable 'DISCORD_BOT_TOKEN' set to '{DiscordBotToken.MaskToken()}.'");
 
-        string? cmdReg = Environment.GetEnvironmentVariable("COMMAND_REGISTER");
-        if (string.IsNullOrWhiteSpace(cmdReg))
-        {
-            _logger.Warning("Environment variable 'COMMAND_REGISTER' not set, using default.");
-        }
-        switch (cmdReg)
+        switch (Environment.GetEnvironmentVariable("COMMAND_REGISTER"))
         {
             case "1":
                 RegisterCommands = RegisterCommandsOnStartup.YesWithoutOverwrite;
@@ -39,45 +29,30 @@ public class EnvironmentService : IEnvironmentService
                 RegisterCommands = RegisterCommandsOnStartup.NoRegistration;
                 break;
         }
-        _logger.Information($"Environment variable 'COMMAND_REGISTER' set to '{(int)RegisterCommands}' ({RegisterCommands}).");
+        logger.Information($"Mode for registering commands: '{(int)RegisterCommands}' ({RegisterCommands}).");
 
-        string? healthPort = Environment.GetEnvironmentVariable("HEALTH_PORT");
-        if (string.IsNullOrWhiteSpace(healthPort))
-        {
-            _logger.Warning("Environment variable 'HEALTH_PORT' not set, using default.");
-        }
-        else if (int.TryParse(healthPort, out int port))
-        {
-            _logger.Information($"Environment variable 'HEALTH_PORT' set to '{port}'.");
-            HealthPort = port;
-        }
-        else
-        {
-            _logger.Warning("Environment variable 'HEALTH_PORT' has an invalid value, using default.");
-        }
+        HealthPort = int.Parse(Environment.GetEnvironmentVariable("HEALTH_PORT") ?? "8080");
+        logger.Information($"http-port for health probe set to '{HealthPort}'.");
 
-        string? dbPath = Environment.GetEnvironmentVariable("DATABASE_FILEPATH");
-        if (string.IsNullOrWhiteSpace(dbPath))
-        {
-            _logger.Information($"Environment variable 'DATABASE_FILEPATH' not set, using default.");
-        }
-        else
-        {
-            _logger.Information($"Environment variable 'DATABASE_FILEPATH' set to '{dbPath}'.");
-            DatabaseFile = dbPath;
-        }
+        DatabaseFile = Environment.GetEnvironmentVariable("DATABASE_FILEPATH") ?? "honeycomb.db";
+        logger.Information($"Path and filename for our LiteDB database: '{DatabaseFile}'.");
 
-        // logging the remaining values
-        _logger.Information($"Environment variable 'ASPNETCORE_ENVIRONMENT' set to '{EnvironmentName}'.");
+        EnvironmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "unknown";
+        logger.Information($"Environment identifier is '{EnvironmentName}'.");
+
+        TelemetryConnectionString = Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING");
+        logger.Information($"Connection string for the Azure Application Insight telemetry: '{TelemetryConnectionString?.MaskToken()}'.");
     }
 
     public string DiscordBotToken { get; }
 
     public RegisterCommandsOnStartup RegisterCommands { get; }
 
-    public string EnvironmentName { get; } = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "unknown";
+    public string EnvironmentName { get; }
 
-    public int HealthPort { get; } = 8080;
+    public int HealthPort { get; }
 
-    public string DatabaseFile { get; } = "honeycomb.db";
+    public string DatabaseFile { get; }
+
+    public string? TelemetryConnectionString { get; }
 }
