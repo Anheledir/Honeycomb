@@ -12,7 +12,7 @@ namespace Honeycomb;
 
 public class Program
 {
-    public static IServiceProvider ServiceProvider { get; } = ServiceManager.RegisterServices();
+    public static IServiceProvider ServiceProvider { get; } = ServiceFactory.CreateServiceProvider();
 
     static void Main(string[] args) => new Program().RunAsync().GetAwaiter().GetResult();
 
@@ -40,11 +40,9 @@ public class Program
 
         // Host the health check service
         IHost host = Host.CreateDefaultBuilder()
-              .ConfigureServices(services =>
-              {
-                  services.AddHostedService<HealthCheckService>();
-              })
+            .ConfigureServices(services => services.AddHostedService<HealthCheckService>())
             .Build();
+
 
         await host.RunAsync();
     }

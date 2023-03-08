@@ -7,14 +7,15 @@ using BaseBotService.Services;
 using Discord.Commands;
 using Discord.Interactions;
 using Discord.WebSocket;
+using Microsoft.ApplicationInsights.Channel;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BaseBotService.Managers;
 
-public static class ServiceManager
+public static class ServiceFactory
 {
-
-    public static IServiceProvider RegisterServices()
+    public static IServiceProvider CreateServiceProvider()
     {
         var config = new DiscordSocketConfig()
         {
@@ -26,12 +27,19 @@ public static class ServiceManager
             DefaultRunMode = Discord.Interactions.RunMode.Async
         };
 
+        var telemetryConfig = TelemetryConfiguration.CreateDefault();
+
+        using var channel = new InMemoryChannel();
+
         var services = new ServiceCollection()
 
         // log service
             .AddSerilogServices()
+            .Configure<TelemetryConfiguration>(config => config.TelemetryChannel = channel)
 
-        // discord services
+            //.AddSingleton<ITelemetryInitializer>(new MyTelemetryInitializer())
+
+            // discord services
             .AddSingleton(config)
             .AddSingleton<DiscordSocketClient>()
             .AddSingleton(servConfig)
@@ -42,13 +50,12 @@ public static class ServiceManager
             .AddSingleton<DiscordSocketClientEvents>()
 
         // misc services
-            .AddSingleton<HealthCheckService>()
             .AddSingleton<ICommandManager, CommandManager>()
             .AddSingleton<IAssemblyService, AssemblyService>()
             .AddSingleton<IEnvironmentService, EnvironmentService>()
             .AddScoped<IActivityPointsService, ActivityPointsService>()
 
-            // command modules
+        // command modules
             .AddSingleton<InfoModule>()
             .AddSingleton<UsersModule>()
 
