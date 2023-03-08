@@ -1,5 +1,4 @@
 ﻿using BaseBotService.Events;
-using BaseBotService.Extensions;
 using BaseBotService.Interfaces;
 using BaseBotService.Models;
 using BaseBotService.Modules;
@@ -9,12 +8,11 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace BaseBotService.Managers;
+namespace BaseBotService.Factories;
 
-public static class ServiceManager
+public static class ServiceFactory
 {
-
-    public static IServiceProvider RegisterServices()
+    public static IServiceProvider CreateServiceProvider()
     {
         var config = new DiscordSocketConfig()
         {
@@ -27,11 +25,10 @@ public static class ServiceManager
         };
 
         var services = new ServiceCollection()
+        // log services
+            .AddSingleton(LoggerFactory.CreateLogger())
 
-        // log service
-            .AddSerilogServices()
-
-        // discord services
+            // discord services
             .AddSingleton(config)
             .AddSingleton<DiscordSocketClient>()
             .AddSingleton(servConfig)
@@ -42,13 +39,12 @@ public static class ServiceManager
             .AddSingleton<DiscordSocketClientEvents>()
 
         // misc services
-            .AddSingleton<HealthCheckService>()
-            .AddSingleton<ICommandManager, CommandManager>()
+            .AddSingleton<IHcCommandService, HcCommandService>()
             .AddSingleton<IAssemblyService, AssemblyService>()
             .AddSingleton<IEnvironmentService, EnvironmentService>()
             .AddScoped<IActivityPointsService, ActivityPointsService>()
 
-            // command modules
+        // command modules
             .AddSingleton<InfoModule>()
             .AddSingleton<UsersModule>()
 
