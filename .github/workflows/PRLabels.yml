@@ -24,6 +24,9 @@ jobs:
               - type: 'fix'
                 nouns: ['FIX', 'Fix', 'fix', 'FIXED', 'Fixed', 'fixed']
                 labels: ['bug']
+              - type: 'refactor'
+                nouns: ['clean', 'cleanup', 'refactor', 'smell', 'ref', 'typo']
+                labels: ['cleanup']
               - type: 'feature'
                 nouns: ['FEATURE', 'Feature', 'feature', 'FEAT', 'Feat', 'feat']
                 labels: ['enhancement']
