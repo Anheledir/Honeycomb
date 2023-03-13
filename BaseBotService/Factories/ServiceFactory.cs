@@ -49,7 +49,7 @@ public static class ServiceFactory
 
         // command modules
             .AddSingleton<BotModule>()
-            .AddSingleton<UsersModule>()
+            .AddSingleton<UserModule>()
 
         // persistence services
             .AddSingleton<IPersistenceService, PersistenceService>()

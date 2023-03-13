@@ -1,5 +1,6 @@
 ﻿using BaseBotService.Extensions;
 using BaseBotService.Interfaces;
+using BaseBotService.Modules;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -89,16 +90,6 @@ public class DiscordEvents
             }
         }
 
-        // Context & Slash commands can be automatically registered, but this process needs to happen after the client enters the READY state.
-        // Since Global Commands take around 1 hour to register, we should use a test guild to instantly update and test our commands.
-#if DEBUG
-        _logger.Information("Debug build.");
-
-        // TODO: Move the Guild-IDs to configuration.
-        await _handler.RegisterCommandsToGuildAsync(409333951212158977, true); // Ned's test server
-        await _handler.RegisterCommandsToGuildAsync(927849055600644136, true); // Ara's test server
-        await _handler.RegisterCommandsToGuildAsync(618018993806245888, true); // Oce's test server
-#else
         switch (_environmentService.RegisterCommands)
         {
             case Enumeration.RegisterCommandsOnStartup.NoRegistration:
@@ -113,7 +104,6 @@ public class DiscordEvents
                 await _handler.RegisterCommandsGloballyAsync(true);
                 break;
         }
-#endif
     }
 
     public async Task HandleInteraction(SocketInteraction interaction)
