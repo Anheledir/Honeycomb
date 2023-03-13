@@ -99,18 +99,18 @@ public class DiscordEvents
         await _handler.RegisterCommandsToGuildAsync(927849055600644136, true); // Ara's test server
         await _handler.RegisterCommandsToGuildAsync(618018993806245888, true); // Oce's test server
 #else
-        switch (_environmentHelper.RegisterCommands)
+        switch (_environmentService.RegisterCommands)
         {
-            case RegisterCommandsOnStartup.NoRegistration:
+            case Enumeration.RegisterCommandsOnStartup.NoRegistration:
                 _logger.Information("Skipping global application command registration.");
                 break;
-            case RegisterCommandsOnStartup.YesWithoutOverwrite:
+            case Enumeration.RegisterCommandsOnStartup.YesWithoutOverwrite:
                 _logger.Information("Registering global application commands.");
-                await _interaction.RegisterCommandsGloballyAsync();
+                await _handler.RegisterCommandsGloballyAsync();
                 break;
-            case RegisterCommandsOnStartup.YesWithOverwrite:
+            case Enumeration.RegisterCommandsOnStartup.YesWithOverwrite:
                 _logger.Information("Registering global application commands and delete missing ones.");
-                await _interaction.RegisterCommandsGloballyAsync(true);
+                await _handler.RegisterCommandsGloballyAsync(true);
                 break;
         }
 #endif
