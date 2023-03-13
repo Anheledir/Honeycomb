@@ -1,5 +1,5 @@
 ﻿namespace BaseBotService.Interfaces;
-public interface IActivityPointsService
+public interface IEngagementService
 {
     Task AddActivityTick(ulong guildId, ulong userId);
     uint GetActivityPoints(ulong guildId, ulong userId);

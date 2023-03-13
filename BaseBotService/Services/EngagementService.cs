@@ -4,13 +4,13 @@ using LiteDB;
 using Serilog;
 
 namespace BaseBotService.Services;
-public class ActivityPointsService : IActivityPointsService
+public class EngagementService : IEngagementService
 {
     private readonly ILogger _logger;
     private readonly ILiteCollection<GuildMemberHC> _guildMembers;
     private readonly TimeSpan ActivityPointInterval = TimeSpan.FromSeconds(864);
 
-    public ActivityPointsService(ILogger logger, ILiteCollection<GuildMemberHC> guildMembers)
+    public EngagementService(ILogger logger, ILiteCollection<GuildMemberHC> guildMembers)
     {
         _logger = logger;
         _guildMembers = guildMembers;

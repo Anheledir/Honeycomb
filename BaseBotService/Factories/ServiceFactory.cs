@@ -3,7 +3,7 @@ using BaseBotService.Interfaces;
 using BaseBotService.Models;
 using BaseBotService.Modules;
 using BaseBotService.Services;
-using Discord.Commands;
+using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,38 +14,41 @@ public static class ServiceFactory
 {
     public static IServiceProvider CreateServiceProvider()
     {
-        var config = new DiscordSocketConfig()
+        DiscordSocketConfig socketConfig = new()
         {
-            LogGatewayIntentWarnings = false
+            LogGatewayIntentWarnings = false,
+            GatewayIntents = GatewayIntents.AllUnprivileged,
+            AlwaysDownloadUsers = true,
         };
 
-        var servConfig = new InteractionServiceConfig()
+        InteractionServiceConfig serviceConfig = new()
         {
-            DefaultRunMode = Discord.Interactions.RunMode.Async
+            DefaultRunMode = RunMode.Async,
+            InteractionCustomIdDelimiters = new[] { '.' },
+            EnableAutocompleteHandlers = true,
+            AutoServiceScopes = true
         };
 
-        var services = new ServiceCollection()
+        IServiceCollection services = new ServiceCollection()
         // log services
             .AddSingleton(LoggerFactory.CreateLogger())
 
             // discord services
-            .AddSingleton(config)
+            .AddSingleton(socketConfig)
             .AddSingleton<DiscordSocketClient>()
-            .AddSingleton(servConfig)
-            .AddSingleton<CommandService>()
-            .AddSingleton<InteractionService>()
+            .AddSingleton(serviceConfig)
+            .AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>()))
 
         // event services
-            .AddSingleton<DiscordSocketClientEvents>()
+            .AddSingleton<DiscordEvents>()
 
         // misc services
-            .AddSingleton<IHcCommandService, HcCommandService>()
             .AddSingleton<IAssemblyService, AssemblyService>()
             .AddSingleton<IEnvironmentService, EnvironmentService>()
-            .AddScoped<IActivityPointsService, ActivityPointsService>()
+            .AddScoped<IEngagementService, EngagementService>()
 
         // command modules
-            .AddSingleton<InfoModule>()
+            .AddSingleton<BotModule>()
             .AddSingleton<UsersModule>()
 
         // persistence services

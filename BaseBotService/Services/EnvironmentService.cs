@@ -7,6 +7,7 @@ namespace BaseBotService.Services;
 
 public class EnvironmentService : IEnvironmentService
 {
+    private readonly DateTime _startupTime = DateTime.UtcNow;
     public EnvironmentService(ILogger logger)
     {
         DiscordBotToken = Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN")!;
@@ -50,4 +51,14 @@ public class EnvironmentService : IEnvironmentService
     public int HealthPort { get; }
 
     public string DatabaseFile { get; }
+
+    public string GetUptime()
+    {
+        TimeSpan uptime = DateTime.UtcNow - _startupTime;
+        string daysString = uptime.Days == 1 ? "day" : "days";
+        string hoursString = uptime.Hours == 1 ? "hour" : "hours";
+        string minutesString = uptime.Minutes == 1 ? "minute" : "minutes";
+        string secondsString = uptime.Seconds == 1 ? "second" : "seconds";
+        return $"{uptime.Days} {daysString}, {uptime.Hours} {hoursString}, {uptime.Minutes} {minutesString}, and {uptime.Seconds} {secondsString}";
+    }
 }
