@@ -3,10 +3,11 @@ using BaseBotService.Factories;
 using BaseBotService.Interfaces;
 using BaseBotService.Services;
 using Discord;
-using Discord.Commands;
+using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Reflection;
 
 namespace Honeycomb;
 
@@ -20,19 +21,22 @@ public class Program
     {
         // Load instances from DI
         var _client = ServiceProvider.GetRequiredService<DiscordSocketClient>();
-        var _commandService = ServiceProvider.GetRequiredService<CommandService>();
         var _environment = ServiceProvider.GetRequiredService<IEnvironmentService>();
-        var _clientEvents = ServiceProvider.GetRequiredService<DiscordSocketClientEvents>();
+        var _clientEvents = ServiceProvider.GetRequiredService<DiscordEvents>();
+        var _handler = ServiceProvider.GetRequiredService<InteractionService>();
 
-        // Register logging events
+        // Process when the client is ready, so we can register our commands.
         _client.Log += _clientEvents.LogAsync;
-        _commandService.Log += _clientEvents.LogAsync;
-
-        // Register event handlers
+        _handler.Log += _clientEvents.LogAsync;
         _client.Ready += _clientEvents.ReadyAsync;
         _client.Disconnected += _clientEvents.DisconnectedAsync;
-        _client.SlashCommandExecuted += _clientEvents.SlashCommandExecuted;
         _client.MessageReceived += _clientEvents.MessageReceived;
+
+        // Add the public modules that inherit InteractionModuleBase<T> to the InteractionService
+        await _handler.AddModulesAsync(Assembly.GetEntryAssembly(), ServiceProvider);
+
+        // Process the InteractionCreated payloads to execute Interactions commands
+        _client.InteractionCreated += _clientEvents.HandleInteraction;
 
         // Connect to Discord API
         await _client.LoginAsync(TokenType.Bot, _environment?.DiscordBotToken);

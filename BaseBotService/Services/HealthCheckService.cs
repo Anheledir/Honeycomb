@@ -19,7 +19,7 @@ public class HealthCheckService : BackgroundService
     public HealthCheckService()
     {
         // Not using the regular DI here, as of using the AddHostedService of the IServiceCollection in program.cs
-        // Maybe this can be refactored to you our ServiceProvider instead via ctor?
+        // Maybe this can be refactored to use our existing instance of IServiceProvider?
         _logger = Program.ServiceProvider.GetRequiredService<ILogger>();
         _client = Program.ServiceProvider.GetRequiredService<DiscordSocketClient>();
         _environment = Program.ServiceProvider.GetRequiredService<IEnvironmentService>();
@@ -56,10 +56,13 @@ public class HealthCheckService : BackgroundService
                 switch (await CheckHealthAsync())
                 {
                     case HealthCheckResult.Healthy:
-                        response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nOK";
+                        response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nConnected";
+                        break;
+                    case HealthCheckResult.Degraded:
+                        response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nConnecting";
                         break;
                     default:
-                        response = "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/plain\r\n\r\nERROR";
+                        response = "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/plain\r\n\r\nDisconnected";
                         break;
                 }
                 byte[] responseBytes = Encoding.UTF8.GetBytes(response);
