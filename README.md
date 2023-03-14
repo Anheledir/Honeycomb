@@ -6,7 +6,7 @@
 [![GitHub contributors](https://img.shields.io/github/contributors/Anheledir/Honeycomb)](https://github.com/Anheledir/Honeycomb/graphs/contributors)
 [![GitHub last commit](https://img.shields.io/github/last-commit/Anheledir/Honeycomb)](https://github.com/Anheledir/Honeycomb/commits/main)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Anheledir/Honeycomb/codeql.yml?label=CodeQL)](https://github.com/Anheledir/Honeycomb/actions/workflows/codeql.yml)
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Anheledir/Honeycomb/main_projecthoneycomb.yml?label=Azure%20Deployment)](https://github.com/Anheledir/Honeycomb/actions/workflows/main_projecthoneycomb.yml)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Anheledir/Honeycomb/main_projecthoneycomb.yml?label=Azure%20Deployment)](https://github.com/Anheledir/Honeycomb/actions/workflows/main_projecthoneycomb.yml) ![Uptime Discord Bot](https://img.shields.io/uptimerobot/status/m793909898-a59e48b604b1e59f44950792)
 
 
 Project Honeycomb is a Discord bot designed to provide artists with some useful functions to enhance their experience on Discord. With its features, artists can create a portfolio, display random entries from it, manage a commission price list, and keep track of their commission queue.
