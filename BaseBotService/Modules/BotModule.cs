@@ -4,7 +4,7 @@ using Discord.Interactions;
 
 namespace BaseBotService.Modules;
 
-// Create a HoneycombModuleBase abstract class
+// TODO: Create a HoneycombModuleBase abstract class
 // Move the most common dependencies to the base class.
 // Implement it by BotModule and UserModule
 
