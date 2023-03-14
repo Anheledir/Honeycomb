@@ -22,6 +22,7 @@ public class Program
         // Load instances from DI
         var _client = ServiceProvider.GetRequiredService<DiscordSocketClient>();
         var _environment = ServiceProvider.GetRequiredService<IEnvironmentService>();
+        // TODO: Rename _clientEvents to _discordEvents
         var _clientEvents = ServiceProvider.GetRequiredService<DiscordEvents>();
         var _handler = ServiceProvider.GetRequiredService<InteractionService>();
 

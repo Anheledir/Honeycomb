@@ -4,6 +4,10 @@ using Discord.Interactions;
 
 namespace BaseBotService.Modules;
 
+// Create a HoneycombModuleBase abstract class
+// Move the most common dependencies to the base class.
+// Implement it by BotModule and UserModule
+
 [Group("bot", "The main bot information module of Honeycomb.")]
 [EnabledInDm(true)]
 public class BotModule : InteractionModuleBase<SocketInteractionContext>
