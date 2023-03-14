@@ -60,15 +60,13 @@ public class UserModule : InteractionModuleBase<SocketInteractionContext>
                 new EmbedFieldBuilder
                 {
                     Name = "Last active",
-                    Value = user.IsBot || user.IsWebhook
-                        ? null
-                        : $"{Engagement.GetLastActive(user.GuildId, user.Id).ToDiscordTimestamp(DiscordTimestampFormat.ShortDateTime)}\n({Engagement.GetLastActive(user.GuildId, user.Id).ToDiscordTimestamp(DiscordTimestampFormat.RelativeTime)})",
+                    Value = $"{Engagement.GetLastActive(user.GuildId, user.Id).ToDiscordTimestamp(DiscordTimestampFormat.ShortDateTime)}\n({Engagement.GetLastActive(user.GuildId, user.Id).ToDiscordTimestamp(DiscordTimestampFormat.RelativeTime)})",
                     IsInline = true
                 },
                 new EmbedFieldBuilder
                 {
                     Name = "Server points",
-                    Value = user.IsBot || user.IsWebhook ? null : Engagement.GetActivityPoints(user.GuildId, user.Id).ToString("N0", CultureInfo.InvariantCulture)
+                    Value = Engagement.GetActivityPoints(user.GuildId, user.Id).ToString("N0", CultureInfo.InvariantCulture)
                 }
             });
         }
