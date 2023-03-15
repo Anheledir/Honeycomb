@@ -35,10 +35,16 @@ public class BotModule : BaseModule
         => await RespondAsync(text: $":ping_pong: It took me {Context.Client.Latency}ms to respond to you!", ephemeral: true);
 
     [SlashCommand("documentation", "Sends a json-file via DM containing all command documentations.")]
-    [RateLimitPrecondition(1, 300)]
+    [RateLimit(1, 300)]
     public async Task DocumentationAsync()
     {
         await DeferAsync(true);
+
+        if (!await CheckRateLimitAsync())
+        {
+            await FollowupAsync(text: "Aborted.");
+            return;
+        }
 
         string jsonString = Utilities.DocumentationUtility.GenerateDocumentationJson();
         byte[] jsonBytes = System.Text.Encoding.UTF8.GetBytes(jsonString);
