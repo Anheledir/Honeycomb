@@ -1,4 +1,5 @@
-﻿using Discord.Interactions;
+﻿using BaseBotService.Modules;
+using Discord.Interactions;
 using System.Reflection;
 using System.Text.Json;
 
@@ -9,7 +10,7 @@ public static class DocumentationUtility
     public static string GenerateDocumentationJson()
     {
         var allTypes = Assembly.GetExecutingAssembly().GetTypes();
-        var interactionModules = allTypes.Where(t => t.IsSubclassOf(typeof(InteractionModuleBase<SocketInteractionContext>)));
+        var interactionModules = allTypes.Where(t => t.IsSubclassOf(typeof(InteractionModuleBase<SocketInteractionContext>)) && t != typeof(BaseModule));
 
         var modulesDocumentation = new List<object>();
 
