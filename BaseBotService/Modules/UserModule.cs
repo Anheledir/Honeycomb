@@ -81,7 +81,7 @@ public class UserModule : BaseModule
                 new EmbedFieldBuilder
                 {
                     Name = "Roles",
-                    Value = string.Join(", ", roleMentions)
+                    Value = roleMentions.Any() ? string.Join(", ", roleMentions) : "None"
                 });
 
             if (includePermissions)
@@ -95,7 +95,7 @@ public class UserModule : BaseModule
                 new EmbedFieldBuilder
                 {
                     Name = "Permissions",
-                    Value = string.Join(", ", permissionNames)
+                    Value = permissionNames.Any() ? string.Join(", ", permissionNames) : "None"
                 });
             }
             result.Title = $"{gUser.DisplayName} @ {gUser.Guild.Name}";
