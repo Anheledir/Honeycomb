@@ -33,4 +33,16 @@ public class BotModule : BaseModule
     public async Task GreetUserAsync()
         => await RespondAsync(text: $":ping_pong: It took me {Context.Client.Latency}ms to respond to you!", ephemeral: true);
 
+    [SlashCommand("documentation", "Sends a json-file via DM containing all command documentations.")]
+    public async Task DocumentationAsync()
+    {
+        await DeferAsync(true);
+
+        string jsonString = Utilities.DocumentationUtility.GenerateDocumentationJson();
+        byte[] jsonBytes = System.Text.Encoding.UTF8.GetBytes(jsonString);
+        using var stream = new MemoryStream(jsonBytes);
+
+        IDMChannel dm = await Caller.CreateDMChannelAsync();
+        await dm.SendFileAsync(new FileAttachment(stream, $"honeycomb_v{AssemblyService.Version.Replace('.', '-')}.json"), text: "This is the most recent documentation, freshly created just for you!");
+    }
 }

@@ -28,10 +28,10 @@ public static class DocumentationUtility
                     var parameters = method.GetParameters();
                     var parametersDocumentation = parameters.Select(p => new
                     {
-                        p.Name,
+                        Name = p.Name,
                         Type = p.ParameterType.Name,
-                        p.IsOptional,
-                        p.DefaultValue
+                        IsOptional = p.IsOptional,
+                        DefaultValue = p.DefaultValue
                     });
 
                     commandsDocumentation.Add(new
