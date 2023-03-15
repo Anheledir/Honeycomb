@@ -7,7 +7,7 @@ namespace BaseBotService.Modules;
 [EnabledInDm(true)]
 public class BotModule : BaseModule
 {
-    [SlashCommand("info", "Returns information like runtime and current version of this Honeycomb bot instance.")]
+    [SlashCommand("about", "Returns information like runtime and current version of this Honeycomb bot instance.")]
     public async Task InfoCommandAsync()
     {
         // Create embedded message with bot information
