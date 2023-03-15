@@ -1,7 +1,7 @@
 using BaseBotService.Extensions;
 using BaseBotService.Enumeration;
 
-namespace BaseBotServiceTests.Extensions
+namespace BaseBotService.Tests.Extensions
 {
     public class DateTimeExtensionsTests
     {
