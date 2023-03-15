@@ -5,10 +5,16 @@ jobs:
    build-test:
      runs-on: ubuntu-latest
      steps:
-       - uses: actions/checkout@v2                                    # checkout the repo
-       - run: dotnet test --logger "trx;logfilename=testResults.trx"  # run tests (configured to use jest-junit reporter)
-       - uses: actions/upload-artifact@v2                             # upload test results
-         if: success() || failure()                                   # run this step even if previous step failed
-         with:
+      - uses: actions/checkout@v2
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '7.x'
+          include-prerelease: true
+      - name: Build with dotnet
+        run: dotnet test --logger "trx;logfilename=testResults.trx"
+      - uses: actions/upload-artifact@v2
+        if: success() || failure()  # run this step even if previous step failed
+        with:
            name: test-results
            path: testResults.trx
