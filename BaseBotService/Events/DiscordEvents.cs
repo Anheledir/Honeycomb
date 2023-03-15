@@ -48,7 +48,10 @@ public class DiscordEvents
     {
         if (message.Channel is IDMChannel)
         {
-            _logger.Debug($"DM from [{message.Author.Username}#{message.Author.Discriminator}]: {message.CleanContent}");
+            if (!message.Author.IsBot)
+            {
+                _logger.Debug($"DM from [{message.Author.Username}#{message.Author.Discriminator}]: {message.CleanContent}");
+            }
             return Task.CompletedTask;
         }
 
