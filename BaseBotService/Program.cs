@@ -22,22 +22,21 @@ public class Program
         // Load instances from DI
         var _client = ServiceProvider.GetRequiredService<DiscordSocketClient>();
         var _environment = ServiceProvider.GetRequiredService<IEnvironmentService>();
-        // TODO: Rename _clientEvents to _discordEvents
-        var _clientEvents = ServiceProvider.GetRequiredService<DiscordEvents>();
+        var _discordEvents = ServiceProvider.GetRequiredService<DiscordEvents>();
         var _handler = ServiceProvider.GetRequiredService<InteractionService>();
 
         // Process when the client is ready, so we can register our commands.
-        _client.Log += _clientEvents.LogAsync;
-        _handler.Log += _clientEvents.LogAsync;
-        _client.Ready += _clientEvents.ReadyAsync;
-        _client.Disconnected += _clientEvents.DisconnectedAsync;
-        _client.MessageReceived += _clientEvents.MessageReceived;
+        _client.Log += _discordEvents.LogAsync;
+        _handler.Log += _discordEvents.LogAsync;
+        _client.Ready += _discordEvents.ReadyAsync;
+        _client.Disconnected += _discordEvents.DisconnectedAsync;
+        _client.MessageReceived += _discordEvents.MessageReceived;
 
         // Add the public modules that inherit InteractionModuleBase<T> to the InteractionService
         await _handler.AddModulesAsync(Assembly.GetEntryAssembly(), ServiceProvider);
 
         // Process the InteractionCreated payloads to execute Interactions commands
-        _client.InteractionCreated += _clientEvents.HandleInteraction;
+        _client.InteractionCreated += _discordEvents.HandleInteraction;
 
         // Connect to Discord API
         await _client.LoginAsync(TokenType.Bot, _environment?.DiscordBotToken);

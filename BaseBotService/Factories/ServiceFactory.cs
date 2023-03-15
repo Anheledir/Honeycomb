@@ -3,6 +3,7 @@ using BaseBotService.Interfaces;
 using BaseBotService.Models;
 using BaseBotService.Modules;
 using BaseBotService.Services;
+using BaseBotService.Utilities;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -33,13 +34,13 @@ public static class ServiceFactory
         // log services
             .AddSingleton(LoggerFactory.CreateLogger())
 
-            // discord services
+        // discord services
             .AddSingleton(socketConfig)
             .AddSingleton<DiscordSocketClient>()
             .AddSingleton(serviceConfig)
             .AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>()))
 
-        // event services
+        // events
             .AddSingleton<DiscordEvents>()
 
         // misc services
@@ -47,9 +48,12 @@ public static class ServiceFactory
             .AddSingleton<IEnvironmentService, EnvironmentService>()
             .AddScoped<IEngagementService, EngagementService>()
 
-        // command modules
-            .AddSingleton<BotModule>()
-            .AddSingleton<UserModule>()
+        // utilities
+            .AddSingleton<RateLimiter>()
+
+        //// command modules
+        //    .AddSingleton<BotModule>()
+        //    .AddSingleton<UserModule>()
 
         // persistence services
             .AddSingleton<IPersistenceService, PersistenceService>()
