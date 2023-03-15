@@ -1,32 +1,21 @@
-﻿using BaseBotService.Interfaces;
-using Discord;
+﻿using Discord;
 using Discord.Interactions;
 
 namespace BaseBotService.Modules;
 
-// TODO: Create a HoneycombModuleBase abstract class
-// Move the most common dependencies to the base class.
-// Implement it by BotModule and UserModule
-
 [Group("bot", "The main bot information module of Honeycomb.")]
 [EnabledInDm(true)]
-public class BotModule : InteractionModuleBase<SocketInteractionContext>
+public class BotModule : BaseModule
 {
-    // Dependencies can be accessed through Property injection, public properties with public setters will be set by the service provider
-    public InteractionService Commands { get; set; } = null!;
-    public IAssemblyService AssemblyService { get; set; } = null!;
-    public IEnvironmentService EnvironmentService { get; set; } = null!;
-
     [SlashCommand("info", "Returns information like runtime and current version of this Honeycomb bot instance.")]
     public async Task InfoCommandAsync()
     {
         // Create embedded message with bot information
-        var response = new EmbedBuilder()
+        var response = GetEmbedBuilder()
             .WithTitle(AssemblyService.Name)
-            .WithAuthor("github.com/anheledir")
-            .WithThumbnailUrl(Context.Client.CurrentUser.GetAvatarUrl())
-            .WithUrl("https://anheledir.github.io/Honeycomb/")
-            .WithDescription($"Honeycomb is a Discord bot designed to provide artists with some useful functions to enhance their experience on Discord. With its features, artists can create a portfolio, display random entries from it, manage a commission price list, and keep track of their commission queue.")
+            .WithThumbnailUrl(BotUser.GetAvatarUrl())
+            .WithUrl("https://honeycombs.cloud/") // TODO(i18n): Move URL to localization resource
+            .WithDescription($"Honeycomb is a Discord bot designed to provide artists with some useful functions to enhance their experience on Discord. With its features, artists can create a portfolio, display random entries from it, manage a commission price list, and keep track of their commission queue. The bot is released under the MIT license on GitHub.")
             .WithFields(
                 new EmbedFieldBuilder()
                 .WithName("Uptime")
@@ -36,9 +25,7 @@ public class BotModule : InteractionModuleBase<SocketInteractionContext>
                 .WithValue(Context.Client.Guilds.Count)
                 .WithIsInline(true)
             )
-            .WithFooter($"Version {AssemblyService.Version} ({EnvironmentService.EnvironmentName})")
-            .WithColor(Color.DarkPurple)
-            .WithCurrentTimestamp();
+            .WithColor(Color.DarkPurple);
         await RespondAsync(embed: response.Build());
     }
 

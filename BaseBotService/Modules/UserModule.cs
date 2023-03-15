@@ -1,4 +1,5 @@
-﻿using BaseBotService.Extensions;
+﻿using BaseBotService.Enumeration;
+using BaseBotService.Extensions;
 using BaseBotService.Interfaces;
 using Discord;
 using Discord.Interactions;
@@ -9,101 +10,100 @@ using System.Text.RegularExpressions;
 namespace BaseBotService.Modules;
 
 [Group("user", "The user management module of Honeycomb.")]
-[EnabledInDm(false)]
-public class UserModule : InteractionModuleBase<SocketInteractionContext>
+public class UserModule : BaseModule
 {
-    // Dependencies can be accessed through Property injection, public properties with public setters will be set by the service provider
-    public IEngagementService Engagement { get; set; } = null!;
+    public IEngagementService EngagementService { get; set; } = null!;
 
-    [UserCommand("Honeycomb Infos")]
-    public async Task UserInfoCommandAsync(IUser user) => await UserinfoCommandAsync(user, false);
+    [UserCommand("User Profile")]
+    public async Task UserInfoCommandAsync(IUser user) => await RespondAsync(embed: GetUserProfileEmbed(user, true).Build(), ephemeral: true);
 
-    [SlashCommand("info", "Returns info about the current user, or the user parameter, if one is passed.")]
+    [SlashCommand("profile", "Returns the profile of the current user, or the user parameter, if one is passed.")]
     public async Task UserinfoCommandAsync(
-        [Summary(description: "The users who's information you want to see, leave empty for yourself.")]
-        IUser? user = null,
-        [Summary(description: "Whether to include the users permissions or not.")]
-        bool includePermissions = false
+        [Summary(description: "The users who's profile you want to see, leave empty for yourself.")]
+        IUser? user = null
         )
     {
-        user ??= Context.User;
-        await RespondAsync(embed: GenerateGuildUserInfo(Context.Interaction.User, (IGuildUser)user, includePermissions).Build());
+        user ??= Caller;
+        await RespondAsync(embed: GetUserProfileEmbed(user, false).Build(), ephemeral: false);
     }
 
-    private EmbedBuilder GenerateGuildUserInfo(SocketUser caller, IGuildUser user, bool includePermissions)
+    private EmbedBuilder GetUserProfileEmbed(IUser user, bool includePermissions)
     {
-        var roleMentions = ((SocketGuildUser)user).Roles.Where(x => !x.IsEveryone).Select(x => x.Mention);
+        var result = GetEmbedBuilder()
+            .WithTitle(user.Username)
+            .WithThumbnailUrl(user.GetAvatarUrl())
+            .WithColor(Color.LightOrange);
 
         var fields = new List<EmbedFieldBuilder>
-    {
-        new EmbedFieldBuilder
         {
-            Name = "Name",
-            Value = $"{user} {(user.IsBot ? "🤖" : string.Empty)}{(user.IsWebhook ? "🪝" : string.Empty)}"
-        },
-        new EmbedFieldBuilder
-        {
-            Name = "Created at",
-            Value = $"{user.CreatedAt.ToDiscordTimestamp(DiscordTimestampFormat.ShortDateTime)}\n({user.CreatedAt.ToDiscordTimestamp(DiscordTimestampFormat.RelativeTime)})",
-            IsInline = true
-        },
-        new EmbedFieldBuilder
-        {
-            Name = "Joined at",
-            Value = $"{user.JoinedAt?.ToDiscordTimestamp(DiscordTimestampFormat.ShortDateTime)}\n({user.JoinedAt?.ToDiscordTimestamp(DiscordTimestampFormat.RelativeTime)})",
-            IsInline = true
-        }
-    };
-        if (!user.IsBot && !user.IsWebhook)
-        {
-            fields.AddRange(new[] {
-                new EmbedFieldBuilder
-                {
-                    Name = "Last active",
-                    Value = $"{Engagement.GetLastActive(user.GuildId, user.Id).ToDiscordTimestamp(DiscordTimestampFormat.ShortDateTime)}\n({Engagement.GetLastActive(user.GuildId, user.Id).ToDiscordTimestamp(DiscordTimestampFormat.RelativeTime)})",
-                    IsInline = true
-                },
-                new EmbedFieldBuilder
-                {
-                    Name = "Server points",
-                    Value = Engagement.GetActivityPoints(user.GuildId, user.Id).ToString("N0", CultureInfo.InvariantCulture)
-                }
-            });
-        }
-        fields.Add(
             new EmbedFieldBuilder
             {
-                Name = "Roles",
-                Value = string.Join(", ", roleMentions)
-            });
+                Name = "Name",
+                Value = $"{user} {(user.IsBot ? "🤖" : string.Empty)}{(user.IsWebhook ? "🪝" : string.Empty)}"
+            },
+            new EmbedFieldBuilder
+            {
+                Name = "Created at",
+                Value = $"{user.CreatedAt.ToDiscordTimestamp(DiscordTimestampFormat.ShortDateTime)}\n({user.CreatedAt.ToDiscordTimestamp(DiscordTimestampFormat.RelativeTime)})",
+                IsInline = true
+            }
+        };
 
-        if (includePermissions)
+        if (user is IGuildUser gUser)
         {
-            IEnumerable<string> permissionNames = Enum.GetValues(typeof(GuildPermission))
-                                    .Cast<GuildPermission>()
-                                    .Where(user.GuildPermissions.Has)
-                                    .Select(p => Regex.Replace(p.ToString(), "([a-z])([A-Z])", "$1 $2"));
-
             fields.Add(
             new EmbedFieldBuilder
             {
-                Name = "Permissions",
-                Value = string.Join(", ", permissionNames)
+                Name = "Joined at",
+                Value = $"{gUser.JoinedAt?.ToDiscordTimestamp(DiscordTimestampFormat.ShortDateTime)}\n({gUser.JoinedAt?.ToDiscordTimestamp(DiscordTimestampFormat.RelativeTime)})",
+                IsInline = true
             });
+
+            if (!user.IsBot && !user.IsWebhook)
+            {
+                fields.AddRange(new[] {
+                    new EmbedFieldBuilder
+                    {
+                        Name = "Last active",
+                        Value = $"{EngagementService.GetLastActive(gUser.GuildId, user.Id).ToDiscordTimestamp(DiscordTimestampFormat.ShortDateTime)}\n({EngagementService.GetLastActive(gUser.GuildId, user.Id).ToDiscordTimestamp(DiscordTimestampFormat.RelativeTime)})",
+                        IsInline = true
+                    },
+                    new EmbedFieldBuilder
+                    {
+                        Name = "Server points",
+                        Value = EngagementService.GetActivityPoints(gUser.GuildId, user.Id).ToString("N0", CultureInfo.InvariantCulture)
+                    }
+                });
+            }
+
+            IEnumerable<string> roleMentions = ((SocketGuildUser)gUser).Roles.Where(x => !x.IsEveryone).Select(x => x.Mention);
+            fields.Add(
+                new EmbedFieldBuilder
+                {
+                    Name = "Roles",
+                    Value = string.Join(", ", roleMentions)
+                });
+
+            if (includePermissions)
+            {
+                IEnumerable<string> permissionNames = Enum.GetValues(typeof(GuildPermission))
+                                        .Cast<GuildPermission>()
+                                        .Where(gUser.GuildPermissions.Has)
+                                        .Select(p => Regex.Replace(p.ToString(), "([a-z])([A-Z])", "$1 $2"));
+
+                fields.Add(
+                new EmbedFieldBuilder
+                {
+                    Name = "Permissions",
+                    Value = string.Join(", ", permissionNames)
+                });
+            }
+            result.Title = $"{gUser.DisplayName} @ {gUser.Guild.Name}";
+            result.ThumbnailUrl = gUser.GetDisplayAvatarUrl();
         }
 
-        return new EmbedBuilder
-        {
-            Title = $"{user.DisplayName} @ {user.Guild.Name}",
-            Author = new EmbedAuthorBuilder
-            {
-                Name = caller.Username,
-                IconUrl = caller.GetAvatarUrl()
-            },
-            Fields = fields,
-            ThumbnailUrl = user.GetDisplayAvatarUrl(),
-            Color = Color.LightOrange,
-            Timestamp = DateTimeOffset.UtcNow
-        };
+        result.WithFields(fields);
+
+        return result;
     }
 }

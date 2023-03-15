@@ -1,16 +1,6 @@
-﻿namespace BaseBotService.Extensions;
+﻿using BaseBotService.Enumeration;
 
-// TODO: Move enum DiscordTimestampFormat to the BaseBotService.Enumerations namespace
-public enum DiscordTimestampFormat
-{
-    ShortTime = 0,
-    LongTime = 1,
-    ShortDate = 2,
-    LongDate = 3,
-    ShortDateTime = 4,
-    LongDateTime = 5,
-    RelativeTime = 6
-}
+namespace BaseBotService.Extensions;
 
 
 public static class DateTimeExtensions

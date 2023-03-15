@@ -1,6 +1,5 @@
 ﻿using BaseBotService.Extensions;
 using BaseBotService.Interfaces;
-using BaseBotService.Modules;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
