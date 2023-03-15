@@ -47,6 +47,6 @@ public class BotModule : BaseModule
         IDMChannel dm = await Caller.CreateDMChannelAsync();
         await dm.SendFileAsync(new FileAttachment(stream, $"honeycomb_v{AssemblyService.Version.Replace('.', '-')}.json"), text: "This is the most recent documentation, freshly created just for you!");
 
-        await RespondAsync();
+        await FollowupAsync(text: "Sent via DM.", ephemeral: true);
     }
 }
