@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using BaseBotService.Attributes;
+using Discord;
 using Discord.Interactions;
 
 namespace BaseBotService.Modules;
@@ -34,6 +35,7 @@ public class BotModule : BaseModule
         => await RespondAsync(text: $":ping_pong: It took me {Context.Client.Latency}ms to respond to you!", ephemeral: true);
 
     [SlashCommand("documentation", "Sends a json-file via DM containing all command documentations.")]
+    [RateLimitPrecondition(1, 300)]
     public async Task DocumentationAsync()
     {
         await DeferAsync(true);
@@ -44,5 +46,7 @@ public class BotModule : BaseModule
 
         IDMChannel dm = await Caller.CreateDMChannelAsync();
         await dm.SendFileAsync(new FileAttachment(stream, $"honeycomb_v{AssemblyService.Version.Replace('.', '-')}.json"), text: "This is the most recent documentation, freshly created just for you!");
+
+        await RespondAsync();
     }
 }

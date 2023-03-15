@@ -31,5 +31,4 @@ public abstract class BaseModule : InteractionModuleBase<SocketInteractionContex
             Text = $"Honeycomb v{AssemblyService.Version} ({EnvironmentService.EnvironmentName})"
         }
     };
-
 }
