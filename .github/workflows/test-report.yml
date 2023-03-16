@@ -8,9 +8,11 @@ jobs:
   report:
     runs-on: ubuntu-latest
     steps:
-    - uses: dorny/test-reporter@v1
+    - uses: phoenix-actions/test-reporting@v8
+      id: test-report                     # Set ID reference for step
       with:
         artifact: test-results            # artifact name
         name: NUnit Tests                 # Name of the check run which will be created
-        path: '**/*.trx'                     # Path to test results (inside artifact .zip)
+        path: '**/*.trx'                  # Path to test results (inside artifact .zip)
         reporter: dotnet-trx              # Format of test results
+        output-to: 'checks'
