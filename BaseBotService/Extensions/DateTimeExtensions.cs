@@ -19,7 +19,7 @@ public static class DateTimeExtensions
         ? "n/a"
         : $"<t:{dateTimeOffset.ToUnixTimestamp()}:{DiscordTimestampFormatHelper(format)}>";
 
-    private static char DiscordTimestampFormatHelper(this DiscordTimestampFormat format) => format switch
+    internal static char DiscordTimestampFormatHelper(this DiscordTimestampFormat format) => format switch
     {
         DiscordTimestampFormat.ShortTime => 't',
         DiscordTimestampFormat.LongTime => 'T',
