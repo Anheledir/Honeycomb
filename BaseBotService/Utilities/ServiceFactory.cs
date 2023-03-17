@@ -1,15 +1,13 @@
 ﻿using BaseBotService.Events;
 using BaseBotService.Interfaces;
 using BaseBotService.Models;
-using BaseBotService.Modules;
 using BaseBotService.Services;
-using BaseBotService.Utilities;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace BaseBotService.Factories;
+namespace BaseBotService.Utilities;
 
 public static class ServiceFactory
 {

@@ -2,7 +2,7 @@
 using Serilog;
 using Serilog.Events;
 
-namespace BaseBotService.Factories;
+namespace BaseBotService.Utilities;
 
 public static class LoggerFactory
 {

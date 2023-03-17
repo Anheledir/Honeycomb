@@ -44,7 +44,7 @@ public class DiscordEvents
         return Task.CompletedTask;
     }
 
-    public Task MessageReceived(SocketMessage message)
+    public Task MessageReceived(IMessage message)
     {
         if (message.Channel is IDMChannel)
         {
@@ -108,12 +108,12 @@ public class DiscordEvents
         }
     }
 
-    public async Task HandleInteraction(SocketInteraction interaction)
+    public async Task HandleInteraction(IDiscordInteraction interaction)
     {
         try
         {
             // Create an execution context that matches the generic type parameter of your InteractionModuleBase<T> modules.
-            var context = new SocketInteractionContext(_client, interaction);
+            var context = new SocketInteractionContext(_client, (SocketInteraction)interaction);
 
             // Execute the incoming command.
             var result = await _handler.ExecuteCommandAsync(context, _services);
