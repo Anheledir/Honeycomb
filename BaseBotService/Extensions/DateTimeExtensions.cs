@@ -30,4 +30,18 @@ public static class DateTimeExtensions
         DiscordTimestampFormat.RelativeTime => 'R',
         _ => 'f'
     };
+
+    public static DateTime ToTimezone(this DateTime dateTime, Timezone timezone)
+    {
+        int minutesToAdjust = (int)timezone;
+        TimeSpan timeSpan = new(0, minutesToAdjust, 0);
+        return dateTime + timeSpan;
+    }
+
+    public static DateTime ToUtcFromTimezone(this DateTime dateTime, Timezone timezone)
+    {
+        int minutesToAdjust = (int)timezone;
+        TimeSpan timeSpan = new(0, -minutesToAdjust, 0);
+        return dateTime + timeSpan;
+    }
 }
