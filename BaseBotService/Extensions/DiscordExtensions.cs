@@ -31,4 +31,32 @@ public static class DiscordExtensions
                 return LogEventLevel.Verbose;
         }
     }
+
+    public static EmbedBuilder WithFieldIf(this EmbedBuilder builder, bool condition, EmbedFieldBuilder item)
+    {
+        if (condition)
+        {
+            builder.WithFields(item);
+        }
+        return builder;
+    }
+
+    public static SelectMenuBuilder AddOptionsFromEnum<T>(
+        this SelectMenuBuilder builder,
+        int currentValue,
+        Func<T, string> getLabel
+    ) where T : Enum
+    {
+        foreach (T value in Enum.GetValues(typeof(T)).Cast<T>())
+        {
+            string label = getLabel(value).ExtractEmoji(out Emoji emote);
+            var option = new SelectMenuOptionBuilder()
+                .WithLabel(label)
+                .WithValue(Convert.ToInt32(value).ToString())
+                .WithDefault(currentValue == Convert.ToInt32(value))
+                .WithEmote(emote);
+            builder.AddOption(option);
+        }
+        return builder;
+    }
 }

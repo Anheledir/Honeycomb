@@ -1,5 +1,4 @@
-﻿using BaseBotService.Events;
-using BaseBotService.Interfaces;
+﻿using BaseBotService.Interfaces;
 using BaseBotService.Services;
 using BaseBotService.Utilities;
 using Discord;

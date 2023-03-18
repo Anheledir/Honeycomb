@@ -27,6 +27,47 @@ public class UserModule : BaseModule
         await RespondAsync(embed: GetUserProfileEmbed(user, false).Build(), ephemeral: false);
     }
 
+    [SlashCommand("config", "Change the settings of your global Honeycomb profile.")]
+    public async Task ConfigProfile()
+    {
+        var countryMenu = new SelectMenuBuilder()
+            .WithPlaceholder("Select the country you're living in.")
+            .WithCustomId("usr-profile-country")
+            .WithMinValues(0)
+            .WithMaxValues(1)
+            .AddOptionsFromEnum<Countries>(5, e => e.GetCountryNameWithFlag());
+
+        var languageMenu = new SelectMenuBuilder()
+            .WithPlaceholder("Select the languages you can communicate in.")
+            .WithCustomId("usr-profile-languages")
+            .WithMinValues(0)
+            .WithMaxValues(4)
+            .AddOptionsFromEnum<Languages>(1, e => e.GetFlaggedLanguageName());
+
+        var timezoneMenu = new SelectMenuBuilder()
+            .WithPlaceholder("Select the timezone you're living in.")
+            .WithCustomId("usr-profile-timezone")
+            .WithMinValues(0)
+            .WithMaxValues(1)
+            .AddOptionsFromEnum<Timezone>(60, e => e.GetNameWithOffset());
+
+        var genderMenu = new SelectMenuBuilder()
+            .WithPlaceholder("Select your gender identity.")
+            .WithCustomId("usr-profile-gender")
+            .WithMinValues(0)
+            .WithMaxValues(1)
+            .AddOptionsFromEnum<GenderIdentity>(0, e => e.GetFlaggedGenderName());
+
+        var components = new ComponentBuilder()
+            .WithSelectMenu(countryMenu)
+            .WithSelectMenu(languageMenu)
+            .WithSelectMenu(timezoneMenu)
+            .WithSelectMenu(genderMenu);
+
+
+        await ReplyAsync("Here is your user config!", components: components.Build());
+    }
+
     private EmbedBuilder GetUserProfileEmbed(IUser user, bool includePermissions)
     {
         var result = GetEmbedBuilder()

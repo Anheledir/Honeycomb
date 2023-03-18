@@ -1,8 +1,8 @@
 ﻿using BaseBotService.Enumeration;
-using BaseBotService.Events;
 using BaseBotService.Extensions;
 using BaseBotService.Interfaces;
 using BaseBotService.Tests.Utilities;
+using BaseBotService.Utilities;
 using Discord;
 using Serilog.Events;
 

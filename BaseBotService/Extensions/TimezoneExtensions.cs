@@ -8,7 +8,7 @@ public static partial class TimezoneExtensions
     [GeneratedRegex("([a-z])([A-Z])")]
     private static partial Regex PascalCasing();
 
-    public static string ToNameWithOffset(this Timezone timezone)
+    public static string GetNameWithOffset(this Timezone timezone)
     {
         string timezoneName = PascalCasing().Replace(timezone.ToString(), "$1 $2");
         int offsetHours = Math.Abs((int)timezone) / 60;

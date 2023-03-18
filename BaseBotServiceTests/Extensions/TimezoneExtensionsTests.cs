@@ -13,7 +13,7 @@ public class TimezoneExtensionsTests
     public void ToString_ShouldReturnCorrectTimezoneString(Timezone timezone, string expectedTimezoneString)
     {
         // Act
-        string actualTimezoneString = timezone.ToNameWithOffset();
+        string actualTimezoneString = timezone.GetNameWithOffset();
 
         // Assert
         actualTimezoneString.ShouldBe(expectedTimezoneString);

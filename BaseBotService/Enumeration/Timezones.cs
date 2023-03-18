@@ -2,7 +2,6 @@
 
 public enum Timezone
 {
-    InternationalDateLineWest = -720,
     Samoa = -660,
     Hawaii = -600,
     Alaska = -540,
@@ -11,7 +10,6 @@ public enum Timezone
     Central = -360,
     EST = -300,
     Atlantic = -240,
-    Newfoundland = -210,
     Brazilia = -180,
     MidAtlantic = -120,
     Azores = -60,
@@ -22,16 +20,11 @@ public enum Timezone
     Gulf = 240,
     Pakistan = 300,
     India = 330,
-    Nepal = 345,
     Bangladesh = 360,
-    Myanmar = 390,
     Indochina = 420,
     China = 480,
-    Korea = 540,
     Japan = 540,
     AustraliaEastern = 600,
-    AustraliaCentral = 570,
-    AustraliaWestern = 480,
     PacificIslands = 660,
     NewZealand = 720,
 }

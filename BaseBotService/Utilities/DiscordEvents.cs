@@ -5,7 +5,7 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using Serilog;
 
-namespace BaseBotService.Events;
+namespace BaseBotService.Utilities;
 
 public class DiscordEvents
 {
@@ -106,6 +106,28 @@ public class DiscordEvents
                 await _handler.RegisterCommandsGloballyAsync(true);
                 break;
         }
+
+        _client.SelectMenuExecuted += MyMenuHandler;
+
+        _client.ModalSubmitted += async modal =>
+        {
+            // Get the values of components.
+            List<SocketMessageComponentData> components =
+                modal.Data.Components.ToList();
+
+            // Specify the AllowedMentions so we don't actually ping everyone.
+            AllowedMentions mentions = new AllowedMentions();
+            mentions.AllowedTypes = AllowedMentionTypes.Users;
+
+            // Respond to the modal.
+            await modal.RespondAsync("Received modal result.", allowedMentions: mentions);
+        };
+    }
+
+    public async Task MyMenuHandler(SocketMessageComponent arg)
+    {
+        var text = string.Join(", ", arg.Data.Values);
+        await arg.RespondAsync($"You have selected {text}");
     }
 
     public async Task HandleInteraction(IDiscordInteraction interaction)
@@ -164,5 +186,7 @@ public class DiscordEvents
                 await interaction.GetOriginalResponseAsync().ContinueWith(async (msg) => await msg.Result.DeleteAsync());
             }
         }
+
+
     }
 }
