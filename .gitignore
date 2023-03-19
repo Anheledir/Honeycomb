@@ -358,3 +358,4 @@ MigrationBackup/
 /app/BaseBotService/Properties/launchSettings.json
 /app/BaseBotService/Settings.job
 *.db
+.vscode/.env
