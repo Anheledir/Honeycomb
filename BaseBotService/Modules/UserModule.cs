@@ -58,14 +58,22 @@ public class UserModule : BaseModule
             .WithMaxValues(1)
             .AddOptionsFromEnum<GenderIdentity>(0, e => e.GetFlaggedGenderName());
 
+        var userConfigMenu = new SelectMenuBuilder()
+            .WithPlaceholder("Select the user setting you want to change.")
+            .WithCustomId("usr-profile-config")
+            .WithMinValues(0)
+            .WithMaxValues(1)
+            .AddOptionsFromEnum<UserConfigs>(0, e => e.GetUserSettingsName());
+
         var components = new ComponentBuilder()
-            .WithSelectMenu(countryMenu)
-            .WithSelectMenu(languageMenu)
-            .WithSelectMenu(timezoneMenu)
-            .WithSelectMenu(genderMenu);
+            .WithSelectMenu(userConfigMenu)
+            .WithButton(new ButtonBuilder("Cancel", "usr-profile-cancel", ButtonStyle.Danger, null, null, isDisabled: true))
+            .WithButton(new ButtonBuilder("Save", "usr-profile-save", ButtonStyle.Success, null, null, isDisabled: true));   
 
-
-        await ReplyAsync("Here is your user config!", components: components.Build());
+        await RespondAsync("The bot sent you a DM with the settings-menu.", ephemeral: true);
+        
+        IDMChannel dm = await Caller.CreateDMChannelAsync();
+        await dm.SendMessageAsync("Please select the setting you want to change.", components: components.Build());
     }
 
     private EmbedBuilder GetUserProfileEmbed(IUser user, bool includePermissions)
