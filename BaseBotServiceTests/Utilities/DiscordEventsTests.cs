@@ -1,23 +1,22 @@
 ﻿using BaseBotService.Enumeration;
 using BaseBotService.Extensions;
 using BaseBotService.Interfaces;
-using BaseBotService.Tests.Utilities;
 using BaseBotService.Utilities;
 using Discord;
 using Serilog.Events;
 
-namespace BaseBotService.Tests.Events;
+namespace BaseBotService.Tests.Utilities;
 
 [TestFixture]
 public class DiscordEventsTests
 {
-    private ILogger _substituteLogger;
-    private DiscordSocketClient _substituteDiscordSocketClient;
-    private IServiceProvider _substituteServiceProvider;
-    private IAssemblyService _substituteAssemblyService;
-    private IEnvironmentService _substituteEnvironmentService;
-    private IEngagementService _substituteEngagementService;
-    private InteractionService _substituteInteractionService;
+    private ILogger? _substituteLogger;
+    private DiscordSocketClient? _substituteDiscordSocketClient;
+    private IServiceProvider? _substituteServiceProvider;
+    private IAssemblyService? _substituteAssemblyService;
+    private IEnvironmentService? _substituteEnvironmentService;
+    private IEngagementService? _substituteEngagementService;
+    private InteractionService? _substituteInteractionService;
 
     [SetUp]
     public void SetUp()
@@ -43,7 +42,7 @@ public class DiscordEventsTests
         await discordEvents.DisconnectedAsync(exception);
 
         // Assert
-        _substituteLogger.Received().Warning(exception, "Lost connection to Discord.");
+        _substituteLogger!.Received().Warning(exception, "Lost connection to Discord.");
     }
 
     [Test]
@@ -59,7 +58,7 @@ public class DiscordEventsTests
         await discordEvents.LogAsync(logMessage);
 
         // Assert
-        _substituteLogger.Received().Write(
+        _substituteLogger!.Received().Write(
             Arg.Is<LogEventLevel>(level => level == logMessage.GetSerilogSeverity()),
             logMessage.Exception,
             "[{Source}] {Message}",
@@ -91,8 +90,8 @@ public class DiscordEventsTests
         await discordEvents.MessageReceived(userMessageInGuild);
 
         // Assert
-        _substituteLogger.Received().Debug(Arg.Any<string>()); // user message within DM
-        await _substituteEngagementService.Received().AddActivityTick(guildId, userId); // user message within guild
+        _substituteLogger!.Received().Debug(Arg.Any<string>()); // user message within DM
+        await _substituteEngagementService!.Received().AddActivityTick(guildId, userId); // user message within guild
     }
 
     [TestCase(RegisterCommandsOnStartup.NoRegistration, "Skipping global application command registration.")]
@@ -113,10 +112,10 @@ public class DiscordEventsTests
         await discordEvents.ReadyAsync();
 
         // Assert
-        _substituteLogger.Received().Information(Arg.Is<string>(s => s.Contains("TestAssembly") && s.Contains("1.2.3") && s.Contains("TestEnvironment")));
-        await _substituteDiscordSocketClient.Received().SetActivityAsync(Arg.Any<Game>());
-        await _substituteDiscordSocketClient.Received().SetStatusAsync(UserStatus.Online);
-        _substituteLogger.Received().Information(registerCommandsLog);
+        _substituteLogger!.Received().Information(Arg.Is<string>(s => s.Contains("TestAssembly") && s.Contains("1.2.3") && s.Contains("TestEnvironment")));
+        await _substituteDiscordSocketClient!.Received().SetActivityAsync(Arg.Any<Game>());
+        await _substituteDiscordSocketClient!.Received().SetStatusAsync(UserStatus.Online);
+        _substituteLogger!.Received().Information(registerCommandsLog);
     }
 
     private DiscordEvents CreateDiscordEventsMock(
@@ -128,13 +127,13 @@ public class DiscordEventsTests
         IEngagementService? engagementService = null,
         InteractionService? interactionService = null)
     => new(
-        logger ?? _substituteLogger,
-        discordSocketClient ?? _substituteDiscordSocketClient,
-        serviceProvider ?? _substituteServiceProvider,
-        assemblyService ?? _substituteAssemblyService,
-        environmentService ?? _substituteEnvironmentService,
-        engagementService ?? _substituteEngagementService,
-        interactionService ?? _substituteInteractionService
+        logger ?? _substituteLogger!,
+        discordSocketClient ?? _substituteDiscordSocketClient!,
+        serviceProvider ?? _substituteServiceProvider!,
+        assemblyService ?? _substituteAssemblyService!,
+        environmentService ?? _substituteEnvironmentService!,
+        engagementService ?? _substituteEngagementService!,
+        interactionService ?? _substituteInteractionService!
     );
 
 }
