@@ -30,6 +30,9 @@ public class Program
         _client.Ready += _discordEvents.ReadyAsync;
         _client.Disconnected += _discordEvents.DisconnectedAsync;
         _client.MessageReceived += _discordEvents.MessageReceived;
+        _client.ButtonExecuted += _discordEvents.ButtonExecuted;
+        _client.SelectMenuExecuted += _discordEvents.SelectMenuExecuted;
+        _client.ModalSubmitted += _discordEvents.ModalSubmitted;
 
         // Add the public modules that inherit InteractionModuleBase<T> to the InteractionService
         await _handler.AddModulesAsync(Assembly.GetEntryAssembly(), ServiceProvider);

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Text.RegularExpressions;
-using Emoji = Discord.Emoji;
+using Discord;
 
 namespace BaseBotService.Extensions;
 public static class StringExtensions
@@ -37,4 +37,6 @@ public static class StringExtensions
         }
         return Regex.Replace(stringWithLeadingEmoji, "^:\\w+:\\s*", string.Empty).TrimStart();
     }
+
+    public static string FromCamelCase(this string camelCase) => Regex.Replace(camelCase, "([a-z])([A-Z])", "$1 $2");
 }

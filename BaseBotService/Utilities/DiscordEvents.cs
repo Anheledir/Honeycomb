@@ -106,29 +106,7 @@ public class DiscordEvents
                 await _handler.RegisterCommandsGloballyAsync(true);
                 break;
         }
-
-        _client.SelectMenuExecuted += MyMenuHandler;
-
-        _client.ModalSubmitted += async modal =>
-        {
-            // Get the values of components.
-            List<SocketMessageComponentData> components =
-                modal.Data.Components.ToList();
-
-            // Specify the AllowedMentions so we don't actually ping everyone.
-            AllowedMentions mentions = new AllowedMentions();
-            mentions.AllowedTypes = AllowedMentionTypes.Users;
-
-            // Respond to the modal.
-            await modal.RespondAsync("Received modal result.", allowedMentions: mentions);
-        };
-    }
-
-    public async Task MyMenuHandler(SocketMessageComponent arg)
-    {
-        var text = string.Join(", ", arg.Data.Values);
-        await arg.RespondAsync($"You have selected {text}");
-    }
+   }
 
     public async Task HandleInteraction(IDiscordInteraction interaction)
     {
@@ -186,7 +164,37 @@ public class DiscordEvents
                 await interaction.GetOriginalResponseAsync().ContinueWith(async (msg) => await msg.Result.DeleteAsync());
             }
         }
+    }
 
+    internal async Task ButtonExecuted(SocketMessageComponent component) {
+        switch(component.Data.CustomId)
+        {
+            case "usr-profile-cancel":
+                await component.RespondAsync($"{component.User.Mention} canceled!");
+                break;
+            case "usr-profile-save":
+                await component.RespondAsync($"{component.User.Mention} saved!");
+                break;
+        }
 
+        await component.RespondAsync($"You have clicked {component.Data.Values.First()}!", ephemeral: true);
+    }
+    internal async Task SelectMenuExecuted(SocketMessageComponent component) {
+        switch(component.Data.CustomId)
+        {
+            case "usr-profile-config":
+                await component.RespondAsync($"{component.User.Mention} has clicked the button!");
+                break;
+        }
+
+        await component.RespondAsync($"You have selected {component.Data.Values.First()}", ephemeral: true);
+    }
+    internal async Task ModalSubmitted(SocketModal component) {
+            List<SocketMessageComponentData> components = component.Data.Components.ToList();
+
+            AllowedMentions mentions = new AllowedMentions();
+            mentions.AllowedTypes = AllowedMentionTypes.Users;
+
+            await component.RespondAsync("Received modal result.", allowedMentions: mentions, ephemeral: true); 
     }
 }
