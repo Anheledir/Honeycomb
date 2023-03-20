@@ -41,16 +41,13 @@ public static class ServiceFactory
             .AddSingleton<DiscordEvents>()
 
         // misc services
+            .AddMediatR(_ => new MediatRServiceConfiguration())
             .AddSingleton<IAssemblyService, AssemblyService>()
             .AddSingleton<IEnvironmentService, EnvironmentService>()
             .AddScoped<IEngagementService, EngagementService>()
 
         // utilities
             .AddSingleton<RateLimiter>()
-
-        //// command modules
-        //    .AddSingleton<BotModule>()
-        //    .AddSingleton<UserModule>()
 
         // persistence services
             .AddSingleton<IPersistenceService, PersistenceService>()
