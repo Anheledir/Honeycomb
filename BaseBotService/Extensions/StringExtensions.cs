@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Text.RegularExpressions;
-using Discord;
 
 namespace BaseBotService.Extensions;
 public static class StringExtensions

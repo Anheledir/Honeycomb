@@ -1,7 +1,5 @@
-﻿using BaseBotService.Interfaces;
-using BaseBotService.Models;
+﻿using BaseBotService.Models;
 using LiteDB;
-using Serilog;
 
 namespace BaseBotService.Services;
 public class EngagementService : IEngagementService

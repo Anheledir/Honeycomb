@@ -1,7 +1,4 @@
 ﻿using BaseBotService.Enumeration;
-using BaseBotService.Extensions;
-using BaseBotService.Interfaces;
-using Serilog;
 
 namespace BaseBotService.Services;
 

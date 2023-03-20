@@ -1,5 +1,4 @@
-﻿using Discord;
-using Serilog.Events;
+﻿using Serilog.Events;
 
 namespace BaseBotService.Extensions;
 

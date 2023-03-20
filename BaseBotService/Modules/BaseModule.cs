@@ -1,10 +1,6 @@
 ﻿using BaseBotService.Attributes;
-using BaseBotService.Interfaces;
 using BaseBotService.Utilities;
-using Discord;
-using Discord.Interactions;
 using Discord.WebSocket;
-using Serilog;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 

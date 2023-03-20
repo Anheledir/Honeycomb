@@ -1,5 +1,4 @@
 using BaseBotService.Enumeration;
-using System.Text.RegularExpressions;
 
 namespace BaseBotService.Extensions;
 
@@ -8,7 +7,7 @@ public static partial class UserConfigsExtensions
     public static string GetUserSettingsName(this UserConfigs configs)
     {
         string name = configs.ToString().FromCamelCase();
-        
+
         // Add discord emoji based on the config
         switch (configs)
         {
@@ -36,7 +35,7 @@ public static partial class UserConfigsExtensions
             case UserConfigs.RelationshipStatus:
                 name = ":couple: " + name;
                 break;
-        }        
+        }
         return name;
     }
 }

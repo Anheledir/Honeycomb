@@ -1,6 +1,4 @@
 ﻿using BaseBotService.Attributes;
-using Discord;
-using Discord.Interactions;
 
 namespace BaseBotService.Modules;
 

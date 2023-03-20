@@ -1,6 +1,4 @@
-﻿using BaseBotService.Interfaces;
-using LiteDB;
-using Serilog;
+﻿using LiteDB;
 
 namespace BaseBotService.Services;
 

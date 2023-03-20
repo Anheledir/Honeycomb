@@ -359,3 +359,4 @@ MigrationBackup/
 /app/BaseBotService/Settings.job
 *.db
 .env
+/BaseBotService/.DS_Store

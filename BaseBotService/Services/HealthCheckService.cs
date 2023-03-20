@@ -1,10 +1,8 @@
 ﻿using BaseBotService.Enumeration;
-using BaseBotService.Interfaces;
 using Discord.WebSocket;
 using Honeycomb;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Serilog;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;

@@ -1,8 +1,4 @@
 ﻿using BaseBotService.Enumeration;
-using BaseBotService.Extensions;
-using BaseBotService.Interfaces;
-using Discord;
-using Discord.Interactions;
 using Discord.WebSocket;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -40,10 +36,10 @@ public class UserModule : BaseModule
         var components = new ComponentBuilder()
             .WithSelectMenu(userConfigMenu)
             .WithButton(new ButtonBuilder("Cancel", "usr-profile-cancel", ButtonStyle.Danger))
-            .WithButton(new ButtonBuilder("Save", "usr-profile-save", ButtonStyle.Success));   
+            .WithButton(new ButtonBuilder("Save", "usr-profile-save", ButtonStyle.Success));
 
         await RespondAsync("The bot sent you a DM with the settings-menu.", ephemeral: true);
-        
+
         IDMChannel dm = await Caller.CreateDMChannelAsync();
         await dm.SendMessageAsync("Please select the setting you want to change.", components: components.Build());
     }

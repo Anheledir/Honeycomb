@@ -1,7 +1,5 @@
-﻿using Serilog;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using System.Diagnostics.CodeAnalysis;
-using BaseBotService.Interfaces;
 
 namespace BaseBotService.Services;
 

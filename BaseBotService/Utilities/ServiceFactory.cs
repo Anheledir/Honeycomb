@@ -1,10 +1,8 @@
-﻿using BaseBotService.Interfaces;
-using BaseBotService.Models;
+﻿using BaseBotService.Models;
 using BaseBotService.Services;
-using Discord;
-using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace BaseBotService.Utilities;
 
@@ -30,6 +28,7 @@ public static class ServiceFactory
         IServiceCollection services = new ServiceCollection()
         // log services
             .AddSingleton(LoggerFactory.CreateLogger())
+            .AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()))
 
         // discord services
             .AddSingleton(socketConfig)
@@ -38,10 +37,9 @@ public static class ServiceFactory
             .AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>()))
 
         // events
-            .AddSingleton<DiscordEvents>()
+            .AddSingleton<DiscordEventListener>()
 
         // misc services
-            .AddMediatR(_ => new MediatRServiceConfiguration())
             .AddSingleton<IAssemblyService, AssemblyService>()
             .AddSingleton<IEnvironmentService, EnvironmentService>()
             .AddScoped<IEngagementService, EngagementService>()
