@@ -26,7 +26,7 @@ public static class LoggerFactory
         {
             if (logEvent.Properties.TryGetValue("token", out var tokenValue) && tokenValue is ScalarValue token)
             {
-                return new LogEventProperty("token", new ScalarValue(token.Value.ToString()!.MaskToken()));
+                return new LogEventProperty("token", new ScalarValue(token.Value?.ToString()!.MaskToken()));
             }
             return logEvent;
         });

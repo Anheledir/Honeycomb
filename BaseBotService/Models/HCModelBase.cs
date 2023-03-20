@@ -11,6 +11,6 @@ public abstract class HCModelBase
 
     public static ILiteCollection<T> GetServiceRegistration<T>(IServiceProvider services)
     {
-        return services.GetService<IPersistenceService>().GetCollection<T>();
+        return services.GetRequiredService<IPersistenceService>().GetCollection<T>();
     }
 }

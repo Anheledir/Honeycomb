@@ -31,7 +31,7 @@ public class UserModule : BaseModule
     public async Task ConfigProfile()
     {
         var userConfigMenu = new SelectMenuBuilder()
-            .WithPlaceholder("Select the user setting you want to change.")
+            .WithPlaceholder("Select the user setting you want to change, or click cancel to exit.")
             .WithCustomId("usr-profile-config")
             .WithMinValues(0)
             .WithMaxValues(1)
