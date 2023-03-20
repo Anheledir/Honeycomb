@@ -1,6 +1,5 @@
 ﻿using BaseBotService.Enumeration;
 using Discord.WebSocket;
-using Honeycomb;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Net;

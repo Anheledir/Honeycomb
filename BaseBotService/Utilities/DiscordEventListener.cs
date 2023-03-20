@@ -1,4 +1,4 @@
-﻿using BaseBotService.Notifications;
+﻿using BaseBotService.Messages;
 using Discord.WebSocket;
 using System.Reflection;
 

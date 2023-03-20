@@ -1,7 +1,7 @@
-﻿using BaseBotService.Notifications;
+﻿using BaseBotService.Messages;
 using Discord.WebSocket;
 
-namespace BaseBotService.NotificationHandler;
+namespace BaseBotService.Notifications;
 public class ActivityHandler : INotificationHandler<ClientReadyNotification>
 {
     private readonly DiscordSocketClient _client;
@@ -11,6 +11,7 @@ public class ActivityHandler : INotificationHandler<ClientReadyNotification>
         _client = client;
     }
 
+    // TODO: Move this into its own service.
     public async Task Handle(ClientReadyNotification notification, CancellationToken cancellationToken)
     {
         await _client.SetActivityAsync(new Game("the world burn", ActivityType.Watching));

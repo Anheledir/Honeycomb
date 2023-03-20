@@ -1,6 +1,6 @@
 ﻿using Discord.WebSocket;
 
-namespace BaseBotService.Notifications;
+namespace BaseBotService.Messages;
 public class InteractionCreatedNotification : INotification
 {
     public SocketInteraction Interaction { get; set; }

@@ -1,4 +1,4 @@
-﻿namespace BaseBotService.Notifications;
+﻿namespace BaseBotService.Messages;
 
 public class MessageReceivedNotification : INotification
 {

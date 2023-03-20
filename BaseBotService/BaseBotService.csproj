@@ -7,10 +7,15 @@
         <Nullable>enable</Nullable>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <AssemblyName>Honeycomb</AssemblyName>
-        <StartupObject>Honeycomb.Program</StartupObject>
+        <StartupObject>BaseBotService.Program</StartupObject>
         <SignAssembly>False</SignAssembly>
         <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
     </PropertyGroup>
+    <ItemGroup>
+        <Compile Remove="RequestHandler\**" />
+        <EmbeddedResource Remove="RequestHandler\**" />
+        <None Remove="RequestHandler\**" />
+    </ItemGroup>
     <ItemGroup>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
             <_Parameter1>BaseBotServiceTests</_Parameter1>

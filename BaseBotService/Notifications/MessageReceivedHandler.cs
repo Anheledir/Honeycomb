@@ -1,6 +1,6 @@
-﻿using BaseBotService.Notifications;
+﻿using BaseBotService.Messages;
 
-namespace BaseBotService.NotificationHandler;
+namespace BaseBotService.Notifications;
 
 public class MessageReceivedHandler : INotificationHandler<MessageReceivedNotification>
 {
