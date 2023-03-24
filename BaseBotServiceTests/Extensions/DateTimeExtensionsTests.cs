@@ -1,7 +1,8 @@
-using BaseBotService.Extensions;
-using BaseBotService.Enumeration;
+using BaseBotService.Interactions.Enums;
+using BaseBotService.Utilities.Enums;
+using BaseBotService.Utilities.Extensions;
 
-namespace BaseBotService.Tests.Extensions;
+namespace BaseBotServiceTests.Extensions;
 
 public class DateTimeExtensionsTests
 {
@@ -16,13 +17,13 @@ public class DateTimeExtensionsTests
     public void ToUnixTimestamp_ConvertsDateTimeToUnixTimestamp()
     {
         // Arrange
-        var dateTime = _faker.Date.Recent();
+        DateTime dateTime = _faker.Date.Recent();
 
         // Act
-        var unixTimestamp = dateTime.ToUnixTimestamp();
+        long unixTimestamp = dateTime.ToUnixTimestamp();
 
         // Assert
-        var expectedTimestamp = (long)(dateTime - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+        long expectedTimestamp = (long)(dateTime - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
         unixTimestamp.ShouldBe(expectedTimestamp);
     }
 
@@ -30,13 +31,13 @@ public class DateTimeExtensionsTests
     public void ToUnixTimestamp_ConvertsDateTimeOffsetToUnixTimestamp()
     {
         // Arrange
-        var dateTimeOffset = _faker.Date.RecentOffset();
+        DateTimeOffset dateTimeOffset = _faker.Date.RecentOffset();
 
         // Act
-        var unixTimestamp = dateTimeOffset.ToUnixTimestamp();
+        long unixTimestamp = dateTimeOffset.ToUnixTimestamp();
 
         // Assert
-        var expectedTimestamp = (long)(dateTimeOffset - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).TotalSeconds;
+        long expectedTimestamp = (long)(dateTimeOffset - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).TotalSeconds;
         unixTimestamp.ShouldBe(expectedTimestamp);
     }
 
@@ -50,13 +51,13 @@ public class DateTimeExtensionsTests
     public void ToDiscordTimestamp_FormatsDateTimeAsDiscordTimestamp(DiscordTimestampFormat format)
     {
         // Arrange
-        var dateTime = _faker.Date.Recent();
+        DateTime dateTime = _faker.Date.Recent();
 
         // Act
-        var discordTimestamp = dateTime.ToDiscordTimestamp(format);
+        string discordTimestamp = dateTime.ToDiscordTimestamp(format);
 
         // Assert
-        var expectedTimestamp = $"<t:{dateTime.ToUnixTimestamp()}:{format.DiscordTimestampFormatHelper()}>";
+        string expectedTimestamp = $"<t:{dateTime.ToUnixTimestamp()}:{format.DiscordTimestampFormatHelper()}>";
         discordTimestamp.ShouldBe(expectedTimestamp);
     }
 
@@ -70,13 +71,13 @@ public class DateTimeExtensionsTests
     public void ToDiscordTimestamp_FormatsDateTimeOffsetAsDiscordTimestamp(DiscordTimestampFormat format)
     {
         // Arrange
-        var dateTimeOffset = _faker.Date.RecentOffset();
+        DateTimeOffset dateTimeOffset = _faker.Date.RecentOffset();
 
         // Act
-        var discordTimestamp = dateTimeOffset.ToDiscordTimestamp(format);
+        string discordTimestamp = dateTimeOffset.ToDiscordTimestamp(format);
 
         // Assert
-        var expectedTimestamp = $"<t:{dateTimeOffset.ToUnixTimestamp()}:{format.DiscordTimestampFormatHelper()}>";
+        string expectedTimestamp = $"<t:{dateTimeOffset.ToUnixTimestamp()}:{format.DiscordTimestampFormatHelper()}>";
         discordTimestamp.ShouldBe(expectedTimestamp);
     }
 
@@ -84,10 +85,10 @@ public class DateTimeExtensionsTests
     public void ToDiscordTimestamp_MinDateTime_ReturnsNotAvailable()
     {
         // Arrange
-        var dateTime = DateTime.MinValue;
+        DateTime dateTime = DateTime.MinValue;
 
         // Act
-        var discordTimestamp = dateTime.ToDiscordTimestamp();
+        string discordTimestamp = dateTime.ToDiscordTimestamp();
 
         // Assert
         discordTimestamp.ShouldBe("n/a");
@@ -97,10 +98,10 @@ public class DateTimeExtensionsTests
     public void ToDiscordTimestamp_MinDateTimeOffset_ReturnsNotAvailable()
     {
         // Arrange
-        var dateTimeOffset = DateTimeOffset.MinValue;
+        DateTimeOffset dateTimeOffset = DateTimeOffset.MinValue;
 
         // Act
-        var discordTimestamp = dateTimeOffset.ToDiscordTimestamp();
+        string discordTimestamp = dateTimeOffset.ToDiscordTimestamp();
 
         // Assert
         discordTimestamp.ShouldBe("n/a");

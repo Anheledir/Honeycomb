@@ -1,27 +1,26 @@
 ﻿using Discord;
 
-namespace BaseBotService.Tests.Utilities
+namespace BaseBotServiceTests.Utilities;
+
+public static class MessageFactory
 {
-    public static class MessageFactory
+    public static IMessage CreateMockMessage(
+        string? content = "",
+        bool isBot = false,
+        bool isWebhook = false,
+        ulong? authorId = null
+        )
     {
-        public static IMessage CreateMockMessage(
-            string? content = "",
-            bool isBot = false,
-            bool isWebhook = false,
-            ulong? authorId = null
-            )
-        {
-            var faker = new Faker();
+        Faker faker = new();
 
-            var message = Substitute.For<IMessage>();
-            message.CreatedAt.Returns(faker.Date.Past(2));
-            message.Channel.Returns(MessageChannelFactory.CreateMockMessageChannel());
-            message.Author.Returns(_ => UserFactory.CreateMockUser(isBot, isWebhook, authorId));
-            message.Content.Returns(content ?? faker.Lorem.Sentence());
-            message.Id.Returns(faker.Random.ULong());
-            message.Timestamp.Returns(faker.Date.RecentOffset());
+        IMessage message = Substitute.For<IMessage>();
+        _ = message.CreatedAt.Returns(faker.Date.Past(2));
+        _ = message.Channel.Returns(MessageChannelFactory.CreateMockMessageChannel());
+        _ = message.Author.Returns(_ => UserFactory.CreateMockUser(isBot, isWebhook, authorId));
+        _ = message.Content.Returns(content ?? faker.Lorem.Sentence());
+        _ = message.Id.Returns(faker.Random.ULong());
+        _ = message.Timestamp.Returns(faker.Date.RecentOffset());
 
-            return message;
-        }
+        return message;
     }
 }

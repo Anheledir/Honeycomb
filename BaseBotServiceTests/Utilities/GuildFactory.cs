@@ -1,20 +1,19 @@
 ﻿using Discord;
 
-namespace BaseBotService.Tests.Utilities
+namespace BaseBotServiceTests.Utilities;
+
+public static class GuildFactory
 {
-    public static class GuildFactory
+    public static IGuild CreateMockGuild()
     {
-        public static IGuild CreateMockGuild()
-        {
-            var faker = new Faker();
+        Faker faker = new();
 
-            var guild = Substitute.For<IGuild>();
-            guild.Id.Returns(faker.Random.ULong());
-            guild.Name.Returns(faker.Company.CompanyName());
+        IGuild guild = Substitute.For<IGuild>();
+        _ = guild.Id.Returns(faker.Random.ULong());
+        _ = guild.Name.Returns(faker.Company.CompanyName());
 
-            // Set additional properties or methods if necessary.
+        // Set additional properties or methods if necessary.
 
-            return guild;
-        }
+        return guild;
     }
 }

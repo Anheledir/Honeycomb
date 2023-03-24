@@ -1,9 +1,6 @@
-﻿namespace BaseBotService.Utilities;
+﻿using System.Collections.Concurrent;
 
-using Serilog;
-using System;
-using System.Collections.Concurrent;
-
+namespace BaseBotService.Utilities;
 public class RateLimiter
 {
     private readonly ConcurrentDictionary<(ulong, string), (DateTime, int)> _userCommandUsage;

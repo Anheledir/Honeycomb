@@ -1,5 +1,7 @@
-﻿using BaseBotService.Services;
-using BaseBotService.Utilities;
+﻿using BaseBotService.Core;
+using BaseBotService.Core.Interfaces;
+using BaseBotService.Infrastructure;
+using BaseBotService.Infrastructure.Services;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -10,16 +12,16 @@ public class Program
 {
     public static IServiceProvider ServiceProvider { get; } = ServiceFactory.CreateServiceProvider();
 
-    static void Main(string[] args) => new Program().RunAsync().GetAwaiter().GetResult();
+    private static void Main(string[] args) => new Program().RunAsync().GetAwaiter().GetResult();
 
-    async Task RunAsync()
+    private async Task RunAsync()
     {
-        var listener = ServiceProvider.GetRequiredService<DiscordEventListener>();
+        DiscordEventListener listener = ServiceProvider.GetRequiredService<DiscordEventListener>();
         await listener.StartAsync();
 
         // Connect to Discord API
-        var client = ServiceProvider.GetRequiredService<DiscordSocketClient>();
-        var environment = ServiceProvider.GetRequiredService<IEnvironmentService>();
+        DiscordSocketClient client = ServiceProvider.GetRequiredService<DiscordSocketClient>();
+        IEnvironmentService environment = ServiceProvider.GetRequiredService<IEnvironmentService>();
 
         await client.LoginAsync(TokenType.Bot, environment.DiscordBotToken);
         await client.StartAsync();

@@ -1,9 +1,9 @@
-﻿using BaseBotService.Attributes;
-using BaseBotService.Utilities;
+﻿using BaseBotService.Core;
+using BaseBotService.Utilities.Attributes;
 using Microsoft.Extensions.Caching.Memory;
 using System.Reflection;
 
-namespace BaseBotService.Tests.Utilities;
+namespace BaseBotServiceTests.Utilities;
 
 [TestFixture]
 public class CommandHandlerTests
@@ -24,12 +24,12 @@ public class CommandHandlerTests
     public async Task ExecuteCommand_WithValidCommand_CallsExpectedMethod()
     {
         // Arrange
-        var cache = new MemoryCache(new MemoryCacheOptions());
-        var commandHandler = new CommandHandler(_loggerMock, cache);
+        MemoryCache cache = new(new MemoryCacheOptions());
+        CommandHandler commandHandler = new(_loggerMock, cache);
 
         // Populate the cache with a method map for testing
         const string testCommandName = "test-command";
-        cache.Set("methodMap", CommandHandler.BuildMethodMap(_assembly));
+        _ = cache.Set("methodMap", CommandHandler.BuildMethodMap(_assembly));
 
         // Act
         await commandHandler.ExecuteCommand(testCommandName);
@@ -43,8 +43,8 @@ public class CommandHandlerTests
     public async Task ExecuteCommand_WithInvalidCommand_LogsError()
     {
         // Arrange
-        var cache = new MemoryCache(new MemoryCacheOptions());
-        var commandHandler = new CommandHandler(_loggerMock, cache);
+        MemoryCache cache = new(new MemoryCacheOptions());
+        CommandHandler commandHandler = new(_loggerMock, cache);
 
         // Act
         await commandHandler.ExecuteCommand("invalid-command");
@@ -57,15 +57,15 @@ public class CommandHandlerTests
     public async Task ExecuteCommand_WithValidCommandAndArguments_CallsExpectedMethodWithConvertedArguments()
     {
         // Arrange
-        var cache = new MemoryCache(new MemoryCacheOptions());
-        var commandHandler = new CommandHandler(_loggerMock, cache);
+        MemoryCache cache = new(new MemoryCacheOptions());
+        CommandHandler commandHandler = new(_loggerMock, cache);
         const string testCommandName = "test-command2";
-        cache.Set("methodMap", CommandHandler.BuildMethodMap(_assembly));
+        _ = cache.Set("methodMap", CommandHandler.BuildMethodMap(_assembly));
 
         // Define the arguments to pass to the method
         const string argument1 = "test";
         const int argument2 = 123;
-        var arguments = new object[] { argument1, argument2 };
+        object[] arguments = new object[] { argument1, argument2 };
 
         // Act
         await commandHandler.ExecuteCommand(testCommandName, arguments);
@@ -79,15 +79,15 @@ public class CommandHandlerTests
     public async Task ExecuteCommand_WithValidCommandAndIncorrectArguments_LogsError()
     {
         // Arrange
-        var cache = new MemoryCache(new MemoryCacheOptions());
-        var commandHandler = new CommandHandler(_loggerMock, cache);
+        MemoryCache cache = new(new MemoryCacheOptions());
+        CommandHandler commandHandler = new(_loggerMock, cache);
         const string testCommandName = "test-command2";
-        cache.Set("methodMap", CommandHandler.BuildMethodMap(_assembly));
+        _ = cache.Set("methodMap", CommandHandler.BuildMethodMap(_assembly));
 
         // Define the arguments to pass to the method (incorrect types)
         const string argument1 = "test argument";
         const string argument2 = "wrong argument";
-        var arguments = new object[] { argument1, argument2 };
+        object[] arguments = new object[] { argument1, argument2 };
 
         // Act
         await commandHandler.ExecuteCommand(testCommandName, arguments);
@@ -121,12 +121,12 @@ public class CommandHandlerTests
     public void ConvertArguments_ConvertsArgumentsToTargetTypes()
     {
         // Arrange
-        var arguments = new object[] { "arg1", "2" };
-        var types = new Type[] { typeof(string), typeof(int) };
-        var expectedConvertedArguments = new object[] { "arg1", 2 };
+        object[] arguments = new object[] { "arg1", "2" };
+        Type[] types = new Type[] { typeof(string), typeof(int) };
+        object[] expectedConvertedArguments = new object[] { "arg1", 2 };
 
         // Act
-        var result = CommandHandler.ConvertArguments(arguments, types);
+        object[] result = CommandHandler.ConvertArguments(arguments, types);
 
         // Assert
         Assert.That(result, Is.EqualTo(expectedConvertedArguments));

@@ -1,0 +1,30 @@
+﻿namespace BaseBotService.Interactions.Enums;
+
+public enum Timezone
+{
+    Samoa = -660,
+    Hawaii = -600,
+    Alaska = -540,
+    PST = -480,
+    Mountain = -420,
+    Central = -360,
+    EST = -300,
+    Atlantic = -240,
+    Brazilia = -180,
+    MidAtlantic = -120,
+    Azores = -60,
+    GMT = 0,
+    CET = 60,
+    EasternEuropean = 120,
+    Moscow = 180,
+    Gulf = 240,
+    Pakistan = 300,
+    India = 330,
+    Bangladesh = 360,
+    Indochina = 420,
+    China = 480,
+    Japan = 540,
+    AustraliaEastern = 600,
+    PacificIslands = 660,
+    NewZealand = 720,
+}
