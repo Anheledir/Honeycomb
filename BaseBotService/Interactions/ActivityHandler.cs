@@ -11,6 +11,7 @@ public class ActivityHandler : INotificationHandler<ClientReadyNotification>
         _client = client;
     }
 
+#pragma warning disable S1135
     // TODO: Move this into its own service.
     public async Task Handle(ClientReadyNotification notification, CancellationToken cancellationToken)
     {

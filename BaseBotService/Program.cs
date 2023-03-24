@@ -8,13 +8,13 @@ using Microsoft.Extensions.Hosting;
 
 namespace BaseBotService;
 
-public class Program
+public static class Program
 {
     public static IServiceProvider ServiceProvider { get; } = ServiceFactory.CreateServiceProvider();
 
-    private static void Main(string[] args) => new Program().RunAsync().GetAwaiter().GetResult();
+    private static void Main() => RunAsync().GetAwaiter().GetResult();
 
-    private async Task RunAsync()
+    private static async Task RunAsync()
     {
         DiscordEventListener listener = ServiceProvider.GetRequiredService<DiscordEventListener>();
         await listener.StartAsync();

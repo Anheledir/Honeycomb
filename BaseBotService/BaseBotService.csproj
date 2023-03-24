@@ -12,9 +12,21 @@
         <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
     </PropertyGroup>
     <ItemGroup>
+        <Compile Remove="Modules\**" />
+        <Compile Remove="Notifications\**" />
         <Compile Remove="RequestHandler\**" />
+        <Compile Remove="Requests\**" />
+        <Compile Remove="Services\**" />
+        <EmbeddedResource Remove="Modules\**" />
+        <EmbeddedResource Remove="Notifications\**" />
         <EmbeddedResource Remove="RequestHandler\**" />
+        <EmbeddedResource Remove="Requests\**" />
+        <EmbeddedResource Remove="Services\**" />
+        <None Remove="Modules\**" />
+        <None Remove="Notifications\**" />
         <None Remove="RequestHandler\**" />
+        <None Remove="Requests\**" />
+        <None Remove="Services\**" />
     </ItemGroup>
     <ItemGroup>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
@@ -36,11 +48,5 @@
         <PackageReference Include="Serilog" Version="2.12.0" />
         <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
         <PackageReference Include="MediatR" Version="12.0.1" />
-    </ItemGroup>
-    <ItemGroup>
-      <Folder Include="Modules\" />
-      <Folder Include="Notifications\" />
-      <Folder Include="Requests\" />
-      <Folder Include="Services\" />
     </ItemGroup>
 </Project>
