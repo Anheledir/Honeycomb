@@ -1,6 +1,6 @@
 ﻿using BaseBotService.Utilities.Extensions;
 
-namespace BaseBotServiceTests.Extensions;
+namespace BaseBotService.Tests.Utilities.Extensions;
 
 public class StringExtensionsTests
 {

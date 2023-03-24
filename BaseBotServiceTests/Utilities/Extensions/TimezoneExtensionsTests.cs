@@ -1,7 +1,7 @@
-﻿using BaseBotService.Extensions;
+﻿using BaseBotService.Utilities.Extensions;
 using BaseBotService.Interactions.Enums;
 
-namespace BaseBotServiceTests.Extensions;
+namespace BaseBotService.Tests.Utilities.Extensions;
 
 [TestFixture]
 public class TimezoneExtensionsTests

@@ -1,6 +1,6 @@
 ﻿using Discord;
 
-namespace BaseBotServiceTests.Utilities;
+namespace BaseBotService.Tests;
 
 public static class MessageChannelFactory
 {

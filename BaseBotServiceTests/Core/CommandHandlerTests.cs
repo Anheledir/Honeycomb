@@ -3,7 +3,7 @@ using BaseBotService.Utilities.Attributes;
 using Microsoft.Extensions.Caching.Memory;
 using System.Reflection;
 
-namespace BaseBotServiceTests.Utilities;
+namespace BaseBotService.Tests.Core;
 
 [TestFixture]
 public class CommandHandlerTests

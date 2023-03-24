@@ -2,7 +2,7 @@
 using Discord;
 using Serilog.Events;
 
-namespace BaseBotServiceTests.Extensions;
+namespace BaseBotService.Tests.Utilities.Extensions;
 
 public class DiscordExtensionsTests
 {
@@ -28,7 +28,7 @@ public class DiscordExtensionsTests
     public void GetSerilogSeverity_InvalidLogSeverity_ReturnsVerbose()
     {
         // Arrange
-        LogSeverity invalidSeverity = (LogSeverity)(-1);
+        const LogSeverity invalidSeverity = (LogSeverity)(-1);
         LogMessage logMessage = new(invalidSeverity, "Source", "Message");
 
         // Act
@@ -43,7 +43,7 @@ public class DiscordExtensionsTests
         // Arrange
         EmbedBuilder embedBuilder = new();
         EmbedFieldBuilder embedFieldBuilder = new EmbedFieldBuilder().WithName("Name").WithValue("Value");
-        bool condition = true;
+        const bool condition = true;
 
         // Act
         _ = embedBuilder.WithFieldIf(condition, embedFieldBuilder);
@@ -60,7 +60,7 @@ public class DiscordExtensionsTests
         // Arrange
         EmbedBuilder embedBuilder = new();
         EmbedFieldBuilder embedFieldBuilder = new EmbedFieldBuilder().WithName("Name").WithValue("Value");
-        bool condition = false;
+        const bool condition = false;
 
         // Act
         _ = embedBuilder.WithFieldIf(condition, embedFieldBuilder);

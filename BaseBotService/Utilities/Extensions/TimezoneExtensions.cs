@@ -1,7 +1,7 @@
 ﻿using BaseBotService.Interactions.Enums;
 using System.Text.RegularExpressions;
 
-namespace BaseBotService.Extensions;
+namespace BaseBotService.Utilities.Extensions;
 
 public static partial class TimezoneExtensions
 {

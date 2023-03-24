@@ -1,7 +1,7 @@
 ﻿using BaseBotService.Interactions.Enums;
 using BaseBotService.Utilities.Extensions;
 
-namespace BaseBotServiceTests.Extensions;
+namespace BaseBotService.Tests.Utilities.Extensions;
 public class GenderIdentitiesTests
 {
     [TestCase(GenderIdentity.Male, ":male_sign: Male")]

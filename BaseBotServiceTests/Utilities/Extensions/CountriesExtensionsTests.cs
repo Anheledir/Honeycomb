@@ -1,7 +1,7 @@
-﻿using BaseBotService.Extensions;
-using BaseBotService.Interactions.Enums;
+﻿using BaseBotService.Interactions.Enums;
+using BaseBotService.Utilities.Extensions;
 
-namespace BaseBotServiceTests.Extensions;
+namespace BaseBotService.Tests.Utilities.Extensions;
 
 [TestFixture]
 public class CountriesExtensionsTests
@@ -10,7 +10,7 @@ public class CountriesExtensionsTests
     public void GetCountryNameWithFlag_ShouldReturnCountryNameWithFlag_WhenCountryHasFlag()
     {
         // Arrange
-        Countries country = Countries.UnitedStates;
+        const Countries country = Countries.UnitedStates;
 
         // Act
         string result = country.GetCountryNameWithFlag();
@@ -23,7 +23,7 @@ public class CountriesExtensionsTests
     public void GetCountryNameWithFlag_ShouldReturnCountryNameWithoutFlag_WhenCountryDoesNotHaveFlag()
     {
         // Arrange
-        Countries country = Countries.Unknown;
+        const Countries country = Countries.Unknown;
 
         // Act
         string result = country.GetCountryNameWithFlag();
@@ -36,7 +36,7 @@ public class CountriesExtensionsTests
     public void GetCountryNameWithFlag_ShouldReturnFormattedCountryName_WhenCountryNameIsCamelCase()
     {
         // Arrange
-        Countries country = Countries.SouthKorea;
+        const Countries country = Countries.SouthKorea;
 
         // Act
         string result = country.GetCountryNameWithFlag();
@@ -49,7 +49,7 @@ public class CountriesExtensionsTests
     public void GetCountryNameWithFlag_ShouldReturnFormattedCountryName_WhenCountryNameHasAbbreviation()
     {
         // Arrange
-        Countries country = Countries.Swiss;
+        const Countries country = Countries.Swiss;
 
         // Act
         string result = country.GetCountryNameWithFlag();

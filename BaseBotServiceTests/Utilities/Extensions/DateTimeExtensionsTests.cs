@@ -2,7 +2,7 @@ using BaseBotService.Interactions.Enums;
 using BaseBotService.Utilities.Enums;
 using BaseBotService.Utilities.Extensions;
 
-namespace BaseBotServiceTests.Extensions;
+namespace BaseBotService.Tests.Utilities.Extensions;
 
 public class DateTimeExtensionsTests
 {
