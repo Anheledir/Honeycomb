@@ -360,3 +360,5 @@ MigrationBackup/
 *.db
 .env
 /BaseBotService/.DS_Store
+/BaseBotService/honeycomb.db
+/BaseBotService/honeycomb-log.db
