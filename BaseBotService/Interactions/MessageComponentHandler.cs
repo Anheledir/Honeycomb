@@ -1,17 +1,20 @@
-﻿using BaseBotService.Core.Messages;
+﻿using BaseBotService.Core.Interfaces;
+using BaseBotService.Core.Messages;
 using Discord.WebSocket;
 
 namespace BaseBotService.Interactions;
-public class MessageComponentHandler : IRequestHandler<MessageComponentRequest>
+internal class MessageComponentHandler : IRequestHandler<MessageComponentRequest>
 {
     private readonly ILogger _logger;
+    private readonly IComponentStrategyFactory _strategyFactory;
 
-    public MessageComponentHandler(ILogger logger)
+    public MessageComponentHandler(ILogger logger, IComponentStrategyFactory strategyFactory)
     {
-        _logger = logger;
+        _logger = logger.ForContext<MessageComponentHandler>();
+        _strategyFactory = strategyFactory;
     }
 
-    async Task IRequestHandler<MessageComponentRequest>.Handle(MessageComponentRequest msg, CancellationToken cancellationToken)
+    public async Task Handle(MessageComponentRequest msg, CancellationToken cancellationToken)
     {
         SocketMessageComponent? component = msg.Context.Interaction as SocketMessageComponent;
 
@@ -20,22 +23,20 @@ public class MessageComponentHandler : IRequestHandler<MessageComponentRequest>
             msg.Context.Channel.Id,
             msg.Context.Guild?.Id,
             component!.Data);
-        string message = component!.Data.Type switch
+
+        IComponentStrategy? strategy = _strategyFactory.GetStrategy(component.Data.Type);
+        if (strategy != null)
         {
-            ComponentType.ActionRow => $"ActionRow {component.Data.CustomId}",
-            ComponentType.Button => $"Button {component.Data.CustomId}",
-            ComponentType.SelectMenu => $"Select {component.Data.CustomId}: {string.Join(',', component.Data.Values)}",
-            ComponentType.TextInput => $"Input {component.Data.CustomId}: {component.Data.Value}",
-            ComponentType.ModalSubmit => $"ModalSubmit {component.Data.CustomId}",
-            _ => $"Unknown type {component.Data.Type}!",
-        };
-        if (msg.Context.Interaction.HasResponded)
-        {
-            _ = await msg.Context.Interaction.FollowupAsync(message);
+            await strategy.ExecuteAsync(component.Data.CustomId, msg.Context);
         }
         else
         {
-            await msg.Context.Interaction.RespondAsync(message);
+            _logger.Error("No strategy implemented for component type {type}.", component.Data.Type);
+        }
+
+        if (!msg.Context.Interaction.HasResponded)
+        {
+            await msg.Context.Interaction.RespondAsync("Done.", ephemeral: true);
         }
     }
 }

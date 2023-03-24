@@ -13,7 +13,7 @@ public class PersistenceService : IPersistenceService
 
     public PersistenceService(ILogger logger, IEnvironmentService environment)
     {
-        _logger = logger;
+        _logger = logger.ForContext<PersistenceService>();
 
         string connectionString = $"Filename={environment.DatabaseFile};";
         _logger.Information($"LiteDB connection string: {connectionString}");

@@ -4,7 +4,6 @@ namespace BaseBotService.Utilities.Extensions;
 
 public static class DiscordExtensions
 {
-
     /// <summary>
     /// Map a discord log-level to the corresponding serilog log-level.
     /// </summary>

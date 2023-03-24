@@ -15,7 +15,7 @@ public class DiscordEventListener
 
     public DiscordEventListener(ILogger logger, DiscordSocketClient client, IServiceProvider services, InteractionService handler, IMediator mediator)
     {
-        _logger = logger;
+        _logger = logger.ForContext<DiscordEventListener>();
         _client = client;
         _services = services;
         _handler = handler;

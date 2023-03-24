@@ -13,7 +13,7 @@ public class ClientReadyHandler : INotificationHandler<ClientReadyNotification>
 
     public ClientReadyHandler(ILogger logger, IEnvironmentService environmentService, IAssemblyService assemblyService, InteractionService interactionService)
     {
-        _logger = logger;
+        _logger = logger.ForContext<ClientReadyHandler>();
         _environmentService = environmentService;
         _assemblyService = assemblyService;
         _interactionService = interactionService;

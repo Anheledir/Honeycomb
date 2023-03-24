@@ -9,7 +9,7 @@ public class RateLimiter
     public RateLimiter(ILogger logger)
     {
         _userCommandUsage = new ConcurrentDictionary<(ulong, string), (DateTime, int)>();
-        _logger = logger;
+        _logger = logger.ForContext<RateLimiter>();
     }
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously

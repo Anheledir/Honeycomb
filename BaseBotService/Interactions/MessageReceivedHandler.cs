@@ -10,7 +10,7 @@ public class MessageReceivedHandler : INotificationHandler<MessageReceivedNotifi
 
     public MessageReceivedHandler(ILogger logger, IEngagementService engagementService)
     {
-        _logger = logger;
+        _logger = logger.ForContext<MessageReceivedHandler>();
         _engagementService = engagementService;
     }
 

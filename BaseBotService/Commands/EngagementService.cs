@@ -11,7 +11,7 @@ public class EngagementService : IEngagementService
 
     public EngagementService(ILogger logger, ILiteCollection<GuildMemberHC> guildMembers)
     {
-        _logger = logger;
+        _logger = logger.ForContext<EngagementService>();
         _guildMembers = guildMembers;
     }
 

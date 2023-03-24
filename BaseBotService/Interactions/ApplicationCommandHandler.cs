@@ -9,7 +9,7 @@ internal class ApplicationCommandHandler : IRequestHandler<ApplicationCommandReq
 
     public ApplicationCommandHandler(ILogger logger, InteractionService interaction, IServiceProvider services)
     {
-        _logger = logger;
+        _logger = logger.ForContext<ApplicationCommandHandler>();
         _interaction = interaction;
         _services = services;
     }

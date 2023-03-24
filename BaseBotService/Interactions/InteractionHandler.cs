@@ -17,8 +17,9 @@ public class InteractionHandler : INotificationHandler<InteractionCreatedNotific
     {
         try
         {
-            // Create an execution context that matches the generic type parameter of your InteractionModuleBase<T> modules.
+            // Create an execution context that matches the generic type parameter of InteractionModuleBase<T> modules.
             SocketInteractionContext context = new(_client, arg.Interaction);
+            await context.Interaction.DeferAsync();
 
             switch (arg.Interaction.Type)
             {
@@ -38,8 +39,9 @@ public class InteractionHandler : INotificationHandler<InteractionCreatedNotific
         }
         catch
         {
-            // If Slash Command execution fails it is most likely that the original interaction acknowledgment will persist. It is a good idea to delete the original
-            // response, or at least let the user know that something went wrong during the command execution.
+            // If Slash Command execution fails it is most likely that the original interaction acknowledgment
+            // will persist. It is a good idea to delete the original response, or at least let the user know
+            // that something went wrong during the command execution.
             if (arg.Interaction.Type is InteractionType.ApplicationCommand)
             {
                 _ = await arg.Interaction.GetOriginalResponseAsync().ContinueWith(async (msg) => await msg.Result.DeleteAsync());

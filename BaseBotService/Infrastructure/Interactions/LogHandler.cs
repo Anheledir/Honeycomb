@@ -9,7 +9,7 @@ public class LogHandler : INotificationHandler<LogNotification>
 
     public LogHandler(ILogger logger)
     {
-        _logger = logger;
+        _logger = logger.ForContext<LogHandler>();
     }
 
     public Task Handle(LogNotification arg, CancellationToken cancellationToken)

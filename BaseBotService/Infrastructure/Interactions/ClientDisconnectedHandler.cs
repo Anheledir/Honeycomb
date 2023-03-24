@@ -8,7 +8,7 @@ public class ClientDisconnectedHandler : INotificationHandler<ClientDisconnected
 
     public ClientDisconnectedHandler(ILogger logger)
     {
-        _logger = logger;
+        _logger = logger.ForContext<ClientDisconnectedHandler>();
     }
 
     public Task Handle(ClientDisconnectedNotification arg, CancellationToken cancellationToken)

@@ -12,10 +12,18 @@ namespace BaseBotService.Commands;
 [Group("user", "The user management module of Honeycomb.")]
 public class UserModule : BaseModule
 {
-    public IEngagementService EngagementService { get; set; } = null!;
+    private readonly IEngagementService _engagementService;
+
+    public UserModule(ILogger logger, IEngagementService engagementService)
+    {
+        Logger = logger.ForContext<UserModule>();
+        _engagementService = engagementService;
+    }
 
     [UserCommand("User Profile")]
-    public async Task UserInfoCommandAsync(IUser user) => await RespondAsync(embed: GetUserProfileEmbed(user, true).Build(), ephemeral: true);
+    public async Task UserInfoCommandAsync(IUser user) => await RespondAsync(
+        ephemeral: true,
+        embed: GetUserProfileEmbed(user, true).Build());
 
     [SlashCommand("profile", "Returns the profile of the current user, or the user parameter, if one is passed.")]
     public async Task UserinfoCommandAsync(
@@ -24,7 +32,7 @@ public class UserModule : BaseModule
         )
     {
         user ??= Caller;
-        await RespondAsync(embed: GetUserProfileEmbed(user, false).Build(), ephemeral: false);
+        await RespondAsync(ephemeral: false, embed: GetUserProfileEmbed(user, false).Build());
     }
 
     [SlashCommand("config", "Change the settings of your global Honeycomb profile.")]
@@ -48,6 +56,42 @@ public class UserModule : BaseModule
         _ = await dm.SendMessageAsync("Please select the setting you want to change.", components: components.Build());
     }
 
+    public async Task UserProfileCountry(SocketInteractionContext ctx)
+    {
+        SocketMessageComponent component = (SocketMessageComponent)ctx.Interaction;
+        UserConfigs selection = Enum.Parse<UserConfigs>(component.Data.Values.First());
+        switch (selection)
+        {
+            case UserConfigs.Country:
+                Logger.Debug($"User {ctx.User.Id} selected {selection}.");
+                break;
+            case UserConfigs.Languages:
+                Logger.Debug($"User {ctx.User.Id} selected {selection}.");
+                break;
+            case UserConfigs.GenderIdentity:
+                Logger.Debug($"User {ctx.User.Id} selected {selection}.");
+                break;
+            case UserConfigs.Timezone:
+                Logger.Debug($"User {ctx.User.Id} selected {selection}.");
+                break;
+            case UserConfigs.Birthday:
+                Logger.Debug($"User {ctx.User.Id} selected {selection}.");
+                break;
+            case UserConfigs.Pronouns:
+                Logger.Debug($"User {ctx.User.Id} selected {selection}.");
+                break;
+            case UserConfigs.SocialStyle:
+                Logger.Debug($"User {ctx.User.Id} selected {selection}.");
+                break;
+            case UserConfigs.RelationshipStatus:
+                Logger.Debug($"User {ctx.User.Id} selected {selection}.");
+                break;
+            default:
+                Logger.Debug($"User {ctx.User.Id} selected unhandled enum {selection}.");
+                break;
+        }
+    }
+
     private EmbedBuilder GetUserProfileEmbed(IUser user, bool includePermissions)
     {
         EmbedBuilder result = GetEmbedBuilder()
@@ -60,7 +104,7 @@ public class UserModule : BaseModule
             new EmbedFieldBuilder
             {
                 Name = "Name",
-                Value = $"{user} {(user.IsBot ? "🤖" : string.Empty)}{(user.IsWebhook ? "🪝" : string.Empty)}"
+                Value = $"{user} {(user.IsBot ? "\u1f916" : string.Empty)}{(user.IsWebhook ? "\ud83e\udee5" : string.Empty)}"
             },
             new EmbedFieldBuilder
             {
@@ -86,13 +130,13 @@ public class UserModule : BaseModule
                     new EmbedFieldBuilder
                     {
                         Name = "Last active",
-                        Value = $"{EngagementService.GetLastActive(gUser.GuildId, user.Id).ToDiscordTimestamp(DiscordTimestampFormat.ShortDateTime)}\n({EngagementService.GetLastActive(gUser.GuildId, user.Id).ToDiscordTimestamp(DiscordTimestampFormat.RelativeTime)})",
+                        Value = $"{_engagementService.GetLastActive(gUser.GuildId, user.Id).ToDiscordTimestamp(DiscordTimestampFormat.ShortDateTime)}\n({_engagementService.GetLastActive(gUser.GuildId, user.Id).ToDiscordTimestamp(DiscordTimestampFormat.RelativeTime)})",
                         IsInline = true
                     },
                     new EmbedFieldBuilder
                     {
                         Name = "Server points",
-                        Value = EngagementService.GetActivityPoints(gUser.GuildId, user.Id).ToString("N0", CultureInfo.InvariantCulture)
+                        Value = _engagementService.GetActivityPoints(gUser.GuildId, user.Id).ToString("N0", CultureInfo.InvariantCulture)
                     }
                 });
             }

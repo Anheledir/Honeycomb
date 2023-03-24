@@ -1,6 +1,6 @@
 ﻿namespace BaseBotService.Core.Messages;
 
-internal class MessageComponentRequest : IRequest
+public class MessageComponentRequest : IRequest
 {
     public MessageComponentRequest(SocketInteractionContext ctx)
     {

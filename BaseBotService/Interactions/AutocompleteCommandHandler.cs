@@ -7,7 +7,7 @@ public class AutocompleteCommandHandler : IRequestHandler<AutocompleteCommandReq
 
     public AutocompleteCommandHandler(ILogger logger)
     {
-        _logger = logger;
+        _logger = logger.ForContext<AutocompleteCommandHandler>();
     }
 
     async Task IRequestHandler<AutocompleteCommandRequest>.Handle(AutocompleteCommandRequest msg, CancellationToken cancellationToken)

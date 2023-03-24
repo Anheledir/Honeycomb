@@ -7,7 +7,14 @@ namespace BaseBotService.Commands;
 [EnabledInDm(true)]
 public class BotModule : BaseModule
 {
+    public BotModule(ILogger logger)
+    {
+        Logger = logger.ForContext<BotModule>();
+    }
+
     [SlashCommand("about", "Returns information like runtime and current version of this Honeycomb bot instance.")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Minor Code Smell", "S1075:URIs should not be hardcoded", Justification = "Waiting for i18n implementation.")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Info Code Smell", "S1135:Track uses of \"TODO\" tags", Justification = "Opened issue #43")]
     public async Task InfoCommandAsync()
     {
         // Create embedded message with bot information
@@ -15,7 +22,7 @@ public class BotModule : BaseModule
             .WithTitle(AssemblyService.Name)
             .WithThumbnailUrl(BotUser.GetAvatarUrl())
             .WithUrl("https://honeycombs.cloud/") // TODO(i18n): Move URL to localization resource
-            .WithDescription($"Honeycomb is a Discord bot designed to provide artists with some useful functions to enhance their experience on Discord. With its features, artists can create a portfolio, display random entries from it, manage a commission price list, and keep track of their commission queue. The bot is released under the MIT license on GitHub.")
+            .WithDescription("Honeycomb is a Discord bot designed to provide artists with some useful functions to enhance their experience on Discord. With its features, artists can create a portfolio, display random entries from it, manage a commission price list, and keep track of their commission queue. The bot is released under the MIT license on GitHub.")
             .WithFields(
                 new EmbedFieldBuilder()
                 .WithName("Uptime")
