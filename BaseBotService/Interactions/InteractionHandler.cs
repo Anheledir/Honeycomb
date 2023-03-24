@@ -19,7 +19,6 @@ public class InteractionHandler : INotificationHandler<InteractionCreatedNotific
         {
             // Create an execution context that matches the generic type parameter of InteractionModuleBase<T> modules.
             SocketInteractionContext context = new(_client, arg.Interaction);
-            await context.Interaction.DeferAsync();
 
             switch (arg.Interaction.Type)
             {

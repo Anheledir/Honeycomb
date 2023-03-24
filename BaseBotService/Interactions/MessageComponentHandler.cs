@@ -3,7 +3,7 @@ using BaseBotService.Core.Messages;
 using Discord.WebSocket;
 
 namespace BaseBotService.Interactions;
-internal class MessageComponentHandler : IRequestHandler<MessageComponentRequest>
+public class MessageComponentHandler : IRequestHandler<MessageComponentRequest>
 {
     private readonly ILogger _logger;
     private readonly IComponentStrategyFactory _strategyFactory;

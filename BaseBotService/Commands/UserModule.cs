@@ -56,40 +56,41 @@ public class UserModule : BaseModule
         _ = await dm.SendMessageAsync("Please select the setting you want to change.", components: components.Build());
     }
 
-    public async Task UserProfileCountry(SocketInteractionContext ctx)
+    public Task UserProfileCountry(SocketInteractionContext ctx)
     {
         SocketMessageComponent component = (SocketMessageComponent)ctx.Interaction;
         UserConfigs selection = Enum.Parse<UserConfigs>(component.Data.Values.First());
         switch (selection)
         {
             case UserConfigs.Country:
-                Logger.Debug($"User {ctx.User.Id} selected {selection}.");
+                Logger.Debug($"User {ctx.User.Id} selected 0 {selection}.");
                 break;
             case UserConfigs.Languages:
-                Logger.Debug($"User {ctx.User.Id} selected {selection}.");
+                Logger.Debug($"User {ctx.User.Id} selected 1 {selection}.");
                 break;
             case UserConfigs.GenderIdentity:
-                Logger.Debug($"User {ctx.User.Id} selected {selection}.");
+                Logger.Debug($"User {ctx.User.Id} selected 2 {selection}.");
                 break;
             case UserConfigs.Timezone:
-                Logger.Debug($"User {ctx.User.Id} selected {selection}.");
+                Logger.Debug($"User {ctx.User.Id} selected 3 {selection}.");
                 break;
             case UserConfigs.Birthday:
-                Logger.Debug($"User {ctx.User.Id} selected {selection}.");
+                Logger.Debug($"User {ctx.User.Id} selected 4 {selection}.");
                 break;
             case UserConfigs.Pronouns:
-                Logger.Debug($"User {ctx.User.Id} selected {selection}.");
+                Logger.Debug($"User {ctx.User.Id} selected 5 {selection}.");
                 break;
             case UserConfigs.SocialStyle:
-                Logger.Debug($"User {ctx.User.Id} selected {selection}.");
+                Logger.Debug($"User {ctx.User.Id} selected 6 {selection}.");
                 break;
             case UserConfigs.RelationshipStatus:
-                Logger.Debug($"User {ctx.User.Id} selected {selection}.");
+                Logger.Debug($"User {ctx.User.Id} selected 7 {selection}.");
                 break;
             default:
                 Logger.Debug($"User {ctx.User.Id} selected unhandled enum {selection}.");
                 break;
         }
+        return Task.CompletedTask;
     }
 
     private EmbedBuilder GetUserProfileEmbed(IUser user, bool includePermissions)
@@ -154,7 +155,7 @@ public class UserModule : BaseModule
                 IEnumerable<string> permissionNames = Enum.GetValues(typeof(GuildPermission))
                                         .Cast<GuildPermission>()
                                         .Where(gUser.GuildPermissions.Has)
-                                        .Select(p => Regex.Replace(p.ToString(), "([a-z])([A-Z])", "$1 $2"));
+                                        .Select(p => p.ToString().FromCamelCase());
 
                 fields.Add(
                 new EmbedFieldBuilder

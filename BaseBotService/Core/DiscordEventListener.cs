@@ -1,4 +1,5 @@
-﻿using BaseBotService.Core.Messages;
+﻿using BaseBotService.Core.Interfaces;
+using BaseBotService.Core.Messages;
 using Discord.WebSocket;
 using System.Reflection;
 
@@ -13,7 +14,12 @@ public class DiscordEventListener
     private readonly IMediator _mediator;
     private readonly CancellationToken _cancellationToken;
 
-    public DiscordEventListener(ILogger logger, DiscordSocketClient client, IServiceProvider services, InteractionService handler, IMediator mediator)
+    public DiscordEventListener(
+        ILogger logger,
+        DiscordSocketClient client,
+        IServiceProvider services,
+        InteractionService handler,
+        IMediator mediator)
     {
         _logger = logger.ForContext<DiscordEventListener>();
         _client = client;
