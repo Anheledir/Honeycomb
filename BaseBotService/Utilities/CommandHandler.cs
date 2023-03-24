@@ -52,7 +52,6 @@ public class CommandHandler
                 {
                     _logger.Error($"Tried to execute command '{commandName}', but some value got null.");
                 }
-
             }
             else
             {

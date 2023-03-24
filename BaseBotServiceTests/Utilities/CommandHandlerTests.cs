@@ -8,16 +8,16 @@ namespace BaseBotService.Tests.Utilities;
 [TestFixture]
 public class CommandHandlerTests
 {
-    private ILogger loggerMock;
-    private ITestInterface testClassMock;
-    private Assembly assembly;
+    private ILogger _loggerMock;
+    private ITestInterface _testClassMock;
+    private Assembly _assembly;
 
     [SetUp]
     public void Setup()
     {
-        loggerMock = Substitute.For<ILogger>();
-        testClassMock = Substitute.For<TestClass>();
-        assembly = Assembly.GetExecutingAssembly();
+        _loggerMock = Substitute.For<ILogger>();
+        _testClassMock = Substitute.For<TestClass>();
+        _assembly = Assembly.GetExecutingAssembly();
     }
 
     [Test]
@@ -25,18 +25,18 @@ public class CommandHandlerTests
     {
         // Arrange
         var cache = new MemoryCache(new MemoryCacheOptions());
-        var commandHandler = new CommandHandler(loggerMock, cache);
+        var commandHandler = new CommandHandler(_loggerMock, cache);
 
         // Populate the cache with a method map for testing
-        var testCommandName = "test-command";
-        cache.Set("methodMap", CommandHandler.BuildMethodMap(assembly));
+        const string testCommandName = "test-command";
+        cache.Set("methodMap", CommandHandler.BuildMethodMap(_assembly));
 
         // Act
         await commandHandler.ExecuteCommand(testCommandName);
 
         // Assert
         // Verify that the expected method was called
-        testClassMock.Received().TestMethod();
+        _testClassMock.Received().TestMethod();
     }
 
     [Test]
@@ -44,13 +44,13 @@ public class CommandHandlerTests
     {
         // Arrange
         var cache = new MemoryCache(new MemoryCacheOptions());
-        var commandHandler = new CommandHandler(loggerMock, cache);
+        var commandHandler = new CommandHandler(_loggerMock, cache);
 
         // Act
         await commandHandler.ExecuteCommand("invalid-command");
 
         // Assert
-        loggerMock.Received().Error(Arg.Any<string>());
+        _loggerMock.Received().Error(Arg.Any<string>());
     }
 
     [Test]
@@ -58,13 +58,13 @@ public class CommandHandlerTests
     {
         // Arrange
         var cache = new MemoryCache(new MemoryCacheOptions());
-        var commandHandler = new CommandHandler(loggerMock, cache);
-        var testCommandName = "test-command2";
-        cache.Set("methodMap", CommandHandler.BuildMethodMap(assembly));
+        var commandHandler = new CommandHandler(_loggerMock, cache);
+        const string testCommandName = "test-command2";
+        cache.Set("methodMap", CommandHandler.BuildMethodMap(_assembly));
 
         // Define the arguments to pass to the method
-        string argument1 = "test";
-        int argument2 = 123;
+        const string argument1 = "test";
+        const int argument2 = 123;
         var arguments = new object[] { argument1, argument2 };
 
         // Act
@@ -72,7 +72,7 @@ public class CommandHandlerTests
 
         // Assert
         // Verify that the expected method was called with the converted arguments
-        testClassMock.Received().TestMethodWithArguments(argument1, argument2);
+        _testClassMock.Received().TestMethodWithArguments(argument1, argument2);
     }
 
     [Test]
@@ -80,20 +80,20 @@ public class CommandHandlerTests
     {
         // Arrange
         var cache = new MemoryCache(new MemoryCacheOptions());
-        var commandHandler = new CommandHandler(loggerMock, cache);
-        var testCommandName = "test-command2";
-        cache.Set("methodMap", CommandHandler.BuildMethodMap(assembly));
+        var commandHandler = new CommandHandler(_loggerMock, cache);
+        const string testCommandName = "test-command2";
+        cache.Set("methodMap", CommandHandler.BuildMethodMap(_assembly));
 
         // Define the arguments to pass to the method (incorrect types)
-        string argument1 = "test argument";
-        string argument2 = "wrong argument";
+        const string argument1 = "test argument";
+        const string argument2 = "wrong argument";
         var arguments = new object[] { argument1, argument2 };
 
         // Act
         await commandHandler.ExecuteCommand(testCommandName, arguments);
 
         // Assert
-        loggerMock.Received().Error(Arg.Any<Exception>(), Arg.Any<string>());
+        _loggerMock.Received().Error(Arg.Any<Exception>(), Arg.Any<string>());
     }
 
     [Test]
@@ -102,16 +102,19 @@ public class CommandHandlerTests
         // Arrange
 
         // Act
-        Dictionary<string, MethodInfo> methodMap = CommandHandler.BuildMethodMap(assembly);
+        Dictionary<string, MethodInfo> methodMap = CommandHandler.BuildMethodMap(_assembly);
 
         // Assert
-        Assert.That(methodMap, Is.Not.Null);
-        Assert.That(methodMap.ContainsKey("test-command"), Is.True);
-        Assert.That(methodMap["test-command"].DeclaringType, Is.EqualTo(typeof(TestClass)));
-        Assert.That(methodMap["test-command"].Name, Is.EqualTo("TestMethod"));
-        Assert.That(methodMap.ContainsKey("test-command2"), Is.True);
-        Assert.That(methodMap["test-command2"].DeclaringType, Is.EqualTo(typeof(TestClass)));
-        Assert.That(methodMap["test-command2"].Name, Is.EqualTo("TestMethodWithArguments"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(methodMap, Is.Not.Null);
+            Assert.That(methodMap.ContainsKey("test-command"), Is.True);
+            Assert.That(methodMap["test-command"].DeclaringType, Is.EqualTo(typeof(TestClass)));
+            Assert.That(methodMap["test-command"].Name, Is.EqualTo("TestMethod"));
+            Assert.That(methodMap.ContainsKey("test-command2"), Is.True);
+            Assert.That(methodMap["test-command2"].DeclaringType, Is.EqualTo(typeof(TestClass)));
+            Assert.That(methodMap["test-command2"].Name, Is.EqualTo("TestMethodWithArguments"));
+        });
     }
 
     [Test]
