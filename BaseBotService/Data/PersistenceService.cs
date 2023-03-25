@@ -1,4 +1,5 @@
 ﻿using BaseBotService.Core.Interfaces;
+using BaseBotService.Data.Interfaces;
 using LiteDB;
 
 namespace BaseBotService.Data;

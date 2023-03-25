@@ -1,5 +1,5 @@
-﻿using BaseBotService.Core.Base;
-using BaseBotService.Core.Interfaces;
+﻿using BaseBotService.Commands.Interfaces;
+using BaseBotService.Core.Base;
 using BaseBotService.Interactions.Enums;
 using BaseBotService.Utilities;
 using BaseBotService.Utilities.Enums;

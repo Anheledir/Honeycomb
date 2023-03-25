@@ -1,4 +1,5 @@
 ﻿using BaseBotService.Core.Interfaces;
+using BaseBotService.Data.Interfaces;
 using BaseBotService.Utilities;
 using BaseBotService.Utilities.Attributes;
 using Discord.WebSocket;

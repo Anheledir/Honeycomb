@@ -1,30 +1,37 @@
-﻿using BaseBotService.Core.Interfaces;
+﻿using BaseBotService.Commands.Interfaces;
+using BaseBotService.Data.Interfaces;
 using BaseBotService.Data.Models;
-using LiteDB;
 
 namespace BaseBotService.Commands;
 public class EngagementService : IEngagementService
 {
     private readonly ILogger _logger;
-    private readonly ILiteCollection<GuildMemberHC> _guildMembers;
     private readonly TimeSpan _activityPointInterval = TimeSpan.FromSeconds(864);
+    private readonly IGuildMemberHCRepository _guildMemberRepository;
 
-    public EngagementService(ILogger logger, ILiteCollection<GuildMemberHC> guildMembers)
+    public EngagementService(ILogger logger, IGuildMemberHCRepository guildMemberRepository)
     {
         _logger = logger.ForContext<EngagementService>();
-        _guildMembers = guildMembers;
+        _guildMemberRepository = guildMemberRepository;
     }
 
     public Task AddActivityTick(ulong guildId, ulong userId)
     {
         try
         {
-            GuildMemberHC usr = _guildMembers.FindOne(a => a.GuildId == guildId && a.MemberId == userId);
+            GuildMemberHC usr = _guildMemberRepository.GetUser(guildId, userId);
             if (usr == null)
             {
                 // First time seeing this user in this guild
                 _logger.Information($"First time seeing user '{userId}' in '{guildId}'.");
-                _ = _guildMembers.Insert(new GuildMemberHC { MemberId = userId, GuildId = guildId, ActivityPoints = 1, LastActive = DateTime.UtcNow, LastActivityPoint = DateTime.UtcNow });
+                _guildMemberRepository.AddUser(new GuildMemberHC
+                {
+                    MemberId = userId,
+                    GuildId = guildId,
+                    ActivityPoints = 1,
+                    LastActive = DateTime.UtcNow,
+                    LastActivityPoint = DateTime.UtcNow
+                });
             }
             else
             {
@@ -37,7 +44,7 @@ public class EngagementService : IEngagementService
                     usr.LastActivityPoint = DateTime.UtcNow;
                 }
 
-                _ = _guildMembers.Update(usr);
+                _ = _guildMemberRepository.UpdateUser(usr);
             }
             return Task.CompletedTask;
         }
@@ -58,7 +65,7 @@ public class EngagementService : IEngagementService
     {
         try
         {
-            GuildMemberHC usr = _guildMembers.FindOne(a => a.GuildId == guildId && a.MemberId == userId);
+            GuildMemberHC usr = _guildMemberRepository.GetUser(guildId, userId);
             return usr?.ActivityPoints ?? 0;
         }
         catch (InvalidCastException ex)
@@ -78,7 +85,7 @@ public class EngagementService : IEngagementService
     {
         try
         {
-            GuildMemberHC usr = _guildMembers.FindOne(a => a.GuildId == guildId && a.MemberId == userId);
+            GuildMemberHC usr = _guildMemberRepository.GetUser(guildId, userId);
             return usr?.LastActive ?? DateTime.MinValue;
         }
         catch (InvalidCastException ex)

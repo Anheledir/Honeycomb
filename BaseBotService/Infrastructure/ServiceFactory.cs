@@ -1,7 +1,9 @@
 ﻿using BaseBotService.Commands;
+using BaseBotService.Commands.Interfaces;
 using BaseBotService.Core;
 using BaseBotService.Core.Interfaces;
 using BaseBotService.Data;
+using BaseBotService.Data.Interfaces;
 using BaseBotService.Data.Models;
 using BaseBotService.Infrastructure.Services;
 using BaseBotService.Infrastructure.Strategies;
@@ -32,7 +34,7 @@ public static class ServiceFactory
         };
 
         IServiceCollection services = new ServiceCollection()
-        // log services
+        // core services
             .AddSingleton(LoggerFactory.CreateLogger())
             .AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()))
 
@@ -41,15 +43,13 @@ public static class ServiceFactory
             .AddSingleton<DiscordSocketClient>()
             .AddSingleton(serviceConfig)
             .AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>()))
-
-        // events
             .AddSingleton<DiscordEventListener>()
 
-        // modules
+        // command modules
             .AddScoped<UserModule>()
             .AddScoped<BotModule>()
 
-        // strategies
+        // component strategies
             .AddSingleton<IComponentStrategyFactory, ComponentStrategyFactory>()
             .AddSingleton<ActionRowStrategy>()
             .AddSingleton<ButtonStrategy>()
@@ -57,16 +57,19 @@ public static class ServiceFactory
             .AddSingleton<SelectMenuStrategy>()
             .AddSingleton<TextInputStrategy>()
 
-        // misc services
+        // utilities
             .AddSingleton<IAssemblyService, AssemblyService>()
             .AddSingleton<IEnvironmentService, EnvironmentService>()
             .AddScoped<IEngagementService, EngagementService>()
-
-        // utilities
             .AddSingleton<RateLimiter>()
 
-        // persistence services
+        // data services
             .AddSingleton<IPersistenceService, PersistenceService>()
+
+        // data repositories
+            .AddSingleton<IGuildMemberHCRepository, GuildMemberHCRepository>()
+
+        // data models
             .AddScoped(MemberHC.GetServiceRegistration)
             .AddScoped(GuildMemberHC.GetServiceRegistration);
 

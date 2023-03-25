@@ -1,4 +1,4 @@
-﻿using BaseBotService.Core.Interfaces;
+﻿using BaseBotService.Commands.Interfaces;
 using BaseBotService.Core.Messages;
 
 namespace BaseBotService.Interactions;

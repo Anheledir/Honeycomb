@@ -1,4 +1,4 @@
-﻿using BaseBotService.Core.Interfaces;
+﻿using BaseBotService.Data.Interfaces;
 using LiteDB;
 using Microsoft.Extensions.DependencyInjection;
 
