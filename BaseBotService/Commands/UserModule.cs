@@ -1,6 +1,7 @@
 ﻿using BaseBotService.Core.Base;
 using BaseBotService.Core.Interfaces;
 using BaseBotService.Interactions.Enums;
+using BaseBotService.Utilities;
 using BaseBotService.Utilities.Enums;
 using BaseBotService.Utilities.Extensions;
 using Discord.WebSocket;
@@ -105,7 +106,7 @@ public class UserModule : BaseModule
             new EmbedFieldBuilder
             {
                 Name = "Name",
-                Value = $"{user} {(user.IsBot ? "\u1f916" : string.Empty)}{(user.IsWebhook ? "\ud83e\udee5" : string.Empty)}"
+                Value = $"{user} {(user.IsBot ? UnicodeEmojiHelper.robotFace : string.Empty)}{(user.IsWebhook ? UnicodeEmojiHelper.satelliteAntenna : string.Empty)}"
             },
             new EmbedFieldBuilder
             {
