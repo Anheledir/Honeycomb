@@ -32,7 +32,7 @@ public class ComponentStrategyFactory : IComponentStrategyFactory
     {
         if (_strategies.TryGetValue(type, out var strategy))
         {
-            _logger.Debug($"Found strategy {strategy} for type {type}.");
+            _logger.Debug($"Found strategy {strategy?.GetType()} for type {type}.");
             return strategy;
         }
 

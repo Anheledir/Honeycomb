@@ -24,6 +24,7 @@ public class MessageComponentHandler : IRequestHandler<MessageComponentRequest>
             msg.Context.Guild?.Id,
             component!.Data);
 
+        await component.DeferAsync();
         IComponentStrategy? strategy = _strategyFactory.GetStrategy(component.Data.Type);
         if (strategy != null)
         {

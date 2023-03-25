@@ -16,9 +16,6 @@ public static class UserConfigsExtensions
             UserConfigs.GenderIdentity => ":identification_card: " + name,
             UserConfigs.Timezone => ":watch: " + name,
             UserConfigs.Birthday => ":birthday: " + name,
-            UserConfigs.Pronouns => ":speaking_head: " + name,
-            UserConfigs.SocialStyle => ":handshake: " + name,
-            UserConfigs.RelationshipStatus => ":couple: " + name,
             _ => name,
         };
     }

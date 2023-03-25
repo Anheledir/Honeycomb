@@ -6,7 +6,4 @@ public enum UserConfigs
     GenderIdentity,
     Timezone,
     Birthday,
-    Pronouns,
-    SocialStyle,
-    RelationshipStatus,
 }

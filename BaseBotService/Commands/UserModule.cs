@@ -48,8 +48,7 @@ public class UserModule : BaseModule
 
         ComponentBuilder components = new ComponentBuilder()
             .WithSelectMenu(userConfigMenu)
-            .WithButton(new ButtonBuilder("Cancel", "usr-profile-cancel", ButtonStyle.Danger))
-            .WithButton(new ButtonBuilder("Save", "usr-profile-save", ButtonStyle.Success));
+            .WithButton(new ButtonBuilder("Close", "usr-profile-close", ButtonStyle.Primary));
 
         await RespondAsync("The bot sent you a DM with the settings-menu.", ephemeral: true);
 
@@ -61,36 +60,58 @@ public class UserModule : BaseModule
     {
         SocketMessageComponent component = (SocketMessageComponent)ctx.Interaction;
         UserConfigs selection = Enum.Parse<UserConfigs>(component.Data.Values.First());
+
+        SelectMenuBuilder configSetting = new();
+        string message = string.Empty;
+
         switch (selection)
         {
             case UserConfigs.Country:
-                Logger.Debug($"User {ctx.User.Id} selected 0 {selection}.");
+                configSetting.WithPlaceholder("Select the country you are living in.")
+                    .WithCustomId("usr-profile-country")
+                    .WithMinValues(0)
+                    .WithMaxValues(1)
+                    .AddOptionsFromEnum<Countries>(0, e => e.GetCountryNameWithFlag());
+                message = "Please select the country you are living in.";
                 break;
             case UserConfigs.Languages:
-                Logger.Debug($"User {ctx.User.Id} selected 1 {selection}.");
+                configSetting.WithPlaceholder("Select up to four languages you can communicate in.")
+                    .WithCustomId("usr-profile-languages")
+                    .WithMinValues(0)
+                    .WithMaxValues(4)
+                    .AddOptionsFromEnum<Languages>(0, e => e.GetFlaggedLanguageName());
+                message = "Please select up to four languages you can communicate in.";
                 break;
             case UserConfigs.GenderIdentity:
-                Logger.Debug($"User {ctx.User.Id} selected 2 {selection}.");
+                configSetting.WithPlaceholder("Select your preferred gender identity.")
+                    .WithCustomId("usr-profile-gender")
+                    .WithMinValues(0)
+                    .WithMaxValues(1)
+                    .AddOptionsFromEnum<GenderIdentity>(0, e => e.GetFlaggedGenderName());
+                message = "Please select your preferred gender identity.";
                 break;
             case UserConfigs.Timezone:
-                Logger.Debug($"User {ctx.User.Id} selected 3 {selection}.");
+                configSetting.WithPlaceholder("Select the timezone you are living in.")
+                    .WithCustomId("usr-profile-timezone")
+                    .WithMinValues(0)
+                    .WithMaxValues(1)
+                    .AddOptionsFromEnum<Timezone>(0, e => e.GetNameWithOffset());
+                message = "Please select the timezone you are living in.";
                 break;
             case UserConfigs.Birthday:
                 Logger.Debug($"User {ctx.User.Id} selected 4 {selection}.");
                 break;
-            case UserConfigs.Pronouns:
-                Logger.Debug($"User {ctx.User.Id} selected 5 {selection}.");
-                break;
-            case UserConfigs.SocialStyle:
-                Logger.Debug($"User {ctx.User.Id} selected 6 {selection}.");
-                break;
-            case UserConfigs.RelationshipStatus:
-                Logger.Debug($"User {ctx.User.Id} selected 7 {selection}.");
-                break;
             default:
-                Logger.Debug($"User {ctx.User.Id} selected unhandled enum {selection}.");
+                Logger.Error($"User {ctx.User.Id} selected unhandled enum {selection}.");
                 break;
         }
+
+        ComponentBuilder components = new ComponentBuilder()
+            .WithSelectMenu(configSetting)
+            .WithButton(new ButtonBuilder("Go back", "usr-profile-main", ButtonStyle.Primary));
+
+        component.ModifyOriginalResponseAsync(x => x.Content = message);
+        component.ModifyOriginalResponseAsync(x => x.Components = components.Build());
         return Task.CompletedTask;
     }
 

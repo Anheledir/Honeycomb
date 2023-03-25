@@ -18,7 +18,7 @@ public class ComponentStrategyBase : IComponentStrategy
     {
         if (Actions!.TryGetValue(customId, out var action))
         {
-            _logger.Debug("Found {@action} for {customId}", action, customId);
+            _logger.Debug("Found {action} for {customId}", action, customId);
             await action(context);
         }
         else
