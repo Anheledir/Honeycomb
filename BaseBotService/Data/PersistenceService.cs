@@ -9,7 +9,7 @@ public class PersistenceService : IPersistenceService
     private readonly ILogger _logger;
     private readonly Timer _timer;
     private readonly object _lock = new();
-    private bool disposedValue;
+    private bool _disposedValue;
 
     public PersistenceService(ILogger logger, IEnvironmentService environment)
     {
@@ -43,7 +43,7 @@ public class PersistenceService : IPersistenceService
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!disposedValue)
+        if (!_disposedValue)
         {
             if (disposing)
             {
@@ -51,7 +51,7 @@ public class PersistenceService : IPersistenceService
                 _database.Dispose();
             }
 
-            disposedValue = true;
+            _disposedValue = true;
         }
     }
 
