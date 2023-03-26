@@ -358,3 +358,7 @@ MigrationBackup/
 /app/BaseBotService/Properties/launchSettings.json
 /app/BaseBotService/Settings.job
 *.db
+.env
+/BaseBotService/.DS_Store
+/BaseBotService/honeycomb.db
+/BaseBotService/honeycomb-log.db

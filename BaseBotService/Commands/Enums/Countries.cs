@@ -1,0 +1,30 @@
+﻿namespace BaseBotService.Commands.Enums;
+
+public enum Countries
+{
+    Unknown = -1,
+    UnitedStates = 1,
+    Canada = 2,
+    UnitedKingdom = 3,
+    Australia = 4,
+    Germany = 5,
+    France = 6,
+    Brazil = 7,
+    Mexico = 8,
+    Netherlands = 9,
+    Sweden = 10,
+    Norway = 11,
+    Denmark = 12,
+    Finland = 13,
+    Spain = 14,
+    Italy = 15,
+    Poland = 16,
+    Japan = 17,
+    SouthKorea = 18,
+    China = 19,
+    Turkey = 20,
+    Indonesia = 21,
+    Philippines = 22,
+    Austria = 23,
+    Swiss = 24,
+}
