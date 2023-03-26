@@ -19,7 +19,7 @@ public static class CountryLanguageExtensions
             }
         }
 
-        return string.Join("\n", languageNames);
+        return languageNames.Any() ? string.Join("\n", languageNames) : Languages.Other.GetFlaggedLanguageName();
     }
 
     private static string GetFlaggedLanguageName(this Languages language)
