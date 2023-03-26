@@ -36,7 +36,7 @@ public class BotModule : BaseModule
 
     [SlashCommand("ping", "Pings the bot and returns its latency.")]
     public async Task PingAsync()
-        => await FollowupAsync(text: $":ping_pong: It took me {Context.Client.Latency}ms to respond to you!", ephemeral: true);
+        => await RespondOrFollowupAsync(text: $":ping_pong: It took me {Context.Client.Latency}ms to respond to you!", ephemeral: true);
 
     [SlashCommand("documentation", "Sends a json-file via DM containing all command documentations.")]
     [RateLimit(1, 300)]
