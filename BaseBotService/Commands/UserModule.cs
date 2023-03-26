@@ -1,5 +1,7 @@
 ﻿using BaseBotService.Commands.Interfaces;
 using BaseBotService.Core.Base;
+using BaseBotService.Data.Interfaces;
+using BaseBotService.Data.Models;
 using BaseBotService.Interactions.Enums;
 using BaseBotService.Utilities;
 using BaseBotService.Utilities.Enums;
@@ -14,11 +16,13 @@ namespace BaseBotService.Commands;
 public class UserModule : BaseModule
 {
     private readonly IEngagementService _engagementService;
+    private readonly IMemberHCRepository _memberRepository;
 
-    public UserModule(ILogger logger, IEngagementService engagementService)
+    public UserModule(ILogger logger, IEngagementService engagementService, IMemberHCRepository memberRepository)
     {
         Logger = logger.ForContext<UserModule>();
         _engagementService = engagementService;
+        _memberRepository = memberRepository;
     }
 
     [UserCommand("User Profile")]
@@ -39,27 +43,100 @@ public class UserModule : BaseModule
     [SlashCommand("config", "Change the settings of your global Honeycomb profile.")]
     public async Task ConfigProfile()
     {
-        SelectMenuBuilder userConfigMenu = new SelectMenuBuilder()
+        await RespondAsync("The bot sent you a DM with the settings-menu.", ephemeral: true);
+
+        IDMChannel dm = await Caller.CreateDMChannelAsync();
+        _ = await dm.SendMessageAsync("Please select the setting you want to change.", components: ShowUserConfigMenu().Build());
+    }
+
+    private static ComponentBuilder ShowUserConfigMenu()
+    {
+        var userConfigMenu = new SelectMenuBuilder()
             .WithPlaceholder("Select the user setting you want to change, or click cancel to exit.")
             .WithCustomId("usr-profile-config")
             .WithMinValues(0)
             .WithMaxValues(1)
-            .AddOptionsFromEnum<UserConfigs>(0, e => e.GetUserSettingsName());
+            .AddOptionsFromEnum<UserConfigs>(-1, e => e.GetUserSettingsName());
 
-        ComponentBuilder components = new ComponentBuilder()
+        return new ComponentBuilder()
             .WithSelectMenu(userConfigMenu)
-            .WithButton(new ButtonBuilder("Close", "usr-profile-close", ButtonStyle.Primary));
-
-        await RespondAsync("The bot sent you a DM with the settings-menu.", ephemeral: true);
-
-        IDMChannel dm = await Caller.CreateDMChannelAsync();
-        _ = await dm.SendMessageAsync("Please select the setting you want to change.", components: components.Build());
+            .WithButton(new ButtonBuilder("Close", "usr-profile-close", ButtonStyle.Danger));
     }
 
-    public Task UserProfileCountry(SocketInteractionContext ctx)
+    internal static async Task DeleteMessageDelayed(SocketInteractionContext ctx)
+    {
+        SocketMessageComponent component = (SocketMessageComponent)ctx.Interaction;
+        _ = component.ModifyOriginalResponseAsync(x => x.Content = "All settings saved.");
+        _ = component.ModifyOriginalResponseAsync(x => x.Components = new Optional<MessageComponent>());
+        _ = await Task.Delay(TimeSpan.FromSeconds(1)).ContinueWith(_ => component.DeleteOriginalResponseAsync());
+    }
+
+    internal static Task GoBackProfileMain(SocketInteractionContext ctx)
+    {
+        SocketMessageComponent component = (SocketMessageComponent)ctx.Interaction;
+        component.ModifyOriginalResponseAsync(x => x.Content = "Please select the setting you want to change.");
+        component.ModifyOriginalResponseAsync(x => x.Components = ShowUserConfigMenu().Build());
+        return Task.CompletedTask;
+    }
+
+    internal Task SaveProfileCountry(SocketInteractionContext ctx)
+    {
+        SocketMessageComponent component = (SocketMessageComponent)ctx.Interaction;
+        Countries selection = Enum.Parse<Countries>(component.Data.Values.First());
+        MemberHC member = _memberRepository.GetUser(component.User.Id, true);
+
+        member.Country = selection;
+        _memberRepository.UpdateUser(member);
+        return Task.CompletedTask;
+    }
+
+    internal Task SaveProfileGenderIdentity(SocketInteractionContext ctx)
+    {
+        SocketMessageComponent component = (SocketMessageComponent)ctx.Interaction;
+        GenderIdentity selection = Enum.Parse<GenderIdentity>(component.Data.Values.First());
+        MemberHC member = _memberRepository.GetUser(component.User.Id, true);
+
+        member.GenderIdentity = selection;
+        _memberRepository.UpdateUser(member);
+        return Task.CompletedTask;
+    }
+
+    internal Task SaveProfileTimezone(SocketInteractionContext ctx)
+    {
+        SocketMessageComponent component = (SocketMessageComponent)ctx.Interaction;
+        Timezone selection = Enum.Parse<Timezone>(component.Data.Values.First());
+        MemberHC member = _memberRepository.GetUser(component.User.Id, true);
+
+        member.Timezone = selection;
+        _memberRepository.UpdateUser(member);
+        return Task.CompletedTask;
+    }
+
+    internal Task SaveProfileLanguages(SocketInteractionContext ctx)
+    {
+        SocketMessageComponent component = (SocketMessageComponent)ctx.Interaction;
+        Languages selectedLanguages = 0;
+
+        foreach (var value in component.Data.Values)
+        {
+            if (Enum.TryParse<Languages>(value, out var language))
+            {
+                selectedLanguages |= language;
+            }
+        }
+
+        MemberHC member = _memberRepository.GetUser(component.User.Id, true);
+
+        member.Languages = selectedLanguages;
+        _memberRepository.UpdateUser(member);
+        return Task.CompletedTask;
+    }
+
+    internal Task UserProfileCountry(SocketInteractionContext ctx)
     {
         SocketMessageComponent component = (SocketMessageComponent)ctx.Interaction;
         UserConfigs selection = Enum.Parse<UserConfigs>(component.Data.Values.First());
+        MemberHC member = _memberRepository.GetUser(component.User.Id, true);
 
         SelectMenuBuilder configSetting = new();
         string message = string.Empty;
@@ -71,7 +148,7 @@ public class UserModule : BaseModule
                     .WithCustomId("usr-profile-country")
                     .WithMinValues(0)
                     .WithMaxValues(1)
-                    .AddOptionsFromEnum<Countries>(0, e => e.GetCountryNameWithFlag());
+                    .AddOptionsFromEnum<Countries>((int)member.Country, e => e.GetCountryNameWithFlag());
                 message = "Please select the country you are living in.";
                 break;
             case UserConfigs.Languages:
@@ -79,7 +156,7 @@ public class UserModule : BaseModule
                     .WithCustomId("usr-profile-languages")
                     .WithMinValues(0)
                     .WithMaxValues(4)
-                    .AddOptionsFromEnum<Languages>(0, e => e.GetFlaggedLanguageName());
+                    .AddOptionsFromEnum<Languages>((int)member.Languages, e => e.GetFlaggedLanguageName());
                 message = "Please select up to four languages you can communicate in.";
                 break;
             case UserConfigs.GenderIdentity:
@@ -87,7 +164,7 @@ public class UserModule : BaseModule
                     .WithCustomId("usr-profile-gender")
                     .WithMinValues(0)
                     .WithMaxValues(1)
-                    .AddOptionsFromEnum<GenderIdentity>(0, e => e.GetFlaggedGenderName());
+                    .AddOptionsFromEnum<GenderIdentity>((int)member.GenderIdentity, e => e.GetFlaggedGenderName());
                 message = "Please select your preferred gender identity.";
                 break;
             case UserConfigs.Timezone:
@@ -95,12 +172,18 @@ public class UserModule : BaseModule
                     .WithCustomId("usr-profile-timezone")
                     .WithMinValues(0)
                     .WithMaxValues(1)
-                    .AddOptionsFromEnum<Timezone>(0, e => e.GetNameWithOffset());
+                    .AddOptionsFromEnum<Timezone>((int)member.Timezone, e => e.GetNameWithOffset());
                 message = "Please select the timezone you are living in.";
                 break;
             case UserConfigs.Birthday:
-                Logger.Debug($"User {ctx.User.Id} selected 4 {selection}.");
-                break;
+                var mb = new ModalBuilder()
+                    .WithTitle("Birthday")
+                    .WithCustomId("usr-birthday-menu")
+                    .AddTextInput("Day", "day", placeholder: "01", maxLength: 2)
+                    .AddTextInput("Month", "month", placeholder: "01", maxLength: 2)
+                    .AddTextInput("Year", "year", placeholder: (DateTime.UtcNow.Year - 18).ToString(), maxLength: 4, required: false);
+                component.RespondWithModalAsync(mb.Build());
+                return Task.CompletedTask;
             default:
                 Logger.Error($"User {ctx.User.Id} selected unhandled enum {selection}.");
                 break;

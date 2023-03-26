@@ -31,18 +31,52 @@ public class MemberHCRepositoryTests
     }
 
     [Test]
-    public void GetUser_ShouldReturnCorrectUser()
+    public void GetUser_WhenUserExists_ShouldReturnCorrectUser()
     {
         // Arrange
         var member = _memberFaker.Generate();
         _members.Insert(member);
 
         // Act
-        var result = _repository.GetUser(member.MemberId);
+        var result = _repository.GetUser(member.MemberId, false);
 
         // Assert
-        result.ShouldNotBeNull();
+        result.Should().NotBeNull();
         result.Should().BeEquivalentTo(member, options => options
+        // allow rounding errors on comparing times
+        .Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromMilliseconds(1)))
+        .WhenTypeIs<DateTime>());
+    }
+
+    [Test]
+    public void GetUser_WhenUserDoesNotExistAndTouchIsFalse_ShouldReturnNull()
+    {
+        // Arrange
+        const ulong nonExistentUserId = 12345;
+
+        // Act
+        var result = _repository.GetUser(nonExistentUserId, false);
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    [Test]
+    public void GetUser_WhenUserDoesNotExistAndTouchIsTrue_ShouldCreateAndReturnNewUser()
+    {
+        // Arrange
+        const ulong nonExistentUserId = 12345;
+
+        // Act
+        var result = _repository.GetUser(nonExistentUserId, true);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.MemberId.Should().Be(nonExistentUserId);
+
+        var createdUser = _members.FindOne(a => a.MemberId == nonExistentUserId);
+        createdUser.Should().NotBeNull();
+        createdUser.Should().BeEquivalentTo(result, options => options
         // allow rounding errors on comparing times
         .Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromMilliseconds(1)))
         .WhenTypeIs<DateTime>());
@@ -73,7 +107,13 @@ public class MemberHCRepositoryTests
         var existingUser = _memberFaker.Generate();
         _members.Insert(existingUser);
 
-        existingUser.Timezone += 1;
+        existingUser.Timezone += 60;
+        existingUser.Country++;
+        existingUser.Languages++;
+        existingUser.GenderIdentity++;
+#pragma warning disable CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
+        existingUser.Birthday += TimeSpan.FromDays(1);
+#pragma warning restore CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
 
         // Act
         var updateResult = _repository.UpdateUser(existingUser);
@@ -82,7 +122,10 @@ public class MemberHCRepositoryTests
         updateResult.ShouldBeTrue();
         var updatedUser = _members.FindOne(u => u.MemberId == existingUser.MemberId);
         updatedUser.ShouldNotBeNull();
-        updatedUser.Timezone.ShouldBe(existingUser.Timezone);
+        updatedUser.Should().BeEquivalentTo(existingUser, options => options
+        // allow rounding errors on comparing times
+        .Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromMilliseconds(1)))
+        .WhenTypeIs<DateTime>());
     }
 
     [Test]

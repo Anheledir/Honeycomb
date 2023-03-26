@@ -38,14 +38,26 @@ public static class DiscordExtensions
         Func<T, string> getLabel
     ) where T : Enum
     {
+        bool isFlagsEnum = typeof(T).GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0;
+
         foreach (T value in Enum.GetValues(typeof(T)).Cast<T>())
         {
             string label = getLabel(value).ExtractEmoji(out Emoji emote);
             SelectMenuOptionBuilder option = new SelectMenuOptionBuilder()
                 .WithLabel(label)
-                .WithValue(Convert.ToInt32(value).ToString())
-                .WithDefault(currentValue == Convert.ToInt32(value))
-                .WithEmote(emote);
+                .WithValue(Convert.ToInt32(value).ToString());
+
+            if (isFlagsEnum)
+            {
+                int intValue = Convert.ToInt32(value);
+                option.WithDefault((currentValue & intValue) == intValue);
+            }
+            else
+            {
+                option.WithDefault(currentValue == Convert.ToInt32(value));
+            }
+
+            option.WithEmote(emote);
             _ = builder.AddOption(option);
         }
         return builder;

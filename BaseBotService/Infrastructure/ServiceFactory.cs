@@ -68,6 +68,7 @@ public static class ServiceFactory
 
         // data repositories
             .AddSingleton<IGuildMemberHCRepository, GuildMemberHCRepository>()
+            .AddSingleton<IMemberHCRepository, MemberHCRepository>()
 
         // data models
             .AddScoped(MemberHC.GetServiceRegistration)

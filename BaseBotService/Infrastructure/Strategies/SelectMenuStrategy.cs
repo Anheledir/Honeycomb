@@ -17,7 +17,10 @@ public class SelectMenuStrategy : ComponentStrategyBase
         Actions = actions ?? new Dictionary<string, Func<SocketInteractionContext, Task>>
         {
             {"usr-profile-config", userModule.UserProfileCountry},
-            //{"user-profile-save", UserProfileSaveAsync},
+            {"usr-profile-country", userModule.SaveProfileCountry},
+            {"usr-profile-languages", userModule.SaveProfileLanguages},
+            {"usr-profile-gender", userModule.SaveProfileGenderIdentity},
+            {"usr-profile-timezone", userModule.SaveProfileTimezone},
         };
 
         _logger.Debug($"Initialized {nameof(SelectMenuStrategy)} with {Actions.Count} dispatchers.");

@@ -6,6 +6,7 @@ public static class GenderIdentityExtensions
 {
     private static readonly Dictionary<GenderIdentity, string> _genderFlagEmojis = new()
     {
+        { GenderIdentity.Unknown, ":star:" },
         { GenderIdentity.Male, ":male_sign:" },
         { GenderIdentity.Female, ":female_sign:" },
         { GenderIdentity.NonBinary, ":transgender_symbol:" },

@@ -7,8 +7,7 @@ public static class CountryLanguageExtensions
 {
     public static string GetFlaggedLanguageName(this Languages language)
     {
-        string languageCode = language.ToString().ToLower();
-
+        string languageCode;
         // Convert language code to flag emoji
         switch (language)
         {
@@ -69,7 +68,20 @@ public static class CountryLanguageExtensions
             case Languages.Filipino_Tagalog:
                 languageCode = "ph";
                 break;
-            case Languages.Unknown:
+            case Languages.Italian:
+                languageCode = "it";
+                break;
+            case Languages.Arabic:
+                languageCode = "sa";
+                break;
+            case Languages.Thai:
+                languageCode = "th";
+                break;
+            case Languages.Vietnamese:
+                languageCode = "vn";
+                break;
+            case Languages.Greek:
+                languageCode = "gr";
                 break;
             default:
                 return language.ToString();

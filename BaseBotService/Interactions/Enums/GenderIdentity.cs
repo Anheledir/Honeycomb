@@ -5,6 +5,11 @@
 public enum GenderIdentity
 {
     /// <summary>
+    /// Not specified.
+    /// </summary>
+    Unknown = 0,
+
+    /// <summary>
     /// Refers to individuals who identify as male.
     /// </summary>
     Male = 1,
@@ -37,5 +42,5 @@ public enum GenderIdentity
     /// <summary>
     /// Refers to individuals who do not identify with any of the above options or prefer not to disclose their gender identity.
     /// </summary>
-    Other = 0
+    Other = 7
 }
