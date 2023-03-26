@@ -130,6 +130,7 @@ public class UserModule : BaseModule
             member.Birthday = data.GetBirthday();
             _memberRepository.UpdateUser(member);
         }
+
         await DeferAsync();
     }
 
@@ -177,7 +178,7 @@ public class UserModule : BaseModule
                     .WithCustomId("user.profile.save.languages")
                     .WithMinValues(1)
                     .WithMaxValues(4)
-                    .AddOptionsFromEnum<Languages>((int)member.Languages, e => e.GetFlaggedLanguageName());
+                    .AddOptionsFromEnum<Languages>((int)member.Languages, e => e.GetFlaggedLanguageNames());
                 message = "Please select up to four languages you can communicate in.";
                 break;
             case UserConfigs.GenderIdentity:
@@ -253,6 +254,51 @@ public class UserModule : BaseModule
                 IsInline = true
             }
         };
+
+        MemberHC member = _memberRepository.GetUser(user.Id);
+        if (member != null)
+        {
+            fields.AddRange(new[] {
+                new EmbedFieldBuilder
+                {
+                    Name = "Living in",
+                    Value = member.Country.GetCountryNameWithFlag(),
+                    IsInline = true
+                },
+                new EmbedFieldBuilder
+                {
+                    Name = "Speaking",
+                    Value = member.Languages.GetFlaggedLanguageNames(),
+                    IsInline = true
+                },
+                new EmbedFieldBuilder
+                {
+                    Name = "Gender Identity",
+                    Value = member.GenderIdentity.GetFlaggedGenderName(),
+                    IsInline = true
+                },
+                new EmbedFieldBuilder
+                {
+                    Name = "Timezone",
+                    Value = member.Timezone.GetNameWithOffset(),
+                    IsInline = true
+                }
+            });
+
+            if (member.Birthday.HasValue)
+            {
+                fields.Add(
+                    new EmbedFieldBuilder
+                    {
+                        Name = "Birthday",
+                        IsInline = true,
+                        Value = member.Birthday.Value.Year > 1
+                            ? $"{member.Birthday.Value.ToDiscordTimestamp(DiscordTimestampFormat.ShortDate)} ({member.Birthday.Value.GetAge()})"
+                            : $"{member.Birthday.Value.GetDayAndMonth(member.Country)}"
+                    }
+                );
+            }
+        }
 
         if (user is IGuildUser gUser)
         {

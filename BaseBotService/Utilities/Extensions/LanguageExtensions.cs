@@ -5,7 +5,24 @@ namespace BaseBotService.Utilities.Extensions;
 
 public static class CountryLanguageExtensions
 {
-    public static string GetFlaggedLanguageName(this Languages language)
+    public static string GetFlaggedLanguageNames(this Languages languages)
+    {
+        var languageNames = new List<string>();
+
+        foreach (Languages language in Enum.GetValues(typeof(Languages)))
+        {
+            int flagValue = Convert.ToInt32(language);
+            if (flagValue != 0 && (Convert.ToInt32(languages) & flagValue) == flagValue)
+            {
+                string languageName = GetFlaggedLanguageName(language);
+                languageNames.Add(languageName);
+            }
+        }
+
+        return string.Join("\n", languageNames);
+    }
+
+    private static string GetFlaggedLanguageName(this Languages language)
     {
         string languageCode;
         // Convert language code to flag emoji

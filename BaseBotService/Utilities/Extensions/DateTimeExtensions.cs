@@ -1,5 +1,6 @@
 ﻿using BaseBotService.Commands.Enums;
 using BaseBotService.Utilities.Enums;
+using System.Globalization;
 
 namespace BaseBotService.Utilities.Extensions;
 
@@ -43,5 +44,26 @@ public static class DateTimeExtensions
         int minutesToAdjust = (int)timezone;
         TimeSpan timeSpan = new(0, -minutesToAdjust, 0);
         return dateTime + timeSpan;
+    }
+
+    public static int GetAge(this DateTime birthday)
+    {
+        DateTime today = DateTime.Today;
+        int age = today.Year - birthday.Year;
+
+        if (birthday > today.AddYears(-age))
+        {
+            age--;
+        }
+
+        return age;
+    }
+
+    public static string GetDayAndMonth(this DateTime date, Countries country)
+    {
+        DateTimeFormatInfo dtfi = country.GetCultureInfo().DateTimeFormat;
+        string monthName = dtfi.GetMonthName(date.Month);
+        string day = date.Day.ToString();
+        return $"{day} {monthName}";
     }
 }
