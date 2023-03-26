@@ -6,7 +6,6 @@ using BaseBotService.Data.Models;
 using BaseBotService.Utilities;
 using BaseBotService.Utilities.Enums;
 using BaseBotService.Utilities.Extensions;
-using Discord.Interactions;
 using Discord.WebSocket;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -27,9 +26,10 @@ public class UserModule : BaseModule
     }
 
     [UserCommand("User Profile")]
-    public async Task UserInfoCommandAsync(IUser user) => await FollowupAsync(
-        ephemeral: true,
-        embed: GetUserProfileEmbed(user, true).Build());
+    public async Task UserInfoCommandAsync(IUser user) =>
+        await FollowupAsync(
+            ephemeral: true,
+            embed: GetUserProfileEmbed(user, true).Build());
 
     [SlashCommand("profile", "Returns the profile of the current user, or the user parameter, if one is passed.")]
     public async Task UserinfoCommandAsync(
@@ -65,18 +65,17 @@ public class UserModule : BaseModule
     public async Task CloseUserProfileAsync()
     {
         SocketMessageComponent component = (SocketMessageComponent)Context.Interaction;
-        _ = component.ModifyOriginalResponseAsync(x => x.Content = "All settings saved.");
-        _ = component.ModifyOriginalResponseAsync(x => x.Components = new Optional<MessageComponent>());
-        _ = await Task.Delay(TimeSpan.FromSeconds(1)).ContinueWith(_ => component.DeleteOriginalResponseAsync());
+        await component.ModifyOriginalResponseAsync(x => x.Content = "All settings saved.");
+        await component.ModifyOriginalResponseAsync(x => x.Components = new Optional<MessageComponent>());
+        await Task.Delay(TimeSpan.FromSeconds(1)).ContinueWith(_ => component.DeleteOriginalResponseAsync());
     }
 
     [ComponentInteraction("user.profile.main", ignoreGroupNames: true)]
-    public Task GoBackProfileMain()
+    public async Task GoBackProfileMainAsync()
     {
         SocketMessageComponent component = (SocketMessageComponent)Context.Interaction;
-        component.ModifyOriginalResponseAsync(x => x.Content = "Please select the setting you want to change.");
-        component.ModifyOriginalResponseAsync(x => x.Components = ShowUserConfigMenu().Build());
-        return Task.CompletedTask;
+        await component.ModifyOriginalResponseAsync(x => x.Content = "Please select the setting you want to change.");
+        await component.ModifyOriginalResponseAsync(x => x.Components = ShowUserConfigMenu().Build());
     }
 
     [ComponentInteraction("user.profile.save.country", ignoreGroupNames: true)]
@@ -137,7 +136,7 @@ public class UserModule : BaseModule
     }
 
     [ComponentInteraction("user.profile.config", ignoreGroupNames: true)]
-    public Task UserProfileConfig()
+    public async Task UserProfileConfig()
     {
         SocketMessageComponent component = (SocketMessageComponent)Context.Interaction;
         UserConfigs selection = Enum.Parse<UserConfigs>(component.Data.Values.FirstOrDefault() ?? "0");
@@ -187,8 +186,8 @@ public class UserModule : BaseModule
                     .AddTextInput("Day", "day", placeholder: "01", maxLength: 2)
                     .AddTextInput("Month", "month", placeholder: "01", maxLength: 2)
                     .AddTextInput("Year", "year", placeholder: (DateTime.UtcNow.Year - 18).ToString(), maxLength: 4, required: false);
-                RespondWithModalAsync(mb.Build());
-                return Task.CompletedTask;
+                await RespondWithModalAsync(mb.Build());
+                return;
             default:
                 Logger.Error($"User {Context.User.Id} selected unhandled enum {selection}.");
                 break;
@@ -198,9 +197,8 @@ public class UserModule : BaseModule
             .WithSelectMenu(configSetting)
             .WithButton(new ButtonBuilder("Go back", "user.profile.main", ButtonStyle.Primary));
 
-        ModifyOriginalResponseAsync(x => x.Content = message);
-        ModifyOriginalResponseAsync(x => x.Components = components.Build());
-        return Task.CompletedTask;
+        await ModifyOriginalResponseAsync(x => x.Content = message);
+        await ModifyOriginalResponseAsync(x => x.Components = components.Build());
     }
 
     private EmbedBuilder GetUserProfileEmbed(IUser user, bool includePermissions)
