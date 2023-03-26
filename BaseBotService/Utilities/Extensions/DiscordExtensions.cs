@@ -68,4 +68,44 @@ public static class DiscordExtensions
         }
         return builder;
     }
+
+    /// <summary>
+    /// This extension method makes it easier to modify specific text inputs in a modal after it is created.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// await ctx.Interaction.RespondWithModalAsync<ChatTriggerModal>($"chat_trigger_edit:{id},{regex}", null, x => x
+    ///    .WithTitle("Chat Trigger Edit")
+    ///    .UpdateTextInput("key", x => x.Value = trigger.Trigger)
+    ///    .UpdateTextInput("message", x => x.Value = trigger.Response))
+    ///    .ConfigureAwait(false);
+    /// </code>
+    /// </example>
+    public static ModalBuilder UpdateTextInput(this ModalBuilder modal, string customId, Action<TextInputBuilder> input)
+    {
+        var components = modal.Components.ActionRows.SelectMany(r => r.Components).OfType<TextInputComponent>();
+        var component = components.First(c => c.CustomId == customId);
+
+        var builder = new TextInputBuilder
+        {
+            CustomId = customId,
+            Label = component.Label,
+            MaxLength = component.MaxLength,
+            MinLength = component.MinLength,
+            Placeholder = component.Placeholder,
+            Required = component.Required,
+            Style = component.Style,
+            Value = component.Value
+        };
+
+        input(builder);
+
+        foreach (var row in modal.Components.ActionRows.Where(row => row.Components.Any(c => c.CustomId == customId)))
+        {
+            row.Components.RemoveAll(c => c.CustomId == customId);
+            row.AddComponent(builder.Build());
+        }
+
+        return modal;
+    }
 }

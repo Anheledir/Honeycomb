@@ -31,7 +31,7 @@ public class BotModule : BaseModule
                 .WithIsInline(true)
             )
             .WithColor(Color.DarkPurple);
-        await FollowupAsync(embed: response.Build());
+        await RespondOrFollowupAsync(embed: response.Build());
     }
 
     [SlashCommand("ping", "Pings the bot and returns its latency.")]
