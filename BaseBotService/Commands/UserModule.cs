@@ -44,7 +44,7 @@ public class UserModule : BaseModule
     [SlashCommand("config", "Change the settings of your global Honeycomb profile.")]
     public async Task ConfigProfileAsync()
     {
-        await FollowupInDMAsync("Please select the setting you want to change.", components: ShowUserConfigMenu().Build());
+        await RespondOrFollowupInDMAsync("Please select the setting you want to change.", components: ShowUserConfigMenu().Build());
     }
 
     private static ComponentBuilder ShowUserConfigMenu()

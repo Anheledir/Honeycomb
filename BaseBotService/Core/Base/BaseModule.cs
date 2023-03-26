@@ -17,7 +17,7 @@ public abstract class BaseModule : InteractionModuleBase<SocketInteractionContex
     public IAssemblyService AssemblyService { get; set; } = null!;
     public IEnvironmentService EnvironmentService { get; set; } = null!;
 
-    protected async Task FollowupInDMAsync(
+    protected async Task RespondOrFollowupInDMAsync(
         string? text = null,
         bool isTTS = false,
         Embed? embed = null,
@@ -30,9 +30,21 @@ public abstract class BaseModule : InteractionModuleBase<SocketInteractionContex
         MessageFlags flags = MessageFlags.None,
         bool ephemeral = false)
     {
-        if (Context.Channel is not IDMChannel)
+        if (Context.Channel is IDMChannel)
         {
-            await FollowupAsync("You've got a DM!", ephemeral: true);
+            await RespondOrFollowupAsync(
+                text: text,
+                isTTS: isTTS,
+                embed: embed,
+                options: options,
+                allowedMentions: allowedMentions,
+                components: components,
+                embeds: embeds,
+                ephemeral: ephemeral);
+        }
+        else
+        {
+            await RespondOrFollowupAsync("You've got a DM!", ephemeral: true);
             IDMChannel dm = await Caller.CreateDMChannelAsync();
             await dm.SendMessageAsync(
                 text: text,
@@ -45,18 +57,6 @@ public abstract class BaseModule : InteractionModuleBase<SocketInteractionContex
                 stickers: stickers,
                 embeds: embeds,
                 flags: flags);
-        }
-        else
-        {
-            await FollowupAsync(
-                text: text,
-                embeds: embeds,
-                isTTS: isTTS,
-                ephemeral: ephemeral,
-                allowedMentions: allowedMentions,
-                options: options,
-                components: components,
-                embed: embed);
         }
     }
 
