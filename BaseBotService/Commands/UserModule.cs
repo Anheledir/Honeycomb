@@ -27,9 +27,9 @@ public class UserModule : BaseModule
 
     [UserCommand("User Profile")]
     public async Task UserInfoCommandAsync(IUser user) =>
-        await FollowupAsync(
-            ephemeral: true,
-            embed: GetUserProfileEmbed(user, true).Build());
+        await RespondOrFollowupAsync(
+            embed: GetUserProfileEmbed(user, true).Build(),
+            ephemeral: true);
 
     [SlashCommand("profile", "Returns the profile of the current user, or the user parameter, if one is passed.")]
     public async Task UserinfoCommandAsync(
@@ -38,7 +38,7 @@ public class UserModule : BaseModule
         )
     {
         user ??= Caller;
-        await FollowupAsync(ephemeral: false, embed: GetUserProfileEmbed(user, false).Build());
+        await RespondOrFollowupAsync(embed: GetUserProfileEmbed(user, false).Build(), ephemeral: false);
     }
 
     [SlashCommand("config", "Change the settings of your global Honeycomb profile.")]

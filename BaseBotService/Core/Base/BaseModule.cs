@@ -60,6 +60,41 @@ public abstract class BaseModule : InteractionModuleBase<SocketInteractionContex
         }
     }
 
+    protected async Task RespondOrFollowupAsync(
+    string? text = null,
+    bool isTTS = false,
+    Embed? embed = null,
+    RequestOptions? options = null,
+    AllowedMentions? allowedMentions = null,
+    MessageComponent? components = null,
+    Embed[]? embeds = null,
+    bool ephemeral = false)
+    {
+        if (Context.Interaction.HasResponded)
+        {
+            await FollowupAsync(
+                text: text,
+                embeds: embeds,
+                isTTS: isTTS,
+                allowedMentions: allowedMentions,
+                options: options,
+                components: components,
+                embed: embed);
+        }
+        else
+        {
+            await RespondAsync(
+                text: text,
+                embeds: embeds,
+                isTTS: isTTS,
+                ephemeral: ephemeral,
+                allowedMentions: allowedMentions,
+                options: options,
+                components: components,
+                embed: embed);
+        }
+    }
+
     protected EmbedBuilder GetEmbedBuilder() => new()
     {
         Author = new EmbedAuthorBuilder
