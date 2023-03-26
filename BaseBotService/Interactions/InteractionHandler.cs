@@ -31,7 +31,6 @@ public class InteractionHandler : INotificationHandler<InteractionCreatedNotific
                context.Guild?.Id,
                context.Interaction.Data);
 
-            await context.Interaction.DeferAsync();
             // Execute the incoming command.
             IResult result = await _interaction.ExecuteCommandAsync(context, _services);
 

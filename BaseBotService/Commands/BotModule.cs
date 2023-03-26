@@ -44,9 +44,10 @@ public class BotModule : BaseModule
     {
         if (!await CheckRateLimitAsync())
         {
-            await FollowupAsync(text: "Aborted.");
+            await RespondOrFollowupAsync(text: "You have to wait until you can use this again.");
             return;
         }
+        await DeferAsync();
 
         string jsonString = Utilities.DocumentationUtility.GenerateDocumentationJson();
         byte[] jsonBytes = System.Text.Encoding.UTF8.GetBytes(jsonString);
@@ -55,6 +56,6 @@ public class BotModule : BaseModule
         IDMChannel dm = await Caller.CreateDMChannelAsync();
         await dm.SendFileAsync(new FileAttachment(stream, $"honeycomb_v{AssemblyService.Version.Replace('.', '-')}.json"), text: "This is the most recent documentation, freshly created just for you!");
 
-        await FollowupAsync(text: "You've got a DM!", ephemeral: true);
+        await RespondOrFollowupAsync(text: "You've got a DM!", ephemeral: true);
     }
 }
