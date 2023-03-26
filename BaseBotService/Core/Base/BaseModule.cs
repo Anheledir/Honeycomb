@@ -1,5 +1,4 @@
 ﻿using BaseBotService.Core.Interfaces;
-using BaseBotService.Data.Interfaces;
 using BaseBotService.Utilities;
 using BaseBotService.Utilities.Attributes;
 using Discord.WebSocket;
@@ -14,11 +13,53 @@ public abstract class BaseModule : InteractionModuleBase<SocketInteractionContex
     public ILogger Logger { get; set; } = null!;
     public SocketUser Caller => Context.Interaction.User;
     public SocketSelfUser BotUser => Context.Client.CurrentUser;
-    public InteractionService Commands { get; set; } = null!;
     public RateLimiter RateLimiter { get; set; } = null!;
     public IAssemblyService AssemblyService { get; set; } = null!;
     public IEnvironmentService EnvironmentService { get; set; } = null!;
-    public IPersistenceService PersistenceService { get; set; } = null!;
+
+    protected async Task FollowupInDMAsync(
+        string? text = null,
+        bool isTTS = false,
+        Embed? embed = null,
+        RequestOptions? options = null,
+        AllowedMentions? allowedMentions = null,
+        MessageReference? messageReference = null,
+        MessageComponent? components = null,
+        ISticker[]? stickers = null,
+        Embed[]? embeds = null,
+        MessageFlags flags = MessageFlags.None,
+        bool ephemeral = false)
+    {
+        if (Context.Channel is not IDMChannel)
+        {
+            await FollowupAsync("You've got a DM!", ephemeral: true);
+            IDMChannel dm = await Caller.CreateDMChannelAsync();
+            await dm.SendMessageAsync(
+                text: text,
+                isTTS: isTTS,
+                embed: embed,
+                options: options,
+                allowedMentions: allowedMentions,
+                messageReference: messageReference,
+                components: components,
+                stickers: stickers,
+                embeds: embeds,
+                flags: flags);
+        }
+        else
+        {
+            await FollowupAsync(
+                text: text,
+                embeds: embeds,
+                isTTS: isTTS,
+                ephemeral: ephemeral,
+                allowedMentions: allowedMentions,
+                options: options,
+                components: components,
+                embed: embed);
+        }
+    }
+
     protected EmbedBuilder GetEmbedBuilder() => new()
     {
         Author = new EmbedAuthorBuilder
@@ -70,7 +111,7 @@ public abstract class BaseModule : InteractionModuleBase<SocketInteractionContex
 
             if (!await RateLimiter.IsAllowed(userId, commandName, rateLimitAttribute.MaxAttempts, rateLimitAttribute.TimeWindow))
             {
-                _ = await ReplyAsync("You have reached the rate limit for this command. Please wait before trying again.");
+                await ReplyAsync("You have reached the rate limit for this command. Please wait before trying again.");
                 return false;
             }
         }

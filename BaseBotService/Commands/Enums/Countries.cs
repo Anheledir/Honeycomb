@@ -1,8 +1,8 @@
-﻿namespace BaseBotService.Interactions.Enums;
+﻿namespace BaseBotService.Commands.Enums;
 
 public enum Countries
 {
-    Unknown = 0,
+    Unknown = -1,
     UnitedStates = 1,
     Canada = 2,
     UnitedKingdom = 3,

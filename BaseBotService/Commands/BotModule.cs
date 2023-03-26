@@ -13,9 +13,7 @@ public class BotModule : BaseModule
     }
 
     [SlashCommand("about", "Returns information like runtime and current version of this Honeycomb bot instance.")]
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Minor Code Smell", "S1075:URIs should not be hardcoded", Justification = "Waiting for i18n implementation.")]
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Info Code Smell", "S1135:Track uses of \"TODO\" tags", Justification = "Opened issue #43")]
-    public async Task InfoCommandAsync()
+    public async Task AboutAsync()
     {
         // Create embedded message with bot information
         EmbedBuilder response = GetEmbedBuilder()
@@ -33,22 +31,20 @@ public class BotModule : BaseModule
                 .WithIsInline(true)
             )
             .WithColor(Color.DarkPurple);
-        await RespondAsync(embed: response.Build());
+        await FollowupAsync(embed: response.Build());
     }
 
     [SlashCommand("ping", "Pings the bot and returns its latency.")]
-    public async Task GreetUserAsync()
-        => await RespondAsync(text: $":ping_pong: It took me {Context.Client.Latency}ms to respond to you!", ephemeral: true);
+    public async Task PingAsync()
+        => await FollowupAsync(text: $":ping_pong: It took me {Context.Client.Latency}ms to respond to you!", ephemeral: true);
 
     [SlashCommand("documentation", "Sends a json-file via DM containing all command documentations.")]
     [RateLimit(1, 300)]
     public async Task DocumentationAsync()
     {
-        await DeferAsync(true);
-
         if (!await CheckRateLimitAsync())
         {
-            _ = await FollowupAsync(text: "Aborted.");
+            await FollowupAsync(text: "Aborted.");
             return;
         }
 
@@ -57,8 +53,8 @@ public class BotModule : BaseModule
         using MemoryStream stream = new(jsonBytes);
 
         IDMChannel dm = await Caller.CreateDMChannelAsync();
-        _ = await dm.SendFileAsync(new FileAttachment(stream, $"honeycomb_v{AssemblyService.Version.Replace('.', '-')}.json"), text: "This is the most recent documentation, freshly created just for you!");
+        await dm.SendFileAsync(new FileAttachment(stream, $"honeycomb_v{AssemblyService.Version.Replace('.', '-')}.json"), text: "This is the most recent documentation, freshly created just for you!");
 
-        _ = await FollowupAsync(text: "Sent via DM.", ephemeral: true);
+        await FollowupAsync(text: "You've got a DM!", ephemeral: true);
     }
 }

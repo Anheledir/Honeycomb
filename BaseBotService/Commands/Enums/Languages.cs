@@ -1,4 +1,4 @@
-﻿namespace BaseBotService.Interactions.Enums;
+﻿namespace BaseBotService.Commands.Enums;
 
 [Flags]
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Critical Code Smell", "S2346:Flags enumerations zero-value members should be named \"None\"", Justification = "Used in GUI right now, other is a better choice.")]

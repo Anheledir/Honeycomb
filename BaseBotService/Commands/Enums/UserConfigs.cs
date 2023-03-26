@@ -1,4 +1,4 @@
-namespace BaseBotService.Interactions.Enums;
+namespace BaseBotService.Commands.Enums;
 public enum UserConfigs
 {
     Country,

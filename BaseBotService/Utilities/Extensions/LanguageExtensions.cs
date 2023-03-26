@@ -1,4 +1,4 @@
-﻿using BaseBotService.Interactions.Enums;
+﻿using BaseBotService.Commands.Enums;
 using System.Globalization;
 
 namespace BaseBotService.Utilities.Extensions;

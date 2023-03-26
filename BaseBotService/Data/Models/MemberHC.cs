@@ -1,5 +1,5 @@
-﻿using BaseBotService.Core.Base;
-using BaseBotService.Interactions.Enums;
+﻿using BaseBotService.Commands.Enums;
+using BaseBotService.Core.Base;
 using LiteDB;
 
 namespace BaseBotService.Data.Models;

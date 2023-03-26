@@ -1,4 +1,4 @@
-﻿using BaseBotService.Interactions.Enums;
+﻿using BaseBotService.Commands.Enums;
 using BaseBotService.Utilities.Extensions;
 
 namespace BaseBotService.Tests.Utilities.Extensions;

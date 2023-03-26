@@ -6,7 +6,6 @@ using BaseBotService.Data;
 using BaseBotService.Data.Interfaces;
 using BaseBotService.Data.Models;
 using BaseBotService.Infrastructure.Services;
-using BaseBotService.Infrastructure.Strategies;
 using BaseBotService.Utilities;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
@@ -48,14 +47,6 @@ public static class ServiceFactory
         // command modules
             .AddScoped<UserModule>()
             .AddScoped<BotModule>()
-
-        // component strategies
-            .AddSingleton<IComponentStrategyFactory, ComponentStrategyFactory>()
-            .AddSingleton<ActionRowStrategy>()
-            .AddSingleton<ButtonStrategy>()
-            .AddSingleton<ModalSubmitStrategy>()
-            .AddSingleton<SelectMenuStrategy>()
-            .AddSingleton<TextInputStrategy>()
 
         // utilities
             .AddSingleton<IAssemblyService, AssemblyService>()

@@ -1,5 +1,5 @@
 ﻿using BaseBotService.Utilities.Extensions;
-using BaseBotService.Interactions.Enums;
+using BaseBotService.Commands.Enums;
 
 namespace BaseBotService.Tests.Utilities.Extensions;
 

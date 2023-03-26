@@ -50,7 +50,13 @@ public static class DiscordExtensions
             if (isFlagsEnum)
             {
                 int intValue = Convert.ToInt32(value);
-                option.WithDefault((currentValue & intValue) == intValue);
+                option.WithDefault(
+                    (currentValue & intValue) == intValue
+                    && (
+                        (intValue > 0 && currentValue != 0)
+                        || (intValue == 0 && currentValue == 0)
+                        )
+                    );
             }
             else
             {

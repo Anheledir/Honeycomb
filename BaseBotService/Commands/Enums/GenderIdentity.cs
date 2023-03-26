@@ -1,4 +1,4 @@
-﻿namespace BaseBotService.Interactions.Enums;
+﻿namespace BaseBotService.Commands.Enums;
 /// <summary>
 /// Represents the gender identity options for a Discord user.
 /// </summary>
