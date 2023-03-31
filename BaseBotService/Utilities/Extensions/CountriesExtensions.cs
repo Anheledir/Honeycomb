@@ -1,6 +1,6 @@
 ﻿using BaseBotService.Commands.Enums;
+using BaseBotService.Core.Interfaces;
 using System.Globalization;
-using System.Text.RegularExpressions;
 
 namespace BaseBotService.Utilities.Extensions;
 
@@ -34,14 +34,15 @@ public static partial class CountriesExtensions
         {Countries.Swiss, ":flag_ch:"},
     };
 
-    public static string GetCountryNameWithFlag(this Countries country)
+    public static string GetCountryNameWithFlag(this Countries country, ITranslationService translationService)
     {
         if (!_countryFlagEmojis.TryGetValue(country, out string? emoji))
         {
             return country.ToString();
         }
 
-        string countryName = PascalCasing().Replace(country.ToString(), "$1 $2");
+        string countryCode = country.ToString().ToLowerKebabCase();
+        string countryName = translationService.GetString($"country-{countryCode}");
         return $"{emoji} {countryName}";
     }
 
@@ -73,7 +74,4 @@ public static partial class CountriesExtensions
         Countries.Swiss => new CultureInfo("de-CH"),
         _ => CultureInfo.CurrentCulture,
     };
-
-    [GeneratedRegex("([a-z])([A-Z])")]
-    private static partial Regex PascalCasing();
 }

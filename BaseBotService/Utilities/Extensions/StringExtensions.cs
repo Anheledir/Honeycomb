@@ -2,7 +2,7 @@
 using System.Text.RegularExpressions;
 
 namespace BaseBotService.Utilities.Extensions;
-public static class StringExtensions
+public static partial class StringExtensions
 {
     public static string MaskToken(this string token)
     {
@@ -24,7 +24,7 @@ public static class StringExtensions
         unicodeEmoji = default!;
 
         // Parse the emoji using a regex
-        Match match = Regex.Match(stringWithLeadingEmoji, "^:(\\w+):");
+        Match match = EmojiCodeRegex().Match(stringWithLeadingEmoji);
         if (match.Success)
         {
             string emojiCode = match.Groups[1].Value;
@@ -34,8 +34,17 @@ public static class StringExtensions
                 Debug.WriteLine($"{emojiCode}");
             }
         }
-        return Regex.Replace(stringWithLeadingEmoji, "^:\\w+:\\s*", string.Empty).TrimStart();
+        return EmojiCodeWithOptionalWhitespaceRegex().Replace(stringWithLeadingEmoji, string.Empty).TrimStart();
     }
 
-    public static string FromCamelCase(this string camelCase) => Regex.Replace(camelCase, "([a-z])([A-Z])", "$1 $2");
+    public static string FromCamelCase(this string camelCase) => CamelCaseBoundaryRegex().Replace(camelCase, "$1 $2");
+
+    public static string ToLowerKebabCase(this string camelCase) => camelCase.FromCamelCase().Replace(" ", "-").ToLowerInvariant();
+
+    [GeneratedRegex("^:(\\w+):")]
+    private static partial Regex EmojiCodeRegex();
+    [GeneratedRegex("^:\\w+:\\s*")]
+    private static partial Regex EmojiCodeWithOptionalWhitespaceRegex();
+    [GeneratedRegex("([a-z])([A-Z])")]
+    private static partial Regex CamelCaseBoundaryRegex();
 }

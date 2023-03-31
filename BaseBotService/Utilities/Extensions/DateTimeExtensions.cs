@@ -1,4 +1,5 @@
 ﻿using BaseBotService.Commands.Enums;
+using BaseBotService.Core.Interfaces;
 using BaseBotService.Utilities.Enums;
 using System.Globalization;
 
@@ -10,14 +11,14 @@ public static class DateTimeExtensions
 
     public static long ToUnixTimestamp(this DateTimeOffset dateTimeOffset) => (long)(dateTimeOffset - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).TotalSeconds;
 
-    public static string ToDiscordTimestamp(this DateTime dateTime, DiscordTimestampFormat format = DiscordTimestampFormat.ShortDateTime)
+    public static string ToDiscordTimestamp(this DateTime dateTime, ITranslationService translationService, DiscordTimestampFormat format = DiscordTimestampFormat.ShortDateTime)
         => dateTime.Equals(DateTime.MinValue)
-        ? "n/a"
+        ? translationService.GetString("not-available")
         : $"<t:{dateTime.ToUnixTimestamp()}:{format.DiscordTimestampFormatHelper()}>";
 
-    public static string ToDiscordTimestamp(this DateTimeOffset dateTimeOffset, DiscordTimestampFormat format = DiscordTimestampFormat.ShortDateTime)
+    public static string ToDiscordTimestamp(this DateTimeOffset dateTimeOffset, ITranslationService translationService, DiscordTimestampFormat format = DiscordTimestampFormat.ShortDateTime)
         => dateTimeOffset.Equals(DateTimeOffset.MinValue)
-        ? "n/a"
+        ? translationService.GetString("not-available")
         : $"<t:{dateTimeOffset.ToUnixTimestamp()}:{format.DiscordTimestampFormatHelper()}>";
 
     internal static char DiscordTimestampFormatHelper(this DiscordTimestampFormat format) => format switch

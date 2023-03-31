@@ -49,7 +49,7 @@ public static class ServiceFactory
             .AddScoped<BotModule>()
 
         // utilities
-            .AddSingleton(_ => new TranslationService(TranslationFactory.CreateMessageContexts()))
+            .AddSingleton<ITranslationService>(_ => new TranslationService(TranslationFactory.CreateMessageContexts()))
             .AddSingleton<IAssemblyService, AssemblyService>()
             .AddSingleton<IEnvironmentService, EnvironmentService>()
             .AddScoped<IEngagementService, EngagementService>()

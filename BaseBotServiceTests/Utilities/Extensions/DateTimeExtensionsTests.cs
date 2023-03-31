@@ -1,4 +1,5 @@
 using BaseBotService.Commands.Enums;
+using BaseBotService.Core.Interfaces;
 using BaseBotService.Utilities.Enums;
 using BaseBotService.Utilities.Extensions;
 
@@ -52,9 +53,11 @@ public class DateTimeExtensionsTests
     {
         // Arrange
         DateTime dateTime = _faker.Date.Recent();
+        var translationService = Substitute.For<ITranslationService>();
+        translationService.GetString("not-available").Returns("n/a");
 
         // Act
-        string discordTimestamp = dateTime.ToDiscordTimestamp(format);
+        string discordTimestamp = dateTime.ToDiscordTimestamp(translationService, format);
 
         // Assert
         string expectedTimestamp = $"<t:{dateTime.ToUnixTimestamp()}:{format.DiscordTimestampFormatHelper()}>";
@@ -72,9 +75,11 @@ public class DateTimeExtensionsTests
     {
         // Arrange
         DateTimeOffset dateTimeOffset = _faker.Date.RecentOffset();
+        var translationService = Substitute.For<ITranslationService>();
+        translationService.GetString("not-available").Returns("n/a");
 
         // Act
-        string discordTimestamp = dateTimeOffset.ToDiscordTimestamp(format);
+        string discordTimestamp = dateTimeOffset.ToDiscordTimestamp(translationService, format);
 
         // Assert
         string expectedTimestamp = $"<t:{dateTimeOffset.ToUnixTimestamp()}:{format.DiscordTimestampFormatHelper()}>";
@@ -86,9 +91,11 @@ public class DateTimeExtensionsTests
     {
         // Arrange
         DateTime dateTime = DateTime.MinValue;
+        var translationService = Substitute.For<ITranslationService>();
+        translationService.GetString("not-available").Returns("n/a");
 
         // Act
-        string discordTimestamp = dateTime.ToDiscordTimestamp();
+        string discordTimestamp = dateTime.ToDiscordTimestamp(translationService);
 
         // Assert
         discordTimestamp.ShouldBe("n/a");
@@ -99,9 +106,11 @@ public class DateTimeExtensionsTests
     {
         // Arrange
         DateTimeOffset dateTimeOffset = DateTimeOffset.MinValue;
+        var translationService = Substitute.For<ITranslationService>();
+        translationService.GetString("not-available").Returns("n/a");
 
         // Act
-        string discordTimestamp = dateTimeOffset.ToDiscordTimestamp();
+        string discordTimestamp = dateTimeOffset.ToDiscordTimestamp(translationService);
 
         // Assert
         discordTimestamp.ShouldBe("n/a");

@@ -36,7 +36,7 @@ public static class DocumentationUtility
 
                     commandsDocumentation.Add(new
                     {
-                        CommandName = slashCommandAttribute?.Name ?? userCommandAttribute.Name,
+                        CommandName = slashCommandAttribute?.Name ?? userCommandAttribute!.Name,
                         CommandType = slashCommandAttribute is not null ? "SlashCommand" : "UserCommand",
                         Description = slashCommandAttribute?.Description ?? string.Empty,
                         Parameters = parametersDocumentation

@@ -36,7 +36,7 @@ public class TranslationService : ITranslationService
     /// string message = translationService.GetString("greeting", args);
     /// </code>
     /// </example>
-    public static Dictionary<string, object> Arguments(string? name, object value, params object[] args)
+    public Dictionary<string, object> Arguments(string? name, object value, params object[] args)
     {
         if (string.IsNullOrEmpty(name))
         {

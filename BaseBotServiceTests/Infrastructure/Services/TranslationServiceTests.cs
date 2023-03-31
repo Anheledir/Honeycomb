@@ -84,7 +84,7 @@ public class TranslationServiceTests
         string name2 = _faker.Name.LastName();
         object value2 = _faker.Random.Int();
 
-        Dictionary<string, object> args = TranslationService.Arguments(name, value, name2, value2);
+        Dictionary<string, object> args = _translationService.Arguments(name, value, name2, value2);
 
         _ = args.ShouldNotBeNull();
         args.Count.ShouldBe(2);
@@ -98,7 +98,7 @@ public class TranslationServiceTests
         string name = string.Empty;
         object value = _faker.Random.Int();
 
-        _ = Should.Throw<ArgumentNullException>(() => TranslationService.Arguments(name, value));
+        _ = Should.Throw<ArgumentNullException>(() => _translationService.Arguments(name, value));
     }
 
     [Test]
