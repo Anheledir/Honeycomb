@@ -37,7 +37,7 @@ public static class ServiceFactory
             .AddSingleton(LoggerFactory.CreateLogger())
             .AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()))
 
-        // discord services
+            // discord services
             .AddSingleton(socketConfig)
             .AddSingleton<DiscordSocketClient>()
             .AddSingleton(serviceConfig)
@@ -49,6 +49,7 @@ public static class ServiceFactory
             .AddScoped<BotModule>()
 
         // utilities
+            .AddSingleton(_ => new TranslationService(TranslationFactory.CreateMessageContexts()))
             .AddSingleton<IAssemblyService, AssemblyService>()
             .AddSingleton<IEnvironmentService, EnvironmentService>()
             .AddScoped<IEngagementService, EngagementService>()
