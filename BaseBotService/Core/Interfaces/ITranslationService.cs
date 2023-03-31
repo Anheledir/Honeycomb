@@ -8,4 +8,5 @@ public interface ITranslationService
     string PreferredLocale { get; }
 
     string GetString(string id, IDictionary<string, object>? args = null, ICollection<FluentError>? errors = null);
+    string GetString(string id, string locale, IDictionary<string, object>? args = null, ICollection<FluentError>? errors = null);
 }

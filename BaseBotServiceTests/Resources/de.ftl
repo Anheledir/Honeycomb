@@ -1,0 +1,1 @@
+﻿test-message = Hallo, Welt!

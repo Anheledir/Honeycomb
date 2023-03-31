@@ -1,5 +1,4 @@
-﻿using BaseBotService.Core.Interfaces;
-using BaseBotService.Infrastructure.Services;
+﻿using BaseBotService.Infrastructure.Services;
 using Fluent.Net;
 
 namespace BaseBotService.Tests.Infrastructure.Services;
@@ -9,6 +8,11 @@ public class TranslationServiceTests
     private TranslationService _translationService;
     private IEnumerable<MessageContext> _messageContexts;
     private Faker _faker;
+    private const string _messageId = "test-message";
+    private const string _englishTranslation = "Hello, world!";
+    private const string _germanTranslation = "Hallo, Welt!";
+    private const string _spanishTranslation = "¡Hola, mundo!";
+    private const string _frenchTranslation = "Bonjour, le monde!";
 
     [SetUp]
     public void Setup()
@@ -20,13 +24,19 @@ public class TranslationServiceTests
 
     private IEnumerable<MessageContext> CreateMessageContexts()
     {
-        MessageContext context = new(new[] { "en-US" });
-        const string testFtlFile = "BaseBotService.Tests.Resources.test.ftl";
-        FluentResource resource = LoadResource(testFtlFile);
-        _ = context.AddResource(resource);
+        var locales = new[] { "en", "de", "es", "fr" };
+        var messageContexts = new List<MessageContext>();
 
-        // Return a single context in this example
-        return new List<MessageContext> { context };
+        foreach (var locale in locales)
+        {
+            var context = new MessageContext(new[] { locale });
+            var testFtlFile = $"BaseBotService.Tests.Resources.{locale}.ftl";
+            var resource = LoadResource(testFtlFile);
+            context.AddResource(resource);
+            messageContexts.Add(context);
+        }
+
+        return messageContexts;
     }
 
     private FluentResource LoadResource(string resourceName)
@@ -39,18 +49,29 @@ public class TranslationServiceTests
     [Test]
     public void GetString_ValidId_ReturnsTranslation()
     {
-        const string id = "test-message";
-        string expectedTranslation = _translationService.GetString(id);
+        string expectedTranslation = _translationService.GetString(_messageId);
+
+        _translationService.PreferredLocale.ShouldBe("en");
+        expectedTranslation.ShouldNotBeNullOrEmpty();
+        expectedTranslation.ShouldBeEquivalentTo(_englishTranslation);
+    }
+
+    [TestCase("en", _englishTranslation)]
+    [TestCase("de", _germanTranslation)]
+    [TestCase("es", _spanishTranslation)]
+    [TestCase("fr", _frenchTranslation)]
+    public void GetString_ValidId_WithLocale_ReturnsTranslation(string locale, string translation)
+    {
+        string expectedTranslation = _translationService.GetString(_messageId, locale);
 
         expectedTranslation.ShouldNotBeNullOrEmpty();
-        expectedTranslation.ShouldBeEquivalentTo("Test translation");
+        expectedTranslation.ShouldBeEquivalentTo(translation);
     }
 
     [Test]
     public void GetString_InvalidId_ReturnsEmptyString()
     {
-        const string id = "non-existent-message";
-        string translation = _translationService.GetString(id);
+        string translation = _translationService.GetString(string.Concat(_messageId, "-non-existing"));
 
         translation.ShouldBeEmpty();
     }

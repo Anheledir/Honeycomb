@@ -1,1 +1,0 @@
-﻿test-message = Test translation

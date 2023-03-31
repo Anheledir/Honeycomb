@@ -11,11 +11,17 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <None Remove="Resources\test.ftl" />
+      <None Remove="Resources\de.ftl" />
+      <None Remove="Resources\en.ftl" />
+      <None Remove="Resources\es.ftl" />
+      <None Remove="Resources\fr.ftl" />
     </ItemGroup>
 
     <ItemGroup>
-      <EmbeddedResource Include="Resources\test.ftl" />
+      <EmbeddedResource Include="Resources\de.ftl" />
+      <EmbeddedResource Include="Resources\en.ftl" />
+      <EmbeddedResource Include="Resources\fr.ftl" />
+      <EmbeddedResource Include="Resources\es.ftl" />
     </ItemGroup>
 
     <ItemGroup>

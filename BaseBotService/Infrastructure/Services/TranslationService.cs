@@ -22,14 +22,20 @@ public class TranslationService : ITranslationService
     }
 
     /// <summary>
-    /// Creates a dictionary for storing arguments to be used in translations.
+    /// Creates a dictionary of arguments for use with translations that accept named arguments.
     /// </summary>
     /// <param name="name">The name of the first argument.</param>
     /// <param name="value">The value of the first argument.</param>
-    /// <param name="args">Additional argument pairs, in name and value order.</param>
-    /// <returns>A dictionary containing the given arguments.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when name or value is null or empty.</exception>
-    /// <exception cref="ArgumentException">Thrown when the number of arguments is not a multiple of two or an argument name is empty.</exception>
+    /// <param name="args">A comma-separated list of additional name-value pairs, where each name is a string and each value is an object.</param>
+    /// <returns>A dictionary containing the provided name-value pairs.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when either the name or the value is null.</exception>
+    /// <exception cref="ArgumentException">Thrown when the number of arguments is not a multiple of two, or when an argument name is an empty string.</exception>
+    /// <example>
+    /// <code>
+    /// var args = TranslationService.Arguments("name", "John Doe", "age", 25);
+    /// string message = translationService.GetString("greeting", args);
+    /// </code>
+    /// </example>
     public static Dictionary<string, object> Arguments(string? name, object value, params object[] args)
     {
         if (string.IsNullOrEmpty(name))
@@ -71,12 +77,18 @@ public class TranslationService : ITranslationService
     /// <summary>
     /// Retrieves the translated string for the given id, using the provided arguments and reporting any errors.
     /// </summary>
-    /// <param name="id">The message identifier.</param>
-    /// <param name="args">The arguments to be used in the translation.</param>
-    /// <param name="errors">A collection for storing errors encountered during translation.</param>
+    /// <param name="id">The ID of the message to translate.</param>
+    /// <param name="args">An optional dictionary of arguments to pass to the translation. Default is null.</param>
+    /// <param name="errors">An optional collection of FluentError instances to collect errors during translation. Default is null.</param>
     /// <returns>The translated string or an empty string if the message is not found.</returns>
-    public string GetString(string id, IDictionary<string, object>? args = null,
-        ICollection<FluentError>? errors = null)
+    /// <example>
+    /// <code>
+    /// var translationService = new TranslationService(/* message contexts */);
+    /// string messageId = "example-message";
+    /// string translatedText = translationService.GetString(messageId);
+    /// </code>
+    /// </example>
+    public string GetString(string id, IDictionary<string, object>? args = null, ICollection<FluentError>? errors = null)
     {
         foreach (MessageContext context in _contexts)
         {
@@ -86,6 +98,38 @@ public class TranslationService : ITranslationService
                 return context.Format(msg, args, errors);
             }
         }
+        return string.Empty;
+    }
+
+    /// <summary>
+    /// Retrieves the translated string for a given message ID and locale.
+    /// </summary>
+    /// <param name="id">The ID of the message to translate.</param>
+    /// <param name="locale">The desired locale for the translated message.</param>
+    /// <param name="args">An optional dictionary of arguments to pass to the translation. Default is null.</param>
+    /// <param name="errors">An optional collection of FluentError instances to collect errors during translation. Default is null.</param>
+    /// <returns>The translated message in the specified locale, or an empty string if the message ID or locale is not found.</returns>
+    /// <example>
+    /// <code>
+    /// var translationService = new TranslationService(/* message contexts */);
+    /// string messageId = "example-message";
+    /// string translatedTextInEnglish = translationService.GetString(messageId, "en");
+    /// string translatedTextInGerman = translationService.GetString(messageId, "de");
+    /// string translatedTextInSpanish = translationService.GetString(messageId, "es");
+    /// </code>
+    /// </example>
+    public string GetString(string id, string locale, IDictionary<string, object>? args = null, ICollection<FluentError>? errors = null)
+    {
+        var context = _contexts.FirstOrDefault(c => c.Locales.Contains(locale));
+        if (context != null)
+        {
+            Fluent.Net.RuntimeAst.Message msg = context.GetMessage(id);
+            if (msg != null)
+            {
+                return context.Format(msg, args, errors);
+            }
+        }
+
         return string.Empty;
     }
 
