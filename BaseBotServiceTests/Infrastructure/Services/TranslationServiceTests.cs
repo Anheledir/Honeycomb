@@ -7,7 +7,6 @@ public class TranslationServiceTests
 {
     private TranslationService _translationService;
     private IEnumerable<MessageContext> _messageContexts;
-    private Faker _faker;
     private const string _messageId = "test-message";
     private const string _englishTranslation = "Hello, world!";
     private const string _germanTranslation = "Hallo, Welt!";
@@ -17,7 +16,6 @@ public class TranslationServiceTests
     [SetUp]
     public void Setup()
     {
-        _faker = new Faker();
         _messageContexts = CreateMessageContexts();
         _translationService = new TranslationService(_messageContexts);
     }
@@ -74,31 +72,6 @@ public class TranslationServiceTests
         string translation = _translationService.GetString(string.Concat(_messageId, "-non-existing"));
 
         translation.ShouldBeEmpty();
-    }
-
-    [Test]
-    public void Arguments_ValidInput_ReturnsDictionary()
-    {
-        string name = _faker.Name.FirstName();
-        object value = _faker.Random.Int();
-        string name2 = _faker.Name.LastName();
-        object value2 = _faker.Random.Int();
-
-        Dictionary<string, object> args = _translationService.Arguments(name, value, name2, value2);
-
-        _ = args.ShouldNotBeNull();
-        args.Count.ShouldBe(2);
-        args[name].ShouldBe(value);
-        args[name2].ShouldBe(value2);
-    }
-
-    [Test]
-    public void Arguments_InvalidInput_ThrowsException()
-    {
-        string name = string.Empty;
-        object value = _faker.Random.Int();
-
-        _ = Should.Throw<ArgumentNullException>(() => _translationService.Arguments(name, value));
     }
 
     [Test]

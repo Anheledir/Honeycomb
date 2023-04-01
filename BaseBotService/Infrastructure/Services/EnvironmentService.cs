@@ -1,5 +1,6 @@
 ﻿using BaseBotService.Core.Enums;
 using BaseBotService.Core.Interfaces;
+using BaseBotService.Utilities;
 using BaseBotService.Utilities.Extensions;
 
 namespace BaseBotService.Infrastructure.Services;
@@ -51,7 +52,7 @@ public class EnvironmentService : IEnvironmentService
     public string GetUptime()
     {
         TimeSpan uptime = DateTime.UtcNow - _startupTime;
-        string result = _translationService.GetString("uptime-format", _translationService.Arguments(
+        string result = _translationService.GetString("uptime-format", TranslationHelper.Arguments(
             "days", uptime.Days,
             "hours", uptime.Hours,
             "minutes", uptime.Minutes,

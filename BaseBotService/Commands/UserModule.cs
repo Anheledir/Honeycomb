@@ -208,7 +208,7 @@ public class UserModule : BaseModule
                     .AddTextInput(
                         _translationService.GetString("profile-config-birthday-day"),
                         "year",
-                        placeholder: _translationService.GetString("profile-config-birthday-year-placeholder", _translationService.Arguments("exampleYear", DateTime.UtcNow.Year - 18)),
+                        placeholder: _translationService.GetString("profile-config-birthday-year-placeholder", TranslationHelper.Arguments("exampleYear", DateTime.UtcNow.Year - 18)),
                         maxLength: 4,
                         required: false,
                         value:
@@ -346,7 +346,7 @@ public class UserModule : BaseModule
                     .AppendLine("%")
                     .Append(_translationService.GetString(
                         "profile-activity-rating",
-                        _translationService.Arguments("score", userActivityProgress)
+                        TranslationHelper.Arguments("score", userActivityProgress)
                         )
                     );
                 Logger.Debug($"Calculating Activity Progress for User ID: {gUser.Id} on Guild ID: {Context.Guild.Id} {Environment.NewLine}Max Steps: {activityMaxSteps}, Activity Score: {userActivityScore}, Progress: {userActivityProgress}");
@@ -389,8 +389,8 @@ public class UserModule : BaseModule
                 });
             }
             result.Title = _translationService
-                .GetString("profile-title", _translationService
-                .Arguments("username", gUser.DisplayName, "guildname", gUser.Guild.Name));
+                .GetString("profile-title",
+                TranslationHelper.Arguments("username", gUser.DisplayName, "guildname", gUser.Guild.Name));
             result.ThumbnailUrl = gUser.GetDisplayAvatarUrl();
         }
 

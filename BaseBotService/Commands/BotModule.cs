@@ -1,5 +1,6 @@
 ﻿using BaseBotService.Core.Base;
 using BaseBotService.Core.Interfaces;
+using BaseBotService.Utilities;
 using BaseBotService.Utilities.Attributes;
 
 namespace BaseBotService.Commands;
@@ -40,7 +41,7 @@ public class BotModule : BaseModule
 
     [SlashCommand("ping", "Pings the bot and returns its latency.")]
     public async Task PingAsync()
-        => await RespondOrFollowupAsync(text: _translationService.GetString("ping-response", _translationService.Arguments("latency", Context.Client.Latency)), ephemeral: true);
+        => await RespondOrFollowupAsync(text: _translationService.GetString("ping-response", TranslationHelper.Arguments("latency", Context.Client.Latency)), ephemeral: true);
 
     [SlashCommand("documentation", "Sends a json-file via DM containing all command documentations.")]
     [RateLimit(1, 300)]
@@ -62,7 +63,7 @@ public class BotModule : BaseModule
             stream,
             _translationService.GetString(
                 "documentation-filename",
-                _translationService.Arguments(
+                TranslationHelper.Arguments(
                     "version",
                     AssemblyService.Version.Replace('.', '-')
                 )
