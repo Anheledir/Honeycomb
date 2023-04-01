@@ -113,6 +113,7 @@ profile-birthday = Birthday
 profile-joined = Joined at
 profile-active = Last active
 profile-points = Server points
+profile-activity = Activity
 profile-roles = Roles
 profile-roles-none = None
 profile-permissions = Permissions

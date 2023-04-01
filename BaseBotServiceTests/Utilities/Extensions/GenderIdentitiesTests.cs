@@ -15,10 +15,10 @@ public class GenderIdentitiesTests
 
     [TestCase(GenderIdentity.Male, ":male_sign: Male")]
     [TestCase(GenderIdentity.Female, ":female_sign: Female")]
-    [TestCase(GenderIdentity.NonBinary, ":transgender_symbol: Non Binary")]
+    [TestCase(GenderIdentity.NonBinary, ":transgender_flag: Non Binary")]
     [TestCase(GenderIdentity.TransgenderMale, ":transgender_flag: Transgender Male")]
     [TestCase(GenderIdentity.TransgenderFemale, ":transgender_flag: Transgender Female")]
-    [TestCase(GenderIdentity.Genderqueer, ":transgender_symbol: Genderqueer")]
+    [TestCase(GenderIdentity.Genderqueer, ":transgender_flag: Genderqueer")]
     [TestCase(GenderIdentity.Other, ":grey_question: Other")]
     public void GetGenderNameWithFlag_ShouldReturnCorrectNameWithFlag(GenderIdentity gender, string expected)
     {

@@ -10,6 +10,7 @@ using BaseBotService.Utilities.Enums;
 using BaseBotService.Utilities.Extensions;
 using Discord.WebSocket;
 using System.Globalization;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace BaseBotService.Commands;
@@ -235,6 +236,26 @@ public class UserModule : BaseModule
         });
     }
 
+    internal double GetActivityScore(IGuildUser user, IGuildUser bot)
+    {
+        const double averageOnlineHours = 8;
+        const double scalingFactor = averageOnlineHours / 24;
+
+        DateTimeOffset? userJoined = user?.JoinedAt;
+        DateTimeOffset? botJoined = bot?.JoinedAt;
+        if (!userJoined.HasValue || !botJoined.HasValue)
+        {
+            return 0;
+        }
+
+        DateTimeOffset startCountingDate = userJoined.Value > botJoined.Value ? userJoined.Value : botJoined.Value;
+        double daysCounting = (DateTime.UtcNow - startCountingDate).TotalDays;
+        double maxPoints = daysCounting * _engagementService.MaxPointsPerDay;
+        double scaledMaxPoints = maxPoints * scalingFactor;
+        Logger.Debug($"User {user!.Id} has been in the guild for {daysCounting} days, which would result in {maxPoints} points. The scaling factor is {scalingFactor}, so the maximum points are {scaledMaxPoints}.");
+        return Math.Min(100, _engagementService.GetActivityPoints(user.GuildId, user.Id) / scaledMaxPoints * 100);
+    }
+
     private EmbedBuilder GetUserProfileEmbed(IUser user, bool includePermissions)
     {
         EmbedBuilder result = GetEmbedBuilder()
@@ -314,6 +335,18 @@ public class UserModule : BaseModule
 
             if (!user.IsBot && !user.IsWebhook)
             {
+                const int activityMaxSteps = 12;
+                double userActivityScore = GetActivityScore(gUser, Context.Guild.CurrentUser);
+                int userActivityProgress = (int)(userActivityScore / (100 / activityMaxSteps));
+                StringBuilder progressBar = new();
+                progressBar
+                    .Append(UnicodeEmojiHelper.greenSquare.Repeat(userActivityProgress))
+                    .Append(UnicodeEmojiHelper.whiteSquare.Repeat(activityMaxSteps - userActivityProgress))
+                    .Append(' ')
+                    .AppendFormat("{0:F2}", userActivityScore)
+                    .Append('%');
+                Logger.Debug($"Calculating Activity Progress for User ID: {gUser.Id} on Guild ID: {Context.Guild.Id} {Environment.NewLine}Max Steps: {activityMaxSteps}, Activity Score: {userActivityScore}, Progress: {userActivityProgress}");
+
                 fields.AddRange(new[] {
                     new EmbedFieldBuilder
                     {
@@ -323,8 +356,8 @@ public class UserModule : BaseModule
                     },
                     new EmbedFieldBuilder
                     {
-                        Name = _translationService.GetString("profile-points"),
-                        Value = _engagementService.GetActivityPoints(gUser.GuildId, user.Id).ToString("N0", CultureInfo.InvariantCulture)
+                        Name = _translationService.GetString("profile-activity"),
+                        Value = progressBar.ToString()
                     }
                 });
             }
@@ -351,7 +384,9 @@ public class UserModule : BaseModule
                     Value = permissionNames.Any() ? string.Join(", ", permissionNames) : _translationService.GetString("profile-permissions-none")
                 });
             }
-            result.Title = _translationService.GetString("profile-title", _translationService.Arguments("username", gUser.DisplayName, "guildname", gUser.Guild.Name));
+            result.Title = _translationService
+                .GetString("profile-title", _translationService
+                .Arguments("username", gUser.DisplayName, "guildname", gUser.Guild.Name));
             result.ThumbnailUrl = gUser.GetDisplayAvatarUrl();
         }
 

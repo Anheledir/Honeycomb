@@ -9,6 +9,8 @@ public class EngagementService : IEngagementService
     private readonly TimeSpan _activityPointInterval = TimeSpan.FromSeconds(864);
     private readonly IGuildMemberHCRepository _guildMemberRepository;
 
+    public int MaxPointsPerDay => 100;
+
     public EngagementService(ILogger logger, IGuildMemberHCRepository guildMemberRepository)
     {
         _logger = logger.ForContext<EngagementService>();

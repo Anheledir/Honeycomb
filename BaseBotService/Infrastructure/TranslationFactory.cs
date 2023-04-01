@@ -20,7 +20,7 @@ public static class TranslationFactory
         foreach (var locale in locales)
         {
             var context = new MessageContext(new[] { locale });
-            var resourceName = $"BaseBotService.Resources.i18n.{locale}.ftl";
+            var resourceName = $"BaseBotService.Locales.{locale}.ftl";
             var resource = LoadResource(resourceName);
             context.AddResource(resource);
             messageContexts.Add(context);
