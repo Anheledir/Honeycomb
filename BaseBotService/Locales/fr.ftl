@@ -118,6 +118,23 @@ profile-roles-none = None
 profile-permissions = Permissions
 profile-permissions-none = None
 profile-title = { $username } @ { $guildname }
+profile-activity = Activity Meter
+profile-activity-rating = { $score ->
+    [0] You're a ghost!
+    [1] Rarely seen, like Bigfoot!
+    [2] You're like a ninja, sneaking around!
+    [3] The mysterious wanderer!
+    [4] A casual chit-chatter!
+    [5] You pop in and out like a meerkat!
+    [6] A pretty social butterfly!
+    [7] The life of the party!
+    [8] You're like a talkative parrot!
+    [9] A true chatterbox!
+   [10] The ever-present overlord!
+   [11] Are you a bot?
+   [12] Unstoppable! We're running out of server space!
+   *[other] Invalid activity score
+}
 
 
 

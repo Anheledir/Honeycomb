@@ -9,7 +9,6 @@ using BaseBotService.Utilities;
 using BaseBotService.Utilities.Enums;
 using BaseBotService.Utilities.Extensions;
 using Discord.WebSocket;
-using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -344,7 +343,12 @@ public class UserModule : BaseModule
                     .Append(UnicodeEmojiHelper.whiteSquare.Repeat(activityMaxSteps - userActivityProgress))
                     .Append(' ')
                     .AppendFormat("{0:F2}", userActivityScore)
-                    .Append('%');
+                    .AppendLine("%")
+                    .Append(_translationService.GetString(
+                        "profile-activity-rating",
+                        _translationService.Arguments("score", (int)userActivityScore)
+                        )
+                    );
                 Logger.Debug($"Calculating Activity Progress for User ID: {gUser.Id} on Guild ID: {Context.Guild.Id} {Environment.NewLine}Max Steps: {activityMaxSteps}, Activity Score: {userActivityScore}, Progress: {userActivityProgress}");
 
                 fields.AddRange(new[] {

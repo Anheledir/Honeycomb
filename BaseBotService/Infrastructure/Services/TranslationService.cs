@@ -75,33 +75,6 @@ public class TranslationService : ITranslationService
     }
 
     /// <summary>
-    /// Retrieves the translated string for the given id, using the provided arguments and reporting any errors.
-    /// </summary>
-    /// <param name="id">The ID of the message to translate.</param>
-    /// <param name="args">An optional dictionary of arguments to pass to the translation. Default is null.</param>
-    /// <param name="errors">An optional collection of FluentError instances to collect errors during translation. Default is null.</param>
-    /// <returns>The translated string or an empty string if the message is not found.</returns>
-    /// <example>
-    /// <code>
-    /// var translationService = new TranslationService(/* message contexts */);
-    /// string messageId = "example-message";
-    /// string translatedText = translationService.GetString(messageId);
-    /// </code>
-    /// </example>
-    public string GetString(string id, IDictionary<string, object>? args = null, ICollection<FluentError>? errors = null)
-    {
-        foreach (MessageContext context in _contexts)
-        {
-            Fluent.Net.RuntimeAst.Message msg = context.GetMessage(id);
-            if (msg != null)
-            {
-                return context.Format(msg, args, errors);
-            }
-        }
-        return string.Empty;
-    }
-
-    /// <summary>
     /// Retrieves the translated string for a given message ID and locale.
     /// </summary>
     /// <param name="id">The ID of the message to translate.</param>
@@ -120,7 +93,7 @@ public class TranslationService : ITranslationService
     /// </example>
     public string GetString(string id, string locale, IDictionary<string, object>? args = null, ICollection<FluentError>? errors = null)
     {
-        var context = _contexts.FirstOrDefault(c => c.Locales.Contains(locale));
+        var context = _contexts.FirstOrDefault(c => c.Locales.Contains(locale, StringComparer.InvariantCultureIgnoreCase));
         if (context != null)
         {
             Fluent.Net.RuntimeAst.Message msg = context.GetMessage(id);
@@ -130,8 +103,27 @@ public class TranslationService : ITranslationService
             }
         }
 
-        return string.Empty;
+        // If translation is not found in the requested locale, try English as a fall-back
+        return locale != "en"
+            ? GetString(id, "en", args, errors)
+            : string.Empty;
     }
+
+    /// <summary>
+    /// Retrieves the translated string for a given message ID using the preferred locale.
+    /// </summary>
+    /// <param name="id">The ID of the message to translate.</param>
+    /// <param name="args">An optional dictionary of arguments to pass to the translation. Default is null.</param>
+    /// <param name="errors">An optional collection of FluentError instances to collect errors during translation. Default is null.</param>
+    /// <returns>The translated message in the preferred locale, or an English fall-back translation if the message ID is not found in the preferred locale. Returns an empty string if the message ID is not found in any locale.</returns>
+    /// <example>
+    /// <code>
+    /// var translationService = new TranslationService(/* message contexts */);
+    /// string messageId = "example-message";
+    /// string translatedText = translationService.GetString(messageId);
+    /// </code>
+    /// </example>
+    public string GetString(string id, IDictionary<string, object>? args = null, ICollection<FluentError>? errors = null) => GetString(id, PreferredLocale, args, errors);
 
     /// <summary>
     /// Gets the preferred locale used by the translation service.

@@ -118,6 +118,23 @@ profile-roles-none = None
 profile-permissions = Permissions
 profile-permissions-none = None
 profile-title = { $username } @ { $guildname }
+profile-activity = Activity Meter
+profile-activity-rating = { $activityScore ->
+    [0] Tu es un fantôme !
+    [1] Aussi rare que la licorne !
+    [2] Tu es comme un ninja, furtif et discret !
+    [3] Le mystérieux vagabond !
+    [4] Un bavard occasionnel !
+    [5] Tu surgis et disparais comme un suricate !
+    [6] Un vrai papillon social !
+    [7] L'âme de la fête !
+    [8] Tu parles comme une pie bavarde !
+    [9] Un vrai moulin à paroles !
+   [10] Toujours présent, partout à la fois !
+   [11] Es-tu un bot ?
+   [12] Irrésistible ! Le serveur va exploser !
+   *[other] Score d'activité invalide
+}
 
 
 

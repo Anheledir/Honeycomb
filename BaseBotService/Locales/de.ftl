@@ -117,6 +117,23 @@ profile-roles-none = Keine
 profile-permissions = Berechtigungen
 profile-permissions-none = Keine
 profile-title = { $username } @ { $guildname }
+profile-activity = Aktivitätsanzeige
+profile-activity-rating = { $activityScore ->
+    [0] Du bist ein Phantom!
+    [1] So selten gesichtet wie Bigfoot!
+    [2] Du bist wie ein Ninja, der sich im Schatten bewegt!
+    [3] Der geheimnisvolle Umschweifer!
+    [4] Ein Gelegenheits-Plauderer!
+    [5] Du tauchst auf und ab wie ein Wiesel!
+    [6] Ein echter Schmetterling unter den Plaudertaschen!
+    [7] Stimmungsmacher der Party!
+    [8] Du redest wie ein Wasserfall!
+    [9] Ein wahrer Plaudermeister!
+   [10] Du bist überall und nirgendwo!
+   [11] Bist du etwa ein Bot?
+   [12] Unaufhaltbar! Der Server platzt gleich!
+   *[other] Ungültige Aktivitätspunktzahl
+}
 
 
 
