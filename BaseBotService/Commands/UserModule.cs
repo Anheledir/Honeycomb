@@ -346,7 +346,7 @@ public class UserModule : BaseModule
                     .AppendLine("%")
                     .Append(_translationService.GetString(
                         "profile-activity-rating",
-                        _translationService.Arguments("score", (int)userActivityScore)
+                        _translationService.Arguments("score", userActivityProgress)
                         )
                     );
                 Logger.Debug($"Calculating Activity Progress for User ID: {gUser.Id} on Guild ID: {Context.Guild.Id} {Environment.NewLine}Max Steps: {activityMaxSteps}, Activity Score: {userActivityScore}, Progress: {userActivityProgress}");
