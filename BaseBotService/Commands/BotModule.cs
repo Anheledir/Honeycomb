@@ -1,4 +1,5 @@
 ﻿using BaseBotService.Core.Base;
+using BaseBotService.Core.Interfaces;
 using BaseBotService.Utilities.Attributes;
 
 namespace BaseBotService.Commands;
@@ -7,9 +8,12 @@ namespace BaseBotService.Commands;
 [EnabledInDm(true)]
 public class BotModule : BaseModule
 {
-    public BotModule(ILogger logger)
+    private readonly ITranslationService _translationService;
+
+    public BotModule(ILogger logger, ITranslationService translationService)
     {
         Logger = logger.ForContext<BotModule>();
+        _translationService = translationService;
     }
 
     [SlashCommand("about", "Returns information like runtime and current version of this Honeycomb bot instance.")]
@@ -19,14 +23,14 @@ public class BotModule : BaseModule
         EmbedBuilder response = GetEmbedBuilder()
             .WithTitle(AssemblyService.Name)
             .WithThumbnailUrl(BotUser.GetAvatarUrl())
-            .WithUrl("https://honeycombs.cloud/") // TODO(i18n): Move URL to localization resource
-            .WithDescription("Honeycomb is a Discord bot designed to provide artists with some useful functions to enhance their experience on Discord. With its features, artists can create a portfolio, display random entries from it, manage a commission price list, and keep track of their commission queue. The bot is released under the MIT license on GitHub.")
+            .WithUrl(_translationService.GetString("bot-website"))
+            .WithDescription(_translationService.GetString("bot-description"))
             .WithFields(
                 new EmbedFieldBuilder()
-                .WithName("Uptime")
+                .WithName(_translationService.GetString("uptime"))
                 .WithValue(EnvironmentService.GetUptime()),
                 new EmbedFieldBuilder()
-                .WithName("Total servers")
+                .WithName(_translationService.GetString("total-servers"))
                 .WithValue(Context.Client.Guilds.Count)
                 .WithIsInline(true)
             )
@@ -36,7 +40,7 @@ public class BotModule : BaseModule
 
     [SlashCommand("ping", "Pings the bot and returns its latency.")]
     public async Task PingAsync()
-        => await RespondOrFollowupAsync(text: $":ping_pong: It took me {Context.Client.Latency}ms to respond to you!", ephemeral: true);
+        => await RespondOrFollowupAsync(text: _translationService.GetString("ping-response", _translationService.Arguments("latency", Context.Client.Latency)), ephemeral: true);
 
     [SlashCommand("documentation", "Sends a json-file via DM containing all command documentations.")]
     [RateLimit(1, 300)]
@@ -44,7 +48,7 @@ public class BotModule : BaseModule
     {
         if (!await CheckRateLimitAsync())
         {
-            await RespondOrFollowupAsync(text: "You have to wait until you can use this again.");
+            await RespondOrFollowupAsync(text: _translationService.GetString("error-rate-limit"));
             return;
         }
         await DeferAsync();
@@ -54,8 +58,18 @@ public class BotModule : BaseModule
         using MemoryStream stream = new(jsonBytes);
 
         IDMChannel dm = await Caller.CreateDMChannelAsync();
-        await dm.SendFileAsync(new FileAttachment(stream, $"honeycomb_v{AssemblyService.Version.Replace('.', '-')}.json"), text: "This is the most recent documentation, freshly created just for you!");
+        await dm.SendFileAsync(new FileAttachment(
+            stream,
+            _translationService.GetString(
+                "documentation-filename",
+                _translationService.Arguments(
+                    "version",
+                    AssemblyService.Version.Replace('.', '-')
+                )
+            )
+        ),
+        text: _translationService.GetString("documentation-created"));
 
-        await RespondOrFollowupAsync(text: "You've got a DM!", ephemeral: true);
+        await RespondOrFollowupAsync(text: _translationService.GetString("follow-up-in-DM"), ephemeral: true);
     }
 }

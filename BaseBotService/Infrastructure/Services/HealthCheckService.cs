@@ -42,7 +42,7 @@ public class HealthCheckService : BackgroundService
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            using TcpClient client = await listener.AcceptTcpClientAsync();
+            using TcpClient client = await listener.AcceptTcpClientAsync(stoppingToken);
             _logger.Debug("Client connected");
 
             using NetworkStream stream = client.GetStream();

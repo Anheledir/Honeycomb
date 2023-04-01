@@ -16,6 +16,7 @@ public abstract class BaseModule : InteractionModuleBase<SocketInteractionContex
     public RateLimiter RateLimiter { get; set; } = null!;
     public IAssemblyService AssemblyService { get; set; } = null!;
     public IEnvironmentService EnvironmentService { get; set; } = null!;
+    public ITranslationService TranslationService { get; set; } = null!;
 
     protected async Task RespondOrFollowupInDMAsync(
         string? text = null,
@@ -44,7 +45,7 @@ public abstract class BaseModule : InteractionModuleBase<SocketInteractionContex
         }
         else
         {
-            await RespondOrFollowupAsync("You've got a DM!", ephemeral: true);
+            await RespondOrFollowupAsync(TranslationService.GetString("follow-up-in-DM"), ephemeral: true);
             IDMChannel dm = await Caller.CreateDMChannelAsync();
             await dm.SendMessageAsync(
                 text: text,
@@ -107,7 +108,7 @@ public abstract class BaseModule : InteractionModuleBase<SocketInteractionContex
         Footer = new EmbedFooterBuilder
         {
             IconUrl = BotUser.GetAvatarUrl(),
-            Text = $"Honeycomb v{AssemblyService.Version} ({EnvironmentService.EnvironmentName})"
+            Text = TranslationService.GetString("bot-name-with-version", TranslationService.Arguments("version", AssemblyService.Version, "environment", EnvironmentService.EnvironmentName))
         }
     };
 
@@ -146,7 +147,7 @@ public abstract class BaseModule : InteractionModuleBase<SocketInteractionContex
 
             if (!await RateLimiter.IsAllowed(userId, commandName, rateLimitAttribute.MaxAttempts, rateLimitAttribute.TimeWindow))
             {
-                await ReplyAsync("You have reached the rate limit for this command. Please wait before trying again.");
+                await ReplyAsync(TranslationService.GetString("error-rate-limit"));
                 return false;
             }
         }

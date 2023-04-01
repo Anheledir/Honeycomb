@@ -9,5 +9,5 @@ public abstract class HCModelBase
     [BsonId]
     public ObjectId Id { get; set; } = null!;
 
-    public static ILiteCollection<T> GetServiceRegistration<T>(IServiceProvider services) => services.GetService<IPersistenceService>().GetCollection<T>();
+    public static ILiteCollection<T> GetServiceRegistration<T>(IServiceProvider services) => services.GetRequiredService<IPersistenceService>().GetCollection<T>();
 }

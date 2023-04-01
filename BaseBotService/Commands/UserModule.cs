@@ -2,14 +2,14 @@
 using BaseBotService.Commands.Interfaces;
 using BaseBotService.Commands.Modals;
 using BaseBotService.Core.Base;
+using BaseBotService.Core.Interfaces;
 using BaseBotService.Data.Interfaces;
 using BaseBotService.Data.Models;
 using BaseBotService.Utilities;
 using BaseBotService.Utilities.Enums;
 using BaseBotService.Utilities.Extensions;
-using Discord.Interactions;
 using Discord.WebSocket;
-using System.Globalization;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace BaseBotService.Commands;
@@ -17,12 +17,14 @@ namespace BaseBotService.Commands;
 [Group("user", "The user management module of Honeycomb.")]
 public class UserModule : BaseModule
 {
+    private readonly ITranslationService _translationService;
     private readonly IEngagementService _engagementService;
     private readonly IMemberHCRepository _memberRepository;
 
-    public UserModule(ILogger logger, IEngagementService engagementService, IMemberHCRepository memberRepository)
+    public UserModule(ILogger logger, ITranslationService translationService, IEngagementService engagementService, IMemberHCRepository memberRepository)
     {
         Logger = logger.ForContext<UserModule>();
+        _translationService = translationService;
         _engagementService = engagementService;
         _memberRepository = memberRepository;
     }
@@ -46,21 +48,21 @@ public class UserModule : BaseModule
     [SlashCommand("config", "Change the settings of your global Honeycomb profile.")]
     public async Task ConfigProfileAsync()
     {
-        await RespondOrFollowupInDMAsync("Please select the setting you want to change.", components: ShowUserConfigMenu().Build());
+        await RespondOrFollowupInDMAsync(_translationService.GetString("profile-select-setting"), components: ShowUserConfigMenu().Build());
     }
 
-    private static ComponentBuilder ShowUserConfigMenu()
+    private ComponentBuilder ShowUserConfigMenu()
     {
         var userConfigMenu = new SelectMenuBuilder()
-            .WithPlaceholder("Select the user setting you want to change, or click cancel to exit.")
+            .WithPlaceholder(_translationService.GetString("profile-config"))
             .WithCustomId("user.profile.config")
             .WithMinValues(1)
             .WithMaxValues(1)
-            .AddOptionsFromEnum<UserConfigs>(-1, e => e.GetUserSettingsName());
+            .AddOptionsFromEnum<UserConfigs>(-1, e => e.GetUserSettingsName(_translationService));
 
         return new ComponentBuilder()
             .WithSelectMenu(userConfigMenu)
-            .WithButton(new ButtonBuilder("Close", "user.profile.close", ButtonStyle.Primary));
+            .WithButton(new ButtonBuilder(_translationService.GetString("button-close"), "user.profile.close", ButtonStyle.Primary));
     }
 
     [ComponentInteraction("user.profile.close", ignoreGroupNames: true)]
@@ -70,7 +72,7 @@ public class UserModule : BaseModule
         SocketMessageComponent component = (SocketMessageComponent)Context.Interaction;
         await component.ModifyOriginalResponseAsync(x =>
         {
-            x.Content = "All settings saved.";
+            x.Content = _translationService.GetString("profile-saved");
             x.Components = null;
         });
         await Task.Delay(TimeSpan.FromSeconds(3)).ContinueWith(_ => component.DeleteOriginalResponseAsync());
@@ -83,7 +85,7 @@ public class UserModule : BaseModule
         SocketMessageComponent component = (SocketMessageComponent)Context.Interaction;
         await component.ModifyOriginalResponseAsync(x =>
         {
-            x.Content = "Please select the setting you want to change.";
+            x.Content = _translationService.GetString("profile-select-setting");
             x.Components = ShowUserConfigMenu().Build();
         });
     }
@@ -166,47 +168,47 @@ public class UserModule : BaseModule
         switch (selection)
         {
             case UserConfigs.Country:
-                configSetting.WithPlaceholder("Select the country you are living in.")
+                configSetting.WithPlaceholder(_translationService.GetString("profile-config-country"))
                     .WithCustomId("user.profile.save.country")
                     .WithMinValues(1)
                     .WithMaxValues(1)
-                    .AddOptionsFromEnum<Countries>((int)member.Country, e => e.GetCountryNameWithFlag());
-                message = "Please select the country you are living in.";
+                    .AddOptionsFromEnum<Countries>((int)member.Country, e => e.GetCountryNameWithFlag(_translationService));
+                message = _translationService.GetString("profile-config-country");
                 break;
             case UserConfigs.Languages:
-                configSetting.WithPlaceholder("Select up to four languages you can communicate in.")
+                configSetting.WithPlaceholder(_translationService.GetString("profile-config-languages"))
                     .WithCustomId("user.profile.save.languages")
                     .WithMinValues(1)
                     .WithMaxValues(4)
-                    .AddOptionsFromEnum<Languages>((int)member.Languages, e => e.GetFlaggedLanguageNames());
-                message = "Please select up to four languages you can communicate in.";
+                    .AddOptionsFromEnum<Languages>((int)member.Languages, e => e.GetFlaggedLanguageNames(_translationService));
+                message = _translationService.GetString("profile-config-languages");
                 break;
             case UserConfigs.GenderIdentity:
-                configSetting.WithPlaceholder("Select your preferred gender identity.")
+                configSetting.WithPlaceholder(_translationService.GetString("profile-config-gender"))
                     .WithCustomId("user.profile.save.gender")
                     .WithMinValues(1)
                     .WithMaxValues(1)
-                    .AddOptionsFromEnum<GenderIdentity>((int)member.GenderIdentity, e => e.GetFlaggedGenderName());
-                message = "Please select your preferred gender identity.";
+                    .AddOptionsFromEnum<GenderIdentity>((int)member.GenderIdentity, e => e.GetFlaggedGenderName(_translationService));
+                message = _translationService.GetString("profile-config-gender");
                 break;
             case UserConfigs.Timezone:
-                configSetting.WithPlaceholder("Select the timezone you are living in.")
+                configSetting.WithPlaceholder(_translationService.GetString("profile-config-timezone"))
                     .WithCustomId("user.profile.save.timezone")
                     .WithMinValues(1)
                     .WithMaxValues(1)
                     .AddOptionsFromEnum<Timezone>((int)member.Timezone, e => e.GetNameWithOffset());
-                message = "Please select the timezone you are living in.";
+                message = _translationService.GetString("profile-config-timezone");
                 break;
             case UserConfigs.Birthday:
                 var mb = new ModalBuilder()
-                    .WithTitle("Birthday")
+                    .WithTitle(_translationService.GetString("profile-config-birthday-title"))
                     .WithCustomId("user.profile.save.birthday")
-                    .AddTextInput("Day", "day", placeholder: "29", maxLength: 2, value: member.Birthday?.Day.ToString("D2"))
-                    .AddTextInput("Month", "month", placeholder: "03", maxLength: 2, value: member.Birthday?.Month.ToString("D2"))
+                    .AddTextInput(_translationService.GetString("profile-config-birthday-day"), "day", placeholder: _translationService.GetString("profile-config-birthday-day-placeholder"), maxLength: 2, value: member.Birthday?.Day.ToString("D2"))
+                    .AddTextInput(_translationService.GetString("profile-config-birthday-day"), "month", placeholder: _translationService.GetString("profile-config-birthday-month-placeholder"), maxLength: 2, value: member.Birthday?.Month.ToString("D2"))
                     .AddTextInput(
-                        "Year",
+                        _translationService.GetString("profile-config-birthday-day"),
                         "year",
-                        placeholder: $"{DateTime.UtcNow.Year - 18} or leave empty",
+                        placeholder: _translationService.GetString("profile-config-birthday-year-placeholder", _translationService.Arguments("exampleYear", DateTime.UtcNow.Year - 18)),
                         maxLength: 4,
                         required: false,
                         value:
@@ -224,13 +226,33 @@ public class UserModule : BaseModule
 
         ComponentBuilder components = new ComponentBuilder()
             .WithSelectMenu(configSetting)
-            .WithButton(new ButtonBuilder("Go back", "user.profile.main", ButtonStyle.Primary));
+            .WithButton(new ButtonBuilder(_translationService.GetString("button-back"), "user.profile.main", ButtonStyle.Primary));
 
         await ModifyOriginalResponseAsync(x =>
         {
             x.Content = message;
             x.Components = components.Build();
         });
+    }
+
+    internal double GetActivityScore(IGuildUser user, IGuildUser bot)
+    {
+        const double averageOnlineHours = 8;
+        const double scalingFactor = averageOnlineHours / 24;
+
+        DateTimeOffset? userJoined = user?.JoinedAt;
+        DateTimeOffset? botJoined = bot?.JoinedAt;
+        if (!userJoined.HasValue || !botJoined.HasValue)
+        {
+            return 0;
+        }
+
+        DateTimeOffset startCountingDate = userJoined.Value > botJoined.Value ? userJoined.Value : botJoined.Value;
+        double daysCounting = (DateTime.UtcNow - startCountingDate).TotalDays;
+        double maxPoints = daysCounting * _engagementService.MaxPointsPerDay;
+        double scaledMaxPoints = maxPoints * scalingFactor;
+        Logger.Debug($"User {user!.Id} has been in the guild for {daysCounting} days, which would result in {maxPoints} points. The scaling factor is {scalingFactor}, so the maximum points are {scaledMaxPoints}.");
+        return Math.Min(100, _engagementService.GetActivityPoints(user.GuildId, user.Id) / scaledMaxPoints * 100);
     }
 
     private EmbedBuilder GetUserProfileEmbed(IUser user, bool includePermissions)
@@ -244,13 +266,13 @@ public class UserModule : BaseModule
         {
             new EmbedFieldBuilder
             {
-                Name = "Name",
+                Name = _translationService.GetString("profile-name"),
                 Value = $"{user} {(user.IsBot ? UnicodeEmojiHelper.robotFace : string.Empty)}{(user.IsWebhook ? UnicodeEmojiHelper.satelliteAntenna : string.Empty)}"
             },
             new EmbedFieldBuilder
             {
-                Name = "Created at",
-                Value = $"{user.CreatedAt.ToDiscordTimestamp(DiscordTimestampFormat.ShortDateTime)}\n({user.CreatedAt.ToDiscordTimestamp(DiscordTimestampFormat.RelativeTime)})",
+                Name = _translationService.GetString("profile-created"),
+                Value = $"{user.CreatedAt.ToDiscordTimestamp(_translationService, DiscordTimestampFormat.ShortDateTime)}\n({user.CreatedAt.ToDiscordTimestamp(_translationService, DiscordTimestampFormat.RelativeTime)})",
                 IsInline = true
             }
         };
@@ -261,25 +283,25 @@ public class UserModule : BaseModule
             fields.AddRange(new[] {
                 new EmbedFieldBuilder
                 {
-                    Name = "Living in",
-                    Value = member.Country.GetCountryNameWithFlag(),
+                    Name = _translationService.GetString("profile-country"),
+                    Value = member.Country.GetCountryNameWithFlag(_translationService),
                     IsInline = true
                 },
                 new EmbedFieldBuilder
                 {
-                    Name = "Speaking",
-                    Value = member.Languages.GetFlaggedLanguageNames(),
+                    Name = _translationService.GetString("profile-languages"),
+                    Value = member.Languages.GetFlaggedLanguageNames(_translationService),
                     IsInline = true
                 },
                 new EmbedFieldBuilder
                 {
-                    Name = "Gender Identity",
-                    Value = member.GenderIdentity.GetFlaggedGenderName(),
+                    Name = _translationService.GetString("profile-gender"),
+                    Value = member.GenderIdentity.GetFlaggedGenderName(_translationService),
                     IsInline = true
                 },
                 new EmbedFieldBuilder
                 {
-                    Name = "Timezone",
+                    Name = _translationService.GetString("profile-timezone"),
                     Value = member.Timezone.GetNameWithOffset(),
                     IsInline = true
                 }
@@ -290,10 +312,10 @@ public class UserModule : BaseModule
                 fields.Add(
                     new EmbedFieldBuilder
                     {
-                        Name = "Birthday",
+                        Name = _translationService.GetString("profile-birthday"),
                         IsInline = true,
                         Value = member.Birthday.Value.Year > 1
-                            ? $"{member.Birthday.Value.ToDiscordTimestamp(DiscordTimestampFormat.ShortDate)} ({member.Birthday.Value.GetAge()})"
+                            ? $"{member.Birthday.Value.ToDiscordTimestamp(_translationService, DiscordTimestampFormat.ShortDate)} ({member.Birthday.Value.GetAge()})"
                             : $"{member.Birthday.Value.GetDayAndMonth(member.Country)}"
                     }
                 );
@@ -305,24 +327,41 @@ public class UserModule : BaseModule
             fields.Add(
             new EmbedFieldBuilder
             {
-                Name = "Joined at",
-                Value = $"{gUser.JoinedAt?.ToDiscordTimestamp(DiscordTimestampFormat.ShortDateTime)}\n({gUser.JoinedAt?.ToDiscordTimestamp(DiscordTimestampFormat.RelativeTime)})",
+                Name = _translationService.GetString("profile-joined"),
+                Value = $"{gUser.JoinedAt?.ToDiscordTimestamp(_translationService, DiscordTimestampFormat.ShortDateTime)}\n({gUser.JoinedAt?.ToDiscordTimestamp(_translationService, DiscordTimestampFormat.RelativeTime)})",
                 IsInline = true
             });
 
             if (!user.IsBot && !user.IsWebhook)
             {
+                const int activityMaxSteps = 12;
+                double userActivityScore = GetActivityScore(gUser, Context.Guild.CurrentUser);
+                int userActivityProgress = (int)(userActivityScore / (100 / activityMaxSteps));
+                StringBuilder progressBar = new();
+                progressBar
+                    .Append(UnicodeEmojiHelper.greenSquare.Repeat(userActivityProgress))
+                    .Append(UnicodeEmojiHelper.whiteSquare.Repeat(activityMaxSteps - userActivityProgress))
+                    .Append(' ')
+                    .AppendFormat("{0:F2}", userActivityScore)
+                    .AppendLine("%")
+                    .Append(_translationService.GetString(
+                        "profile-activity-rating",
+                        _translationService.Arguments("score", (int)userActivityScore)
+                        )
+                    );
+                Logger.Debug($"Calculating Activity Progress for User ID: {gUser.Id} on Guild ID: {Context.Guild.Id} {Environment.NewLine}Max Steps: {activityMaxSteps}, Activity Score: {userActivityScore}, Progress: {userActivityProgress}");
+
                 fields.AddRange(new[] {
                     new EmbedFieldBuilder
                     {
-                        Name = "Last active",
-                        Value = $"{_engagementService.GetLastActive(gUser.GuildId, user.Id).ToDiscordTimestamp(DiscordTimestampFormat.ShortDateTime)}\n({_engagementService.GetLastActive(gUser.GuildId, user.Id).ToDiscordTimestamp(DiscordTimestampFormat.RelativeTime)})",
+                        Name = _translationService.GetString("profile-active"),
+                        Value = $"{_engagementService.GetLastActive(gUser.GuildId, user.Id).ToDiscordTimestamp(_translationService, DiscordTimestampFormat.ShortDateTime)}\n({_engagementService.GetLastActive(gUser.GuildId, user.Id).ToDiscordTimestamp(_translationService, DiscordTimestampFormat.RelativeTime)})",
                         IsInline = true
                     },
                     new EmbedFieldBuilder
                     {
-                        Name = "Server points",
-                        Value = _engagementService.GetActivityPoints(gUser.GuildId, user.Id).ToString("N0", CultureInfo.InvariantCulture)
+                        Name = _translationService.GetString("profile-activity"),
+                        Value = progressBar.ToString()
                     }
                 });
             }
@@ -331,8 +370,8 @@ public class UserModule : BaseModule
             fields.Add(
                 new EmbedFieldBuilder
                 {
-                    Name = "Roles",
-                    Value = roleMentions.Any() ? string.Join(", ", roleMentions) : "None"
+                    Name = _translationService.GetString("profile-roles"),
+                    Value = roleMentions.Any() ? string.Join(", ", roleMentions) : _translationService.GetString("profile-roles-none")
                 });
 
             if (includePermissions)
@@ -345,11 +384,13 @@ public class UserModule : BaseModule
                 fields.Add(
                 new EmbedFieldBuilder
                 {
-                    Name = "Permissions",
-                    Value = permissionNames.Any() ? string.Join(", ", permissionNames) : "None"
+                    Name = _translationService.GetString("profile-permissions"),
+                    Value = permissionNames.Any() ? string.Join(", ", permissionNames) : _translationService.GetString("profile-permissions-none")
                 });
             }
-            result.Title = $"{gUser.DisplayName} @ {gUser.Guild.Name}";
+            result.Title = _translationService
+                .GetString("profile-title", _translationService
+                .Arguments("username", gUser.DisplayName, "guildname", gUser.Guild.Name));
             result.ThumbnailUrl = gUser.GetDisplayAvatarUrl();
         }
 

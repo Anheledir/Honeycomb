@@ -7,7 +7,9 @@ namespace BaseBotService.Infrastructure.Services;
 public class EnvironmentService : IEnvironmentService
 {
     private readonly DateTime _startupTime = DateTime.UtcNow;
-    public EnvironmentService(ILogger logger)
+    private readonly ITranslationService _translationService;
+
+    public EnvironmentService(ILogger logger, ITranslationService translationService)
     {
         DiscordBotToken = Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN")!;
         if (string.IsNullOrWhiteSpace(DiscordBotToken))
@@ -33,6 +35,7 @@ public class EnvironmentService : IEnvironmentService
 
         EnvironmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "unknown";
         logger.Information($"Environment identifier is '{EnvironmentName}'.");
+        _translationService = translationService;
     }
 
     public string DiscordBotToken { get; }
@@ -48,10 +51,11 @@ public class EnvironmentService : IEnvironmentService
     public string GetUptime()
     {
         TimeSpan uptime = DateTime.UtcNow - _startupTime;
-        string daysString = uptime.Days == 1 ? "day" : "days";
-        string hoursString = uptime.Hours == 1 ? "hour" : "hours";
-        string minutesString = uptime.Minutes == 1 ? "minute" : "minutes";
-        string secondsString = uptime.Seconds == 1 ? "second" : "seconds";
-        return $"{uptime.Days} {daysString}, {uptime.Hours} {hoursString}, {uptime.Minutes} {minutesString}, and {uptime.Seconds} {secondsString}";
+        string result = _translationService.GetString("uptime-format", _translationService.Arguments(
+            "days", uptime.Days,
+            "hours", uptime.Hours,
+            "minutes", uptime.Minutes,
+            "seconds", uptime.Seconds));
+        return result;
     }
 }

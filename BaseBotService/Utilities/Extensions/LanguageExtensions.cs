@@ -1,11 +1,11 @@
 ﻿using BaseBotService.Commands.Enums;
-using System.Globalization;
+using BaseBotService.Core.Interfaces;
 
 namespace BaseBotService.Utilities.Extensions;
 
 public static class CountryLanguageExtensions
 {
-    public static string GetFlaggedLanguageNames(this Languages languages)
+    public static string GetFlaggedLanguageNames(this Languages languages, ITranslationService translationService)
     {
         var languageNames = new List<string>();
 
@@ -14,15 +14,15 @@ public static class CountryLanguageExtensions
             int flagValue = Convert.ToInt32(language);
             if (flagValue != 0 && (Convert.ToInt32(languages) & flagValue) == flagValue)
             {
-                string languageName = GetFlaggedLanguageName(language);
+                string languageName = GetFlaggedLanguageName(language, translationService);
                 languageNames.Add(languageName);
             }
         }
 
-        return languageNames.Any() ? string.Join("\n", languageNames) : Languages.Other.GetFlaggedLanguageName();
+        return languageNames.Any() ? string.Join("\n", languageNames) : Languages.Other.GetFlaggedLanguageName(translationService);
     }
 
-    private static string GetFlaggedLanguageName(this Languages language)
+    private static string GetFlaggedLanguageName(this Languages language, ITranslationService translationService)
     {
         string languageCode;
         // Convert language code to flag emoji
@@ -104,13 +104,9 @@ public static class CountryLanguageExtensions
                 return language.ToString();
         }
 
-        languageCode = $":flag_{languageCode}:";
         string languageName = language.ToString();
+        string localizedLanguageName = translationService.GetString($"language-{languageName.ToLowerKebabCase()}");
 
-        // Capitalize first letter of each word
-        TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
-        languageName = textInfo.ToTitleCase(languageName.ToLower().Replace("_", " "));
-
-        return $"{languageCode} {languageName}";
+        return $":flag_{languageCode}: {localizedLanguageName}";
     }
 }

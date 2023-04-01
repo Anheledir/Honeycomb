@@ -1,19 +1,35 @@
 ﻿using BaseBotService.Commands.Enums;
+using BaseBotService.Core.Interfaces;
 using BaseBotService.Utilities.Extensions;
 
 namespace BaseBotService.Tests.Utilities.Extensions;
 public class GenderIdentitiesTests
 {
+    private ITranslationService _translationService;
+
+    [SetUp]
+    public void SetUp()
+    {
+        _translationService = Substitute.For<ITranslationService>();
+    }
+
     [TestCase(GenderIdentity.Male, ":male_sign: Male")]
     [TestCase(GenderIdentity.Female, ":female_sign: Female")]
-    [TestCase(GenderIdentity.NonBinary, ":transgender_symbol: NonBinary")]
-    [TestCase(GenderIdentity.TransgenderMale, ":transgender_flag: TransgenderMale")]
-    [TestCase(GenderIdentity.TransgenderFemale, ":transgender_flag: TransgenderFemale")]
-    [TestCase(GenderIdentity.Genderqueer, ":transgender_symbol: Genderqueer")]
+    [TestCase(GenderIdentity.NonBinary, ":transgender_flag: Non Binary")]
+    [TestCase(GenderIdentity.TransgenderMale, ":transgender_flag: Transgender Male")]
+    [TestCase(GenderIdentity.TransgenderFemale, ":transgender_flag: Transgender Female")]
+    [TestCase(GenderIdentity.Genderqueer, ":transgender_flag: Genderqueer")]
     [TestCase(GenderIdentity.Other, ":grey_question: Other")]
     public void GetGenderNameWithFlag_ShouldReturnCorrectNameWithFlag(GenderIdentity gender, string expected)
     {
-        string actual = gender.GetFlaggedGenderName();
+        // Arrange
+        string id = $"gender-{gender.ToString().ToLowerKebabCase()}";
+        _translationService.GetString(id).Returns(gender.ToString().FromCamelCase());
+
+        // Act
+        string actual = gender.GetFlaggedGenderName(_translationService);
+
+        // Assert
         Assert.That(actual, Is.EqualTo(expected));
     }
 }

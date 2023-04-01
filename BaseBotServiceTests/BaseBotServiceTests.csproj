@@ -11,6 +11,20 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <None Remove="Resources\de.ftl" />
+      <None Remove="Resources\en.ftl" />
+      <None Remove="Resources\es.ftl" />
+      <None Remove="Resources\fr.ftl" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="Resources\de.ftl" />
+      <EmbeddedResource Include="Resources\en.ftl" />
+      <EmbeddedResource Include="Resources\fr.ftl" />
+      <EmbeddedResource Include="Resources\es.ftl" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Bogus" Version="34.0.2" />
         <PackageReference Include="FluentAssertions" Version="6.10.0" />
         <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="7.0.0" />
