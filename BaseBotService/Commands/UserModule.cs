@@ -237,7 +237,7 @@ public class UserModule : BaseModule
 
     internal double GetActivityScore(IGuildUser user, IGuildUser bot)
     {
-        const double averageOnlineHours = 8;
+        const double averageOnlineHours = 4;
         const double scalingFactor = averageOnlineHours / 24;
 
         DateTimeOffset? userJoined = user?.JoinedAt;

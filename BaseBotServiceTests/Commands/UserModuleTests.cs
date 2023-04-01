@@ -44,10 +44,10 @@ public class UserModuleTests
         result.ShouldBe(0);
     }
 
-    [TestCase((uint)167, 100)]
-    [TestCase((uint)250, 100)]
-    [TestCase((uint)85, 50)]
-    [TestCase((uint)17, 10)]
+    [TestCase((uint)85, 100)]
+    [TestCase((uint)125, 100)]
+    [TestCase((uint)42, 50)]
+    [TestCase((uint)9, 10)]
     public void GetActivityScore_ShouldCalculateCorrectScore_WhenUserAndBotHaveValidJoinedAtDates(uint points, double score)
     {
         // Arrange
