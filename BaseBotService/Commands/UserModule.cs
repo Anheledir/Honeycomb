@@ -94,7 +94,7 @@ public class UserModule : BaseModule
     public async Task SaveProfileCountryAsync(string[] selections)
     {
         Countries selection = Enum.Parse<Countries>(selections.FirstOrDefault() ?? "0");
-        MemberHC member = _memberRepository.GetUser(Caller.Id, true);
+        MemberHC member = _memberRepository.GetUser(Caller.Id, true)!;
 
         member.Country = selection;
         _memberRepository.UpdateUser(member);
@@ -105,7 +105,7 @@ public class UserModule : BaseModule
     public async Task SaveProfileGenderIdentityAsync(string[] selections)
     {
         GenderIdentity selection = Enum.Parse<GenderIdentity>(selections.FirstOrDefault() ?? "0");
-        MemberHC member = _memberRepository.GetUser(Caller.Id, true);
+        MemberHC member = _memberRepository.GetUser(Caller.Id, true)!;
 
         member.GenderIdentity = selection;
         _memberRepository.UpdateUser(member);
@@ -116,7 +116,7 @@ public class UserModule : BaseModule
     public async Task SaveProfileTimezoneAsync(string[] selections)
     {
         Timezone selection = Enum.Parse<Timezone>(selections.FirstOrDefault() ?? "0");
-        MemberHC member = _memberRepository.GetUser(Caller.Id, true);
+        MemberHC member = _memberRepository.GetUser(Caller.Id, true)!;
 
         member.Timezone = selection;
         _memberRepository.UpdateUser(member);
@@ -128,7 +128,7 @@ public class UserModule : BaseModule
     {
         if (data?.Validate() == true)
         {
-            MemberHC member = _memberRepository.GetUser(Caller.Id, true);
+            MemberHC member = _memberRepository.GetUser(Caller.Id, true)!;
             member.Birthday = data.GetBirthday();
             _memberRepository.UpdateUser(member);
         }
@@ -149,7 +149,7 @@ public class UserModule : BaseModule
             }
         }
 
-        MemberHC member = _memberRepository.GetUser(Caller.Id, true);
+        MemberHC member = _memberRepository.GetUser(Caller.Id, true)!;
 
         member.Languages = selectedLanguages;
         _memberRepository.UpdateUser(member);
@@ -160,7 +160,7 @@ public class UserModule : BaseModule
     public async Task UserProfileConfigAsync(string[] selections)
     {
         UserConfigs selection = Enum.Parse<UserConfigs>(selections.FirstOrDefault() ?? "0");
-        MemberHC member = _memberRepository.GetUser(Caller.Id, true);
+        MemberHC member = _memberRepository.GetUser(Caller.Id, true)!;
 
         SelectMenuBuilder configSetting = new();
         string message = string.Empty;
@@ -277,7 +277,7 @@ public class UserModule : BaseModule
             }
         };
 
-        MemberHC member = _memberRepository.GetUser(user.Id);
+        MemberHC? member = _memberRepository.GetUser(user.Id);
         if (member != null)
         {
             fields.AddRange(new[] {

@@ -12,6 +12,7 @@ public class MemberHCRepositoryTests
     private ILiteCollection<MemberHC> _members;
     private IMemberHCRepository _repository;
     private Faker<MemberHC> _memberFaker;
+    private readonly Faker _faker = new();
 
     [SetUp]
     public void SetUp()
@@ -52,7 +53,7 @@ public class MemberHCRepositoryTests
     public void GetUser_WhenUserDoesNotExistAndTouchIsFalse_ShouldReturnNull()
     {
         // Arrange
-        const ulong nonExistentUserId = 12345;
+        ulong nonExistentUserId = _faker.Random.ULong();
 
         // Act
         var result = _repository.GetUser(nonExistentUserId, false);
@@ -65,14 +66,14 @@ public class MemberHCRepositoryTests
     public void GetUser_WhenUserDoesNotExistAndTouchIsTrue_ShouldCreateAndReturnNewUser()
     {
         // Arrange
-        const ulong nonExistentUserId = 12345;
+        ulong nonExistentUserId = _faker.Random.ULong();
 
         // Act
         var result = _repository.GetUser(nonExistentUserId, true);
 
         // Assert
         result.Should().NotBeNull();
-        result.MemberId.Should().Be(nonExistentUserId);
+        result?.MemberId.Should().Be(nonExistentUserId);
 
         var createdUser = _members.FindOne(a => a.MemberId == nonExistentUserId);
         createdUser.Should().NotBeNull();
@@ -111,9 +112,7 @@ public class MemberHCRepositoryTests
         existingUser.Country++;
         existingUser.Languages++;
         existingUser.GenderIdentity++;
-#pragma warning disable CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
-        existingUser.Birthday += TimeSpan.FromDays(1);
-#pragma warning restore CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
+        existingUser.Birthday = existingUser.Birthday! + TimeSpan.FromDays(1);
 
         // Act
         var updateResult = _repository.UpdateUser(existingUser);

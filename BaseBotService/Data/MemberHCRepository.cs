@@ -13,9 +13,9 @@ public class MemberHCRepository : IMemberHCRepository
         _members = members;
     }
 
-    public MemberHC GetUser(ulong userId, bool touch = false)
+    public MemberHC? GetUser(ulong userId, bool touch = false)
     {
-        MemberHC result = _members.FindOne(a => a.MemberId == userId);
+        MemberHC? result = _members.FindOne(a => a.MemberId == userId);
         if (touch && result == null)
         {
             _members.Insert(new MemberHC { MemberId = userId });
