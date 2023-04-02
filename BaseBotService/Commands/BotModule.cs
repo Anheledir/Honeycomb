@@ -1,5 +1,4 @@
 ﻿using BaseBotService.Core.Base;
-using BaseBotService.Core.Interfaces;
 using BaseBotService.Utilities;
 using BaseBotService.Utilities.Attributes;
 
@@ -9,12 +8,9 @@ namespace BaseBotService.Commands;
 [EnabledInDm(true)]
 public class BotModule : BaseModule
 {
-    private readonly ITranslationService _translationService;
-
-    public BotModule(ILogger logger, ITranslationService translationService)
+    public BotModule(ILogger logger)
     {
         Logger = logger.ForContext<BotModule>();
-        _translationService = translationService;
     }
 
     [SlashCommand("about", "Returns information like runtime and current version of this Honeycomb bot instance.")]
@@ -24,14 +20,14 @@ public class BotModule : BaseModule
         EmbedBuilder response = GetEmbedBuilder()
             .WithTitle(AssemblyService.Name)
             .WithThumbnailUrl(BotUser.GetAvatarUrl())
-            .WithUrl(_translationService.GetString("bot-website"))
-            .WithDescription(_translationService.GetString("bot-description"))
+            .WithUrl(TranslationService.GetAttrString("bot", "website"))
+            .WithDescription(TranslationService.GetAttrString("bot", "description"))
             .WithFields(
                 new EmbedFieldBuilder()
-                .WithName(_translationService.GetString("uptime"))
+                .WithName(TranslationService.GetString("uptime"))
                 .WithValue(EnvironmentService.GetUptime()),
                 new EmbedFieldBuilder()
-                .WithName(_translationService.GetString("total-servers"))
+                .WithName(TranslationService.GetString("total-servers"))
                 .WithValue(Context.Client.Guilds.Count)
                 .WithIsInline(true)
             )
@@ -41,7 +37,7 @@ public class BotModule : BaseModule
 
     [SlashCommand("ping", "Pings the bot and returns its latency.")]
     public async Task PingAsync()
-        => await RespondOrFollowupAsync(text: _translationService.GetString("ping-response", TranslationHelper.Arguments("latency", Context.Client.Latency)), ephemeral: true);
+        => await RespondOrFollowupAsync(text: TranslationService.GetString("ping-response", TranslationHelper.Arguments("latency", Context.Client.Latency)), ephemeral: true);
 
     [SlashCommand("documentation", "Sends a json-file via DM containing all command documentations.")]
     [RateLimit(1, 300)]
@@ -49,7 +45,7 @@ public class BotModule : BaseModule
     {
         if (!await CheckRateLimitAsync())
         {
-            await RespondOrFollowupAsync(text: _translationService.GetString("error-rate-limit"));
+            await RespondOrFollowupAsync(text: TranslationService.GetString("error-rate-limit"));
             return;
         }
         await DeferAsync();
@@ -61,7 +57,7 @@ public class BotModule : BaseModule
         IDMChannel dm = await Caller.CreateDMChannelAsync();
         await dm.SendFileAsync(new FileAttachment(
             stream,
-            _translationService.GetString(
+            TranslationService.GetString(
                 "documentation-filename",
                 TranslationHelper.Arguments(
                     "version",
@@ -69,8 +65,8 @@ public class BotModule : BaseModule
                 )
             )
         ),
-        text: _translationService.GetString("documentation-created"));
+        text: TranslationService.GetString("documentation-created"));
 
-        await RespondOrFollowupAsync(text: _translationService.GetString("follow-up-in-DM"), ephemeral: true);
+        await RespondOrFollowupAsync(text: TranslationService.GetString("follow-up-in-DM"), ephemeral: true);
     }
 }

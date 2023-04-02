@@ -9,22 +9,13 @@
 ####################################
 
 # Application Name
-bot-name = Honeycomb
-
-# Bot Website
-bot-website = https://honeycombs.cloud/
-
-# Bot description
-bot-description = Honeycomb is a Discord bot designed to provide artists with some useful functions to enhance their experience on Discord. With its features, artists can create a portfolio, display random entries from it, manage a commission price list, and keep track of their commission queue. The bot is released under the MIT license on GitHub.
-
-# The version of the bot
-# Variables:
-#  - $version (String) - The version of the bot.
-#  - $environment (String) - The environment the bot is running in.
-bot-version = v{ $version } ({ $environment })
-
-# The name of the bot with the version
-bot-name-with-version = { bot-name } { bot-version }
+bot = Honeycomb
+    .website = https://honeycombs.cloud/
+    .github = https://github.com/Anheledir/Honeycomb
+    .invite = https://discord.com/api/oauth2/authorize?client_id=1078320972286918686&permissions=2199023255383&scope=bot%20applications.commands
+    .description = Honeycomb is a Discord bot designed to provide artists with some useful functions to enhance their experience on Discord. With its features, artists can create a portfolio, display random entries from it, manage a commission price list, and keep track of their commission queue. The bot is released under the MIT license on GitHub.
+    .version = v{ $version } ({ $environment })
+    .name = { bot } { bot.version }
 
 
 ####################################
@@ -79,8 +70,13 @@ uptime-format = { time-unit-days }, { time-unit-hours }, { time-unit-minutes }, 
 uptime = Uptime
 total-servers = Total Servers
 ping-response = :ping_pong: It took me { $latency }ms to respond to you!
-documentation-filename = honeycomb_v{ $version }.json
-documentation-created = This is the most recent documentation, freshly created just for you!
+documentation = JSON-Documentation for all bot commands
+    .filename = honeycomb_v{ $version }.json
+    .created = This is the most recent documentation, freshly created just for you!
+invite = Invite me to your server!
+    .description = Click the button below to invite me to your server. I'll be happy to help you!
+    .button = Invite me!
+    .link = { bot.invite }
 
 
 
@@ -88,38 +84,37 @@ documentation-created = This is the most recent documentation, freshly created j
 ## User Module
 ####################################
 
-profile-select-setting = Please select the setting you want to change.
-profile-config = Select the user setting you want to change, or click cancel to exit.
 profile-saved = Your profile has been saved.
-profile-config-country = Select the country you are living in.
-profile-config-languages = Select up to four languages you are speaking.
-profile-config-gender = Select your preferred gender identity.
-profile-config-timezone = Please select the timezone you are living in.
-profile-config-birthday-title = Birthday
-profile-config-birthday-day = Day
-profile-config-birthday-day-placeholder = e.g. 29
-profile-config-birthday-month = Month
-profile-config-birthday-month-placeholder = e.g. 03
-profile-config-birthday-year = Year
-profile-config-birthday-year-placeholder = { $exampleYear } or leave empty
-
-profile-name = Name
-profile-created = Created at
-profile-country = Living in
-profile-languages = Speaking
-profile-gender = Gender Identity
-profile-timezone = Timezone
+profile-config = Please select the setting you want to change.
+    .country = Select the country you are living in.
+    .languages = Select up to four languages you are speaking.
+    .gender = Select your preferred gender identity.
+    .timezone = Please select the timezone you are living in.
 profile-birthday = Birthday
-profile-joined = Joined at
-profile-active = Last active
-profile-points = Server points
-profile-roles = Roles
-profile-roles-none = None
-profile-permissions = Permissions
-profile-permissions-none = None
-profile-title = { $username } @ { $guildname }
-profile-activity = Activity Meter
-profile-activity-rating = { $score ->
+    .day = Day
+    .day-placeholder = e.g. 29
+    .month = Month
+    .month-placeholder = e.g. 03
+    .year = Year
+    .year-placeholder = { $exampleYear } or leave empty
+
+profile = { $username } @ { $guildname }
+    .name = Name
+    .created = Created at
+    .country = Living in
+    .languages = Speaking
+    .gender = Gender Identity
+    .timezone = Timezone
+    .birthday = Birthday
+    .joined = Joined at
+    .active = Last active
+    .points = Server points
+    .roles = Roles
+    .roles-none = None
+    .permissions = Permissions
+    .permissions-none = None
+    .activity = Activity Meter
+    .activity-rating = { $score ->
     [0] You're a ghost!
     [1] Rarely seen, like Bigfoot!
     [2] You're like a ninja, sneaking around!

@@ -108,7 +108,7 @@ public abstract class BaseModule : InteractionModuleBase<SocketInteractionContex
         Footer = new EmbedFooterBuilder
         {
             IconUrl = BotUser.GetAvatarUrl(),
-            Text = TranslationService.GetString("bot-name-with-version", TranslationHelper.Arguments("version", AssemblyService.Version, "environment", EnvironmentService.EnvironmentName))
+            Text = TranslationService.GetAttrString("bot", "name", TranslationHelper.Arguments("version", AssemblyService.Version, "environment", EnvironmentService.EnvironmentName))
         }
     };
 

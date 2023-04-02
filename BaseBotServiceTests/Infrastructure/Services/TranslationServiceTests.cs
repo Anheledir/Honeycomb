@@ -8,10 +8,15 @@ public class TranslationServiceTests
     private TranslationService _translationService;
     private IEnumerable<MessageContext> _messageContexts;
     private const string _messageId = "test-message";
+    private const string _attribute = "alternative";
     private const string _englishTranslation = "Hello, world!";
     private const string _germanTranslation = "Hallo, Welt!";
     private const string _spanishTranslation = "¡Hola, mundo!";
     private const string _frenchTranslation = "Bonjour, le monde!";
+    private const string _englishTranslationAlt = "English Greeting";
+    private const string _germanTranslationAlt = "Deutsche Begrüßung";
+    private const string _spanishTranslationAlt = "¡Hola, mundo alternativo!";
+    private const string _frenchTranslationAlt = "Bonjour, le différent monde!";
 
     [SetUp]
     public void Setup()
@@ -54,6 +59,16 @@ public class TranslationServiceTests
         expectedTranslation.ShouldBeEquivalentTo(_englishTranslation);
     }
 
+    [Test]
+    public void GetString_ValidIdAndAttribute_ReturnsTranslation()
+    {
+        string expectedTranslation = _translationService.GetAttrString(_messageId, _attribute);
+
+        _translationService.PreferredLocale.ShouldBe("en");
+        expectedTranslation.ShouldNotBeNullOrEmpty();
+        expectedTranslation.ShouldBeEquivalentTo(_englishTranslationAlt);
+    }
+
     [TestCase("en", _englishTranslation)]
     [TestCase("de", _germanTranslation)]
     [TestCase("es", _spanishTranslation)]
@@ -64,6 +79,16 @@ public class TranslationServiceTests
 
         expectedTranslation.ShouldNotBeNullOrEmpty();
         expectedTranslation.ShouldBeEquivalentTo(translation);
+    }
+
+    [TestCase("en", _englishTranslationAlt)]
+    [TestCase("de", _germanTranslationAlt)]
+    [TestCase("es", _spanishTranslationAlt)]
+    [TestCase("fr", _frenchTranslationAlt)]
+    public void GetAttrString_WithValidIdAndAttribute_ReturnsExpectedTranslation(string locale, string translation)
+    {
+        string result = _translationService.GetString(_messageId, _attribute, locale);
+        Assert.That(result, Is.EqualTo(translation));
     }
 
     [Test]
