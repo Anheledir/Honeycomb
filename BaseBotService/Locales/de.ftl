@@ -28,6 +28,9 @@ not-available = n/a
 # Interaction Buttons
 button-close = Close
 button-back = Go back
+button-invite = Invite me!
+button-website = Visit website
+button-github = Visit GitHub
 
 
 
@@ -75,7 +78,7 @@ documentation = JSON-Documentation for all bot commands
     .created = This is the most recent documentation, freshly created just for you!
 invite = Invite me to your server!
     .description = Click the button below to invite me to your server. I'll be happy to help you!
-    .button = Invite me!
+    .button = { button-invite }
     .link = { bot.invite }
 
 

@@ -42,10 +42,19 @@ public class UserModule : BaseModule
         )
     {
         user ??= Caller;
-        await RespondOrFollowupAsync(embed: GetUserProfileEmbed(user, false).Build(), ephemeral: false);
+
+        ComponentBuilder configBtn = new ComponentBuilder()
+            .WithButton(
+                _translationService.GetAttrString("profile-config", "button"),
+                "profile.config",
+                ButtonStyle.Primary,
+                Emoji.Parse(_translationService.GetAttrString("profile-config", "emoji")));
+
+        await RespondOrFollowupAsync(embed: GetUserProfileEmbed(user, false).Build(), ephemeral: false, components: configBtn.Build());
     }
 
     [SlashCommand("config", "Change the settings of your global Honeycomb profile.")]
+    [ComponentInteraction("profile.config", ignoreGroupNames: true)]
     public async Task ConfigProfileAsync()
     {
         await RespondOrFollowupInDMAsync(_translationService.GetString("profile-config"), components: ShowUserConfigMenu().Build());

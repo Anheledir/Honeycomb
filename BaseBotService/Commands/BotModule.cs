@@ -16,7 +16,6 @@ public class BotModule : BaseModule
     [SlashCommand("about", "Returns information like runtime and current version of this Honeycomb bot instance.")]
     public async Task AboutAsync()
     {
-        // Create embedded message with bot information
         EmbedBuilder response = GetEmbedBuilder()
             .WithTitle(AssemblyService.Name)
             .WithThumbnailUrl(BotUser.GetAvatarUrl())
@@ -32,7 +31,13 @@ public class BotModule : BaseModule
                 .WithIsInline(true)
             )
             .WithColor(Color.DarkPurple);
-        await RespondOrFollowupAsync(embed: response.Build());
+
+        ComponentBuilder buttons = new ComponentBuilder()
+            .WithButton(TranslationService.GetString("button-website"), style: ButtonStyle.Link, url: TranslationService.GetAttrString("bot", "website"))
+            .WithButton(TranslationService.GetString("button-github"), style: ButtonStyle.Link, url: TranslationService.GetAttrString("bot", "github"))
+            .WithButton(TranslationService.GetString("button-invite"), style: ButtonStyle.Link, url: TranslationService.GetAttrString("bot", "invite"));
+
+        await RespondOrFollowupAsync(embed: response.Build(), components: buttons.Build());
     }
 
     [SlashCommand("ping", "Pings the bot and returns its latency.")]
