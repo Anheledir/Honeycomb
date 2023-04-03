@@ -5,6 +5,7 @@ from fluent.syntax import parse
 from fluent.syntax.ast import Term, Message
 import frontmatter
 import json
+from github import Github, GithubException
 
 
 def compare_ftl_files(reference_file, target_files):
@@ -52,49 +53,57 @@ def compare_ftl_files(reference_file, target_files):
     return issues
 
 
-def create_issue(issue):
+def create_issue(issue, repo, pr_number):
     file_name = f"missing_translations_issue_{issue['target_file'].split('/')[-1].split('.')[0]}.md"
-    user_name, repo_name = os.environ["GITHUB_REPOSITORY"].split('/')
-    branch_name = os.environ["GITHUB_HEAD_REF"]
-    commit_sha = os.environ["GITHUB_SHA"]
+    created_issue = False
 
-    with open(os.environ["GITHUB_EVENT_PATH"], "r") as event_file:
-        event_data = json.load(event_file)
-    pr_number = event_data["number"]
+    # Check if an issue already exists with the same title
+    existing_issues = repo.get_issues(state="all")
+    for existing_issue in existing_issues:
+        if existing_issue.title == f"Missing Translations Detected for {issue['target_file'].split('/')[-1]}":
+            print(f"Skipping issue creation for {issue['target_file']} since an issue already exists with the same title.")
+            created_issue = True
+            break
 
-    with open(file_name, "w") as issue_file:
-        issue_file.write("---\ntitle: Missing Translations Detected for ")
-        issue_file.write(issue['target_file'].split('/')[-1])
-        issue_file.write("\nlabels: translation, help wanted\n---\n\n")
-        issue_file.write("The following translations are missing for ")
-        issue_file.write(issue['target_file'].split('/')[-1])
-        issue_file.write(":\n\n")
+    # Create a new issue if one doesn't exist already
+    if not created_issue:
+        with open(file_name, "w") as issue_file:
+            issue_file.write("---\ntitle: Missing Translations Detected for ")
+            issue_file.write(issue['target_file'].split('/')[-1])
+            issue_file.write("\nlabels: translation, help wanted\n---\n\n")
+            issue_file.write("The following translations are missing for ")
+            issue_file.write(issue['target_file'].split('/')[-1])
+            issue_file.write(":\n\n")
 
-        issue_file.write("| ID | Missing Attributes | Reference Translation |\n")
-        issue_file.write("|----|--------------------|-----------------------|\n")
+            issue_file.write("| ID | Missing Attributes | Reference Translation |\n")
+            issue_file.write("|----|--------------------|-----------------------|\n")
 
-        if "missing_ids" in issue:
-            for missing_id in issue["missing_ids"]:
-                ref_entry = reference_entries[missing_id]
-                ref_translation = ref_entry.value.elements[0].value if ref_entry.value else ""
-                issue_file.write(f"| `{missing_id}` | | {ref_translation} |\n")
+            if "missing_ids" in issue:
+                for missing_id in issue["missing_ids"]:
+                    ref_entry = reference_entries[missing_id]
+                    ref_translation = ref_entry.value.elements[0].value if ref_entry.value else ""
+                    issue_file.write(f"| `{missing_id}` | | {ref_translation} |\n")
 
-        if "missing_attributes" in issue:
-            for entry in issue["missing_attributes"]:
-                for missing_attr in entry["missing_attributes"]:
-                    ref_entry = reference_entries[entry['entry_id']]
-                    ref_attr = next((attr for attr in ref_entry.attributes if attr.id.name == missing_attr), None)
-                    ref_translation = ref_attr.value.elements[0].value if ref_attr.value else ""
-                    issue_file.write(f"| `{entry['entry_id']}` | `{missing_attr}` | {ref_translation} |\n")
+            if "missing_attributes" in issue:
+                for entry in issue["missing_attributes"]:
+                    for missing_attr in entry["missing_attributes"]:
+                        ref_entry = reference_entries[entry['entry_id']]
+                        ref_attr = next((attr for attr in ref_entry.attributes if attr.id.name == missing_attr), None)
+                        ref_translation = ref_attr.value.elements[0].value if ref_attr.value else ""
+                        issue_file.write(f"| `{entry['entry_id']}` | `{missing_attr}` | {ref_translation} |\n")
 
-        issue_file.write("\n")
-        issue_file.write(f"[Download {issue['target_file'].split('/')[-1]}](https://github.com/{user_name}/{repo_name}/blob/{branch_name}/{issue['target_file']})\n")
-        issue_file.write(f"[Download {reference_file.split('/')[-1]}](https://github.com/{user_name}/{repo_name}/blob/{branch_name}/{reference_file})\n")
-        
-        issue_file.write(f"\nCommit: [{commit_sha[:7]}](https://github.com/{user_name}/{repo_name}/commit/{commit_sha})\n")
-        issue_file.write(f"Pull Request: [#{pr_number}](https://github.com/{user_name}/{repo_name}/pull/{pr_number})\n")
+            issue_file.write("\n")
+            issue_file.write(f"[Download {issue['target_file'].split('/')[-1]}](https://github.com/{repo.owner.login}/{repo.name}/blob/{pr.head.ref}/{issue['target_file']})\n")
+            issue_file.write(f"[Download {reference_file.split('/')[-1]}](https://github.com/{repo.owner.login}/{repo.name}/blob/{pr.head.ref}/{reference_file})\n")
 
-    return True
+            issue_file.write(f"\nCommit: [{pr.head.sha[:7]}](https://github.com/{repo.owner.login}/{repo.name}/commit/{pr.head.sha})\n")
+            issue_file.write(f"Pull Request: [#{pr_number}](https://github.com/{repo.owner.login}/{repo.name}/pull/{pr_number})\n")
+
+        repo.create_issue(title=f"Missing Translations Detected for {issue['target_file'].split('/')[-1]}", body=open(file_name).read())
+        created_issue = True
+
+    return created_issue
+
 
 
 def validate_reference_file(file_path):
@@ -107,16 +116,26 @@ def validate_reference_file(file_path):
 
 def main():
     reference_file = os.environ["REFERENCE_FTL"]
+    validate_reference_file(reference_file)
     target_files = [f for f in glob.glob("**/*.ftl", recursive=True) if f != reference_file and "Tests" not in f]
 
     issues = compare_ftl_files(reference_file, target_files)
+    user_name, repo_name = os.environ["GITHUB_REPOSITORY"].split('/')
 
-    if issues:
-        created_issues = [create_issue(issue) for issue in issues]
-        if any(created_issues):
-            sys.exit(1)
+    existing_issues = []
+    for issue in issues:
+        # Check if issue already exists
+        existing_issue = get_existing_issue(issue, repo_name)
+        if existing_issue:
+            existing_issues.append(existing_issue)
         else:
-            sys.exit(0)
+            create_issue(issue, repo_name)
+
+    if existing_issues:
+        print("Some issues already exist. Please check the following:")
+        for issue in existing_issues:
+            print(issue["html_url"])
+        sys.exit(1)
     else:
         sys.exit(0)
 
