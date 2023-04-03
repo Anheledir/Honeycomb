@@ -1,0 +1,30 @@
+name: Check FTL Translations
+
+on:
+  pull_request:
+    paths:
+      - '**/*.ftl'
+
+jobs:
+  check_translations:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: pip install fluent.syntax PyYAML
+
+    - name: Check translations
+      run: python tools/compare_ftl.py
+      env:
+        REFERENCE_FTL: 'locales/en.ftl'
+        GITHUB_HEAD_REF: ${{ github.head_ref }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_SHA: ${{ github.sha }}
+        GITHUB_EVENT_PATH: ${{ github.event_path }}

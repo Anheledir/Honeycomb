@@ -1,4 +1,4 @@
-name: "Run TODO to Issue"
+name: "Update Issues from TODOs"
 on:
     push:
     workflow_dispatch:
@@ -14,7 +14,7 @@ jobs:
         runs-on: "ubuntu-latest"
         steps:
             - uses: "actions/checkout@v3"
-            - name: "TODO to Issue"
+            - name: "Update Issues from TODOs"
               uses: "alstr/todo-to-issue-action@master"
               with:
                   AUTO_ASSIGN: true

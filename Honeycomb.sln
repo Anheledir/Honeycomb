@@ -42,12 +42,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 		.github\workflows\PRLabels.yml = .github\workflows\PRLabels.yml
 		.github\workflows\test-report.yml = .github\workflows\test-report.yml
 		.github\workflows\todo2issue.yml = .github\workflows\todo2issue.yml
+		.github\workflows\translation_check.yml = .github\workflows\translation_check.yml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ISSUE_TEMPLATE", "ISSUE_TEMPLATE", "{ADF020F4-BD17-461B-B4B4-6167BF52309B}"
 	ProjectSection(SolutionItems) = preProject
 		.github\ISSUE_TEMPLATE\bug_report.md = .github\ISSUE_TEMPLATE\bug_report.md
 		.github\ISSUE_TEMPLATE\feature_request.md = .github\ISSUE_TEMPLATE\feature_request.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{9216FAD5-9AB5-4163-AF79-38735E9B9E33}"
+	ProjectSection(SolutionItems) = preProject
+		tools\compare_ftl.py = tools\compare_ftl.py
 	EndProjectSection
 EndProject
 Global
