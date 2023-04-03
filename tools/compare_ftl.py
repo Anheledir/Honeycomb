@@ -8,7 +8,7 @@ import json
 
 
 def compare_ftl_files(reference_file, target_files):
-    issues = {}
+    issues = []
 
     with open(reference_file, 'r') as f:
         reference_content = f.read()
@@ -21,11 +21,15 @@ def compare_ftl_files(reference_file, target_files):
             target_content = f.read()
             target_ast = parse(target_content)
 
+        for entry in target_ast.body:
+            if isinstance(entry, (Message, Term)):
+                entry.file = target_file
+
         target_entries = {entry.id.name: entry for entry in target_ast.body if isinstance(entry, (Message, Term))}
         missing_ids = set(reference_entries.keys()) - set(target_entries.keys())
 
         if missing_ids:
-            issues[target_file] = {"missing_ids": missing_ids, "target_file": target_file}
+            issues.append({"target_file": target_file, "missing_ids": missing_ids})
 
         for ref_id, ref_entry in reference_entries.items():
             if ref_id in target_entries:
@@ -37,17 +41,12 @@ def compare_ftl_files(reference_file, target_files):
                     target_attr = next((attr for attr in target_entry.attributes if attr.id.name == attr_name), None)
 
                     if target_attr is None:
-                        if target_file not in issues:
-                            issues[target_file] = {}
-                        if "missing_attributes" not in issues[target_file]:
-                            issues[target_file]["missing_attributes"] = {}
-                        if ref_id not in issues[target_file]["missing_attributes"]:
-                            issues[target_file]["missing_attributes"][ref_id] = []
+                        missing_attributes.append(attr_name)
 
-                        issues[target_file]["missing_attributes"][ref_id].append(attr_name)
-                        issues[target_file]["target_file"] = target_file
+                if missing_attributes:
+                    issues.append({"target_file": target_file, "entry_id": ref_id, "missing_attributes": missing_attributes})
 
-    return reference_entries, issues
+    return issues
 
 
 def create_issue(issue):
