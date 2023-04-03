@@ -50,7 +50,7 @@ public class UserModule : BaseModule
                 ButtonStyle.Primary,
                 Emoji.Parse(_translationService.GetAttrString("profile-config", "emoji")));
 
-        await RespondOrFollowupAsync(embed: GetUserProfileEmbed(user, false).Build(), ephemeral: false, components: configBtn.Build());
+        await RespondOrFollowupAsync(embed: GetUserProfileEmbed(user, false).Build(), components: configBtn.Build(), ephemeral: false);
     }
 
     [SlashCommand("config", "Change the settings of your global Honeycomb profile.")]
@@ -349,6 +349,7 @@ public class UserModule : BaseModule
                 const int activityMaxSteps = 12;
                 double userActivityScore = GetActivityScore(gUser, Context.Guild.CurrentUser);
                 int userActivityProgress = (int)(userActivityScore / (100 / activityMaxSteps));
+                bool isTooNewForProgress = gUser.JoinedAt!.Value.AddDays(1) > DateTime.UtcNow;
                 StringBuilder progressBar = new();
                 progressBar
                     .Append(UnicodeEmojiHelper.greenSquare.Repeat(userActivityProgress))
@@ -373,7 +374,7 @@ public class UserModule : BaseModule
                     new EmbedFieldBuilder
                     {
                         Name = _translationService.GetAttrString("profile", "activity"),
-                        Value = progressBar.ToString()
+                        Value = isTooNewForProgress ? _translationService.GetAttrString("profile", "activity-calc") : progressBar.ToString()
                     }
                 });
             }

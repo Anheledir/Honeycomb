@@ -119,6 +119,7 @@ profile = { $username } @ { $guildname }
     .permissions = Permissions
     .permissions-none = None
     .activity = Activity Meter
+    .activity-calc = Still taking notes, come back in a few days ...
     .activity-rating = { $score ->
     [0] You're a ghost!
     [1] Rarely seen, like Bigfoot!
