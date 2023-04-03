@@ -25,7 +25,7 @@ def compare_ftl_files(reference_file, target_files):
         missing_ids = set(reference_entries.keys()) - set(target_entries.keys())
 
         if missing_ids:
-            issues[target_file] = {"missing_ids": missing_ids}
+            issues[target_file] = {"missing_ids": missing_ids, "target_file": target_file}
 
         for ref_id, ref_entry in reference_entries.items():
             if ref_id in target_entries:
@@ -45,6 +45,7 @@ def compare_ftl_files(reference_file, target_files):
                             issues[target_file]["missing_attributes"][ref_id] = []
 
                         issues[target_file]["missing_attributes"][ref_id].append(attr_name)
+                        issues[target_file]["target_file"] = target_file
 
     return reference_entries, issues
 
