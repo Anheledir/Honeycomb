@@ -4,6 +4,7 @@ import glob
 from fluent.syntax import parse
 from fluent.syntax.ast import Term, Message
 import frontmatter
+import json
 
 
 def compare_ftl_files(reference_file, target_files):
