@@ -45,6 +45,9 @@ def compare_ftl_files(reference_file, target_files):
 
                 if missing_attributes:
                     issues.append({"target_file": target_file, "entry_id": ref_id, "missing_attributes": missing_attributes})
+                else:
+                    # Add empty `missing_attributes` key to avoid issues with create_issue function
+                    issues.append({"file": target_file, "entry_id": ref_id, "missing_attributes": []})
 
     return issues
 
