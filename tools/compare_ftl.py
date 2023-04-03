@@ -45,33 +45,19 @@ def compare_ftl_files(reference_file, target_files):
 
                 if missing_attributes:
                     issues.append({"target_file": target_file, "entry_id": ref_id, "missing_attributes": missing_attributes})
-                else:
-                    # Add empty `missing_attributes` key to avoid issues with create_issue function
-                    issues.append({"file": target_file, "entry_id": ref_id, "missing_attributes": []})
 
     return issues
 
 
-    def get_existing_issues(repo):
-    # Get all issues in the repository with the translation label
-    query = f"repo:{repo} label:translation is:issue state:open"
-    response = requests.get(f"https://api.github.com/search/issues?q={query}")
-
-    if response.status_code != 200:
-        raise ValueError(f"Failed to fetch issues: {response.content}")
-
-    return {issue["title"]: issue for issue in response.json()["items"]}
-
-
-def create_issue(issue, repo, pr_number):
+def create_issue(issue):
     file_name = f"missing_translations_issue_{issue['target_file'].split('/')[-1].split('.')[0]}.md"
+    user_name, repo_name = os.environ["GITHUB_REPOSITORY"].split('/')
+    branch_name = os.environ["GITHUB_HEAD_REF"]
+    commit_sha = os.environ["GITHUB_SHA"]
 
-    existing_issues = get_existing_issues(repo)
-    issue_title = f"Missing Translations Detected for {issue['target_file'].split('/')[-1]}"
-
-    if issue_title in existing_issues:
-        print(f"Issue already exists: {existing_issues[issue_title]['html_url']}")
-        return False
+    with open(os.environ["GITHUB_EVENT_PATH"], "r") as event_file:
+        event_data = json.load(event_file)
+    pr_number = event_data["number"]
 
     with open(file_name, "w") as issue_file:
         issue_file.write("---\ntitle: Missing Translations Detected for ")
@@ -89,6 +75,20 @@ def create_issue(issue, repo, pr_number):
                 ref_entry = reference_entries[missing_id]
                 ref_translation = ref_entry.value.elements[0].value if ref_entry.value else ""
                 issue_file.write(f"| `{missing_id}` | | {ref_translation} |\n")
+
+        if "missing_attributes" in issue:
+            for missing_id, missing_attrs in issue["missing_attributes"].items():
+                ref_entry = reference_entries[missing_id]
+                ref_translation = ref_entry.value.elements[0].value if ref_entry.value else ""
+                for missing_attr in missing_attrs:
+                    issue_file.write(f"| `{missing_id}` | `{missing_attr}` | {ref_translation} |\n")
+
+        issue_file.write("\n")
+        issue_file.write(f"[Download {issue['target_file'].split('/')[-1]}](https://github.com/{user_name}/{repo_name}/blob/{branch_name}/{issue['target_file']})\n")
+        issue_file.write(f"[Download {reference_file.split('/')[-1]}](https://github.com/{user_name}/{repo_name}/blob/{branch_name}/{reference_file})\n")
+        
+        issue_file.write(f"\nCommit: [{commit_sha[:7]}](https://github.com/{user_name}/{repo_name}/commit/{commit_sha})\n")
+        issue_file.write(f"Pull Request: [#{pr_number}](https://github.com/{user_name}/{repo_name}/pull/{pr_number})\n")
 
     return True
 
@@ -108,13 +108,14 @@ def main():
     issues = compare_ftl_files(reference_file, target_files)
 
     if issues:
-        created_issues = [create_issue(issue, os.environ["GITHUB_REPOSITORY"], os.environ["NUMBER"]) for issue in issues]
+        created_issues = [create_issue(issue) for issue in issues]
         if any(created_issues):
             sys.exit(1)
         else:
             sys.exit(0)
     else:
         sys.exit(0)
+
 
 
 if __name__ == "__main__":
