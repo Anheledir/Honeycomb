@@ -25,7 +25,7 @@ jobs:
     - name: Check translations
       run: python tools/compare_ftl.py
       env:
-        REFERENCE_FTL: 'locales/en.ftl'
+        REFERENCE_FTL: 'BaseBotService/Locales/en.ftl'
         GITHUB_HEAD_REF: ${{ github.head_ref }}
         GITHUB_REPOSITORY: ${{ github.repository }}
         GITHUB_SHA: ${{ github.sha }}
