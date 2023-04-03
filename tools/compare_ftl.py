@@ -77,11 +77,12 @@ def create_issue(issue):
                 issue_file.write(f"| `{missing_id}` | | {ref_translation} |\n")
 
         if "missing_attributes" in issue:
-            for missing_id, missing_attrs in issue["missing_attributes"].items():
-                ref_entry = reference_entries[missing_id]
-                ref_translation = ref_entry.value.elements[0].value if ref_entry.value else ""
-                for missing_attr in missing_attrs:
-                    issue_file.write(f"| `{missing_id}` | `{missing_attr}` | {ref_translation} |\n")
+            for entry in issue["missing_attributes"]:
+                for missing_attr in entry["missing_attributes"]:
+                    ref_entry = reference_entries[entry['entry_id']]
+                    ref_attr = next((attr for attr in ref_entry.attributes if attr.id.name == missing_attr), None)
+                    ref_translation = ref_attr.value.elements[0].value if ref_attr.value else ""
+                    issue_file.write(f"| `{entry['entry_id']}` | `{missing_attr}` | {ref_translation} |\n")
 
         issue_file.write("\n")
         issue_file.write(f"[Download {issue['target_file'].split('/')[-1]}](https://github.com/{user_name}/{repo_name}/blob/{branch_name}/{issue['target_file']})\n")
