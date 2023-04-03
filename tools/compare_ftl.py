@@ -14,18 +14,13 @@ def compare_ftl_files(reference_file, target_files):
         reference_content = f.read()
         reference_ast = parse(reference_content)
 
-    reference_entries = {entry.id.name: entry for entry in reference_ast.body if isinstance(entry, (Message, Term))}
-
     for target_file in target_files:
         with open(target_file, 'r') as f:
             target_content = f.read()
             target_ast = parse(target_content)
 
+        reference_entries = {entry.id.name: entry for entry in reference_ast.body if isinstance(entry, (Message, Term))}
         target_entries = {entry.id.name: entry for entry in target_ast.body if isinstance(entry, (Message, Term))}
-        missing_ids = set(reference_entries.keys()) - set(target_entries.keys())
-
-        if missing_ids:
-            issues.append({"file": target_file, "missing_ids": missing_ids})
 
         for ref_id, ref_entry in reference_entries.items():
             if ref_id in target_entries:
