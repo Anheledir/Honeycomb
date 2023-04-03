@@ -51,7 +51,7 @@ def compare_ftl_files(reference_file, target_files):
 
 
 def create_issue(issue):
-    file_name = f"missing_translations_issue_{issue['file'].split('/')[-1].split('.')[0]}.md"
+    file_name = f"missing_translations_issue_{issue['target_file'].split('/')[-1].split('.')[0]}.md"
     user_name, repo_name = os.environ["GITHUB_REPOSITORY"].split('/')
     branch_name = os.environ["GITHUB_HEAD_REF"]
     commit_sha = os.environ["GITHUB_SHA"]
@@ -62,10 +62,10 @@ def create_issue(issue):
 
     with open(file_name, "w") as issue_file:
         issue_file.write("---\ntitle: Missing Translations Detected for ")
-        issue_file.write(issue['file'].split('/')[-1])
+        issue_file.write(issue['target_file'].split('/')[-1])
         issue_file.write("\nlabels: translation, help wanted\n---\n\n")
         issue_file.write("The following translations are missing for ")
-        issue_file.write(issue['file'].split('/')[-1])
+        issue_file.write(issue['target_file'].split('/')[-1])
         issue_file.write(":\n\n")
 
         issue_file.write("| ID | Missing Attributes | Reference Translation |\n")
@@ -78,14 +78,14 @@ def create_issue(issue):
                 issue_file.write(f"| `{missing_id}` | | {ref_translation} |\n")
 
         if "missing_attributes" in issue:
-            for missing_attr in issue["missing_attributes"]:
-                ref_entry = reference_entries[issue['entry_id']]
-                ref_attr = next((attr for attr in ref_entry.attributes if attr.id.name == missing_attr), None)
-                ref_translation = ref_attr.value.elements[0].value if ref_attr.value else ""
-                issue_file.write(f"| `{issue['entry_id']}` | `{missing_attr}` | {ref_translation} |\n")
+            for missing_id, missing_attrs in issue["missing_attributes"].items():
+                ref_entry = reference_entries[missing_id]
+                ref_translation = ref_entry.value.elements[0].value if ref_entry.value else ""
+                for missing_attr in missing_attrs:
+                    issue_file.write(f"| `{missing_id}` | `{missing_attr}` | {ref_translation} |\n")
 
         issue_file.write("\n")
-        issue_file.write(f"[Download {issue['file'].split('/')[-1]}](https://github.com/{user_name}/{repo_name}/blob/{branch_name}/{issue['file']})\n")
+        issue_file.write(f"[Download {issue['target_file'].split('/')[-1]}](https://github.com/{user_name}/{repo_name}/blob/{branch_name}/{issue['target_file']})\n")
         issue_file.write(f"[Download {reference_file.split('/')[-1]}](https://github.com/{user_name}/{repo_name}/blob/{branch_name}/{reference_file})\n")
         
         issue_file.write(f"\nCommit: [{commit_sha[:7]}](https://github.com/{user_name}/{repo_name}/commit/{commit_sha})\n")
