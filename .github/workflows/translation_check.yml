@@ -26,7 +26,7 @@ jobs:
             pip install fluent fluent.syntax PyYAML python-frontmatter PyGithub
 
     - name: Check translations
-      run: python tools/compare_ftl.py
+      uses: Anheledir/MissingLocaleTranslationsFTL@v1
       env:
         REFERENCE_FTL: 'BaseBotService/Locales/en.ftl'
         GITHUB_HEAD_REF: ${{ github.head_ref }}
