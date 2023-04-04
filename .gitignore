@@ -10,6 +10,7 @@
 *.userosscache
 *.sln.docstates
 .DS_Store
+.env
 
 # Docker launch settings file with secrets
 launchSettings.json
