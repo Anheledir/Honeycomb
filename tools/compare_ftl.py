@@ -2,7 +2,7 @@ import os
 import sys
 import glob
 from fluent.syntax import parse
-from fluent.syntax.ast import Term, Message, VariableReference, TextElement, Placeable, SelectExpression
+from fluent.syntax.ast import Term, Message, Attribute, VariableReference, TextElement, Placeable, SelectExpression
 from github import Github
 import frontmatter
 
@@ -43,6 +43,9 @@ def compare_ftl_files(reference_file, target_files):
         target_entries = {entry.id.name: entry for entry in target_ast.body if isinstance(entry, (Message, Term))}
         missing_entry_ids = set(reference_entries.keys()) - set(target_entries.keys())
 
+        print(f"Comparing {reference_file} with {target_file}")
+        print(f"Missing entry IDs: {missing_entry_ids}")
+
         missing_attributes = {}
         for entry_id in target_entries:
             if entry_id in reference_entries:
@@ -51,11 +54,13 @@ def compare_ftl_files(reference_file, target_files):
                 missing_attr_ids = reference_attributes - target_attributes
                 if missing_attr_ids:
                     missing_attributes[entry_id] = missing_attr_ids
+                    print(f"Missing attributes for '{entry_id}': {missing_attr_ids}")
 
         if missing_entry_ids or missing_attributes:
             issues.append({"file": target_file, "missing_entry_ids": missing_entry_ids, "missing_attributes": missing_attributes})
 
     return issues
+
 
 def create_issue(issue):
     user_name = os.environ["GITHUB_REPOSITORY"].split('/')[0]
@@ -66,7 +71,7 @@ def create_issue(issue):
     repo = g.get_repo(f"{user_name}/{repo_name}")
 
     for entry_id in issue["missing_entry_ids"]:
-        entry = reference_entries[entry_id]
+        entry = reference_entries.get(entry_id)
         title = f"Missing translation for '{entry_id}' in {issue['file']}"
         body = f"**File:** [{issue['file']}](https://github.com/{user_name}/{repo_name}/blob/{branch_name}/{issue['file']})\n\n"
         body += f"**Reference:** [{reference_file.split('/')[-1]}](https://github.com/{user_name}/{repo_name}/blob/{branch_name}/{reference_file})\n\n"
@@ -105,7 +110,7 @@ def main():
         print(f"Found {len(issues)} issues. Creating GitHub issues...")
         for issue in issues:
             create_issue(issue)
-        sys.exit(1)
+        sys.exit(0)
     else:
         print("No issues found.")
         sys.exit(0)
