@@ -106,6 +106,11 @@ def main():
     print(f"Comparing {reference_file} against {len(target_files)} target files...")
     issues = compare_ftl_files(reference_file, target_files)
 
+    with open(reference_file, 'r') as f:
+        reference_content = f.read()
+        reference_ast = parse(reference_content)
+    reference_entries = {entry.id.name: entry for entry in reference_ast.body if isinstance(entry, (Message, Term))}
+
     if issues:
         print(f"Found {len(issues)} issues. Creating GitHub issues...")
         for issue in issues:
@@ -114,6 +119,7 @@ def main():
     else:
         print("No issues found.")
         sys.exit(0)
+
 
 
 if __name__ == "__main__":
