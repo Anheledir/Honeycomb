@@ -18,6 +18,7 @@ bot = Honeycomb
     .name = { bot } { bot.version }
 
 
+
 ####################################
 ## Core Module
 ####################################
@@ -119,7 +120,7 @@ profile = { $username } @ { $guildname }
     .permissions = Permissions
     .permissions-none = None
     .activity = Activity Meter
-    .activity-calc = Still taking notes, come back in a few days ...
+    .activity-calc = Still taking notes, come back tomorrow ...
     .activity-rating = { $score ->
     [0] You're a ghost!
     [1] Rarely seen, like Bigfoot!
@@ -136,7 +137,6 @@ profile = { $username } @ { $guildname }
    [12] Unstoppable! We're running out of server space!
    *[other] Invalid activity score
 }
-
 
 
 
