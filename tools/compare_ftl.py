@@ -62,7 +62,7 @@ def compare_ftl_files(reference_file, target_files):
     return issues
 
 
-def create_issue(issue):
+def create_issue(issue, reference_entries):
     user_name = os.environ["GITHUB_REPOSITORY"].split('/')[0]
     repo_name = os.environ["GITHUB_REPOSITORY"].split('/')[1]
     branch_name = os.environ["GITHUB_REF"].split('/')[-1]
@@ -109,7 +109,7 @@ def main():
     if issues:
         print(f"Found {len(issues)} issues. Creating GitHub issues...")
         for issue in issues:
-            create_issue(issue)
+            create_issue(issue, reference_entries)
         sys.exit(0)
     else:
         print("No issues found.")
