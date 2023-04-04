@@ -70,30 +70,32 @@ def create_issue(issue, reference_entries, reference_file):
     g = Github(os.environ["GITHUB_TOKEN"])
     repo = g.get_repo(f"{user_name}/{repo_name}")
 
-    for entry_id in issue["missing_entry_ids"]:
-        entry = reference_entries.get(entry_id)
-        title = f"Missing translation for '{entry_id}' in {issue['file']}"
-        body = f"**File:** [{issue['file']}](https://github.com/{user_name}/{repo_name}/blob/{branch_name}/{issue['file']})\n\n"
-        body += f"**Reference:** [{reference_file.split('/')[-1]}](https://github.com/{user_name}/{repo_name}/blob/{branch_name}/{reference_file})\n\n"
+    title = f"Missing translations in {issue['file']}"
+    body = f"**File:** [{issue['file']}](https://github.com/{user_name}/{repo_name}/blob/{branch_name}/{issue['file']})\n\n"
+    body += f"**Reference:** [{reference_file.split('/')[-1]}](https://github.com/{user_name}/{repo_name}/blob/{branch_name}/{reference_file})\n\n"
+
+    if issue["missing_entry_ids"]:
+        body += "## Missing entry IDs\n\n"
         body += "| ID | Reference value |\n"
         body += "| -- | --------------- |\n"
-        body += f"| {entry_id} | {get_entry_value(entry)} |\n"
-        labels = ["translation", "help wanted"]
-        repo.create_issue(title=title, body=body, labels=labels)
+        for entry_id in issue["missing_entry_ids"]:
+            entry = reference_entries.get(entry_id)
+            body += f"| {entry_id} | {get_entry_value(entry)} |\n"
 
-    for entry_id, missing_attr_ids in issue["missing_attributes"].items():
-        entry = reference_entries[entry_id]
-        title = f"Missing attributes for '{entry_id}' in {issue['file']}"
-        body = f"**File:** [{issue['file']}](https://github.com/{user_name}/{repo_name}/blob/{branch_name}/{issue['file']})\n\n"
-        body += f"**Reference:** [{reference_file.split('/')[-1]}](https://github.com/{user_name}/{repo_name}/blob/{branch_name}/{reference_file})\n\n"
+    if issue["missing_attributes"]:
+        body += "\n## Missing attributes\n\n"
         body += "| ID | Attribute | Reference value |\n"
         body += "| -- | --------- | --------------- |\n"
-        for missing_attr_id in missing_attr_ids:
-            attr = next((attr for attr in entry.attributes if attr.id.name == missing_attr_id), None)
-            attr_value = get_entry_value(attr) if attr else "N/A"
-            body += f"| {entry_id} | {missing_attr_id} | {attr_value} |\n"
-        labels = ["translation", "help wanted"]
-        repo.create_issue(title=title, body=body, labels=labels)
+        for entry_id, missing_attr_ids in issue["missing_attributes"].items():
+            entry = reference_entries[entry_id]
+            for missing_attr_id in missing_attr_ids:
+                attr = next((attr for attr in entry.attributes if attr.id.name == missing_attr_id), None)
+                attr_value = get_entry_value(attr) if attr else "N/A"
+                body += f"| {entry_id} | {missing_attr_id} | {attr_value} |\n"
+
+    labels = ["translation", "help wanted"]
+    repo.create_issue(title=title, body=body, labels=labels)
+
 
 
 
