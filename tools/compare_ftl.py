@@ -2,11 +2,29 @@ import os
 import sys
 import glob
 from fluent.syntax import parse
-from fluent.syntax.ast import Message, Term, VariableReference
-from fluent.syntax.parser import ParseError
+from fluent.syntax.ast import Term, Message, VariableReference, TextElement, Placeable, SelectExpression
 from github import Github
 import frontmatter
 
+def get_entry_value(entry):
+    if not entry.value:
+        return "N/A"
+
+    first_element = entry.value.elements[0]
+
+    if isinstance(first_element, TextElement):
+        return first_element.value
+    elif isinstance(first_element, Placeable):
+        if isinstance(first_element.expression, SelectExpression):
+            selector = first_element.expression.selector
+            if isinstance(selector, VariableReference):
+                return f"{{{selector.name}}}"
+            else:
+                return "N/A"
+        else:
+            return "N/A"
+    else:
+        return "N/A"
 
 def compare_ftl_files(reference_file, target_files):
     issues = []
@@ -15,67 +33,62 @@ def compare_ftl_files(reference_file, target_files):
         reference_content = f.read()
         reference_ast = parse(reference_content)
 
-    reference_entries = {
-        entry.id.name: entry
-        for entry in reference_ast.body
-        if isinstance(entry, (Message, Term))
-    }
+    reference_entries = {entry.id.name: entry for entry in reference_ast.body if isinstance(entry, (Message, Term))}
 
     for target_file in target_files:
         with open(target_file, 'r') as f:
             target_content = f.read()
-            try:
-                target_ast = parse(target_content)
-            except ParseError as e:
-                print(f"Error parsing {target_file}: {e}")
-                continue
+            target_ast = parse(target_content)
 
-        target_ids = {entry.id.name for entry in target_ast.body if isinstance(entry, (Message, Term))}
-        missing_ids = set(reference_entries.keys()) - target_ids
+        target_entries = {entry.id.name: entry for entry in target_ast.body if isinstance(entry, (Message, Term))}
+        missing_entry_ids = set(reference_entries.keys()) - set(target_entries.keys())
 
-        if missing_ids:
-            issues.append({"file": target_file, "missing_ids": missing_ids})
+        missing_attributes = {}
+        for entry_id in target_entries:
+            if entry_id in reference_entries:
+                reference_attributes = {attribute.id.name for attribute in reference_entries[entry_id].attributes}
+                target_attributes = {attribute.id.name for attribute in target_entries[entry_id].attributes}
+                missing_attr_ids = reference_attributes - target_attributes
+                if missing_attr_ids:
+                    missing_attributes[entry_id] = missing_attr_ids
+
+        if missing_entry_ids or missing_attributes:
+            issues.append({"file": target_file, "missing_entry_ids": missing_entry_ids, "missing_attributes": missing_attributes})
 
     return issues
 
-
 def create_issue(issue):
-    print(f"Creating issue for {issue['file']}...")
-    token = os.environ["GH_TOKEN"]
-    repo_name = os.environ["GITHUB_REPOSITORY"]
-    branch_name = os.environ["GITHUB_HEAD_REF"]
+    user_name = os.environ["GITHUB_REPOSITORY"].split('/')[0]
+    repo_name = os.environ["GITHUB_REPOSITORY"].split('/')[1]
+    branch_name = os.environ["GITHUB_REF"].split('/')[-1]
 
-    g = Github(token)
-    repo = g.get_repo(repo_name)
+    g = Github(os.environ["GITHUB_TOKEN"])
+    repo = g.get_repo(f"{user_name}/{repo_name}")
 
-    issue_title = f"Missing Translations Detected for {issue['file']}"
-    issue_body = f"Missing translations in `{issue['file']}`:\n\n"
-    issue_body += "| ID | Reference Value |\n|----|----------------|\n"
-
-    for entry_id in issue["missing_ids"]:
+    for entry_id in issue["missing_entry_ids"]:
         entry = reference_entries[entry_id]
-        issue_body += f"| {entry_id} | {get_entry_value(entry)} |\n"
+        title = f"Missing translation for '{entry_id}' in {issue['file']}"
+        body = f"**File:** [{issue['file']}](https://github.com/{user_name}/{repo_name}/blob/{branch_name}/{issue['file']})\n\n"
+        body += f"**Reference:** [{reference_file.split('/')[-1]}](https://github.com/{user_name}/{repo_name}/blob/{branch_name}/{reference_file})\n\n"
+        body += "| ID | Reference value |\n"
+        body += "| -- | --------------- |\n"
+        body += f"| {entry_id} | {get_entry_value(entry)} |\n"
+        labels = ["translation", "help wanted"]
+        repo.create_issue(title=title, body=body, labels=labels)
 
-    issue_body += f"\n[Download {issue['file'].split('/')[-1]}](https://github.com/{repo_name}/blob/{branch_name}/{issue['file']})\n"
+    for entry_id, missing_attr_ids in issue["missing_attributes"].items():
+        entry = reference_entries[entry_id]
+        title = f"Missing attributes for '{entry_id}' in {issue['file']}"
+        body = f"**File:** [{issue['file']}](https://github.com/{user_name}/{repo_name}/blob/{branch_name}/{issue['file']})\n\n"
+        body += f"**Reference:** [{reference_file.split('/')[-1]}](https://github.com/{user_name}/{repo_name}/blob/{branch_name}/{reference_file})\n\n"
+        body += "| ID | Attribute | Reference value |\n"
+        body += "| -- | --------- | --------------- |\n"
+        for missing_attr_id in missing_attr_ids:
+            attr_value = get_entry_value(entry.attributes[entry_id][missing_attr_id])
+            body += f"| {entry_id} | {missing_attr_id} | {attr_value} |\n"
+        labels = ["translation", "help wanted"]
+        repo.create_issue(title=title, body=body, labels=labels)
 
-    created_issue = repo.create_issue(title=issue_title, body=issue_body, labels=["translation", "help wanted"])
-    print(f"Issue created: {created_issue.html_url}")
-
-
-def get_entry_value(entry):
-    first_element = entry.value.elements[0]
-
-    if isinstance(first_element, TextElement):
-        return first_element.value
-    elif isinstance(first_element, Placeable):
-        selector = first_element.expression.selector
-
-        if isinstance(selector, VariableReference):
-            return f"{{{selector.name}}}"
-        elif isinstance(selector, FunctionReference):
-            return f"{selector.name}()"
-    else:
-        return "UNKNOWN"
 
 
 def main():
