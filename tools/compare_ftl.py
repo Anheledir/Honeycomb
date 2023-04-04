@@ -89,7 +89,8 @@ def create_issue(issue, reference_entries, reference_file):
         body += "| ID | Attribute | Reference value |\n"
         body += "| -- | --------- | --------------- |\n"
         for missing_attr_id in missing_attr_ids:
-            attr_value = get_entry_value(entry.attributes[entry_id][missing_attr_id])
+            attr = next((attr for attr in entry.attributes if attr.id.name == missing_attr_id), None)
+            attr_value = get_entry_value(attr) if attr else "N/A"
             body += f"| {entry_id} | {missing_attr_id} | {attr_value} |\n"
         labels = ["translation", "help wanted"]
         repo.create_issue(title=title, body=body, labels=labels)
