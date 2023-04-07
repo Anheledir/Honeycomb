@@ -17,7 +17,7 @@ public static class AchievementFactory
     /// <returns>A new instance of the specified achievement type, inheriting <see cref="HCAchievementBase"/>.</returns>
     public static T CreateAchievement<T>(ulong userId, ulong? guildId = null) where T : HCAchievementBase
     {
-        T? achievement = Program.ServiceProvider.GetService<T>();
+        T? achievement = (T?)Program.ServiceProvider.GetService(typeof(T));
         if (achievement == null)
         {
             string error = $"Could not create achievement of type {typeof(T).Name}. Make sure the achievement is registered in the DI container.";

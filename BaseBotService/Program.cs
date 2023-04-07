@@ -10,7 +10,7 @@ namespace BaseBotService;
 
 public static class Program
 {
-    public static IServiceProvider ServiceProvider { get; } = ServiceFactory.CreateServiceProvider();
+    public static IServiceProvider ServiceProvider { get; internal set; } = ServiceFactory.CreateServiceProvider();
 
     private static void Main() => RunAsync().GetAwaiter().GetResult();
 

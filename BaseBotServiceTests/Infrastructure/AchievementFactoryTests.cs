@@ -1,16 +1,22 @@
 ﻿using BaseBotService.Core.Base;
 using BaseBotService.Infrastructure;
+using Serilog;
 
 namespace BaseBotService.Tests.Infrastructure;
 
 public class AchievementFactoryTests
 {
     private Faker _faker;
+    private IServiceProvider _serviceProvider;
 
     [SetUp]
     public void SetUp()
     {
         _faker = new Faker();
+        _serviceProvider = Substitute.For<IServiceProvider>();
+        _serviceProvider.GetService(typeof(CustomHCAchievement)).Returns(new CustomHCAchievement());
+        _serviceProvider.GetService(typeof(ILogger)).Returns(Substitute.For<ILogger>());
+        Program.ServiceProvider = _serviceProvider;
     }
 
     [Test]
