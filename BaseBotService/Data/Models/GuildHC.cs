@@ -3,7 +3,7 @@ using BaseBotService.Data.Enums;
 using LiteDB;
 
 namespace BaseBotService.Data.Models;
-public class GuildHC : HCModelBase
+public class GuildHC : ModelBase
 {
     public ulong GuildId { get; set; }
     public GuildSettings Settings { get; set; }
@@ -12,6 +12,7 @@ public class GuildHC : HCModelBase
     public double ActivityPointsAverageActiveHours { get; set; }
     public List<ulong> ModeratorRoles { get; set; }
     public List<ulong> ArtistRoles { get; set; }
+    public List<GuildMemberHC> GuildMembers { get; set; } = new();
 
     public GuildHC()
     {
@@ -23,7 +24,7 @@ public class GuildHC : HCModelBase
     public static ILiteCollection<GuildHC> GetServiceRegistration(IServiceProvider services)
     {
         ILiteCollection<GuildHC> collection = GetServiceRegistration<GuildHC>(services);
-        _ = collection.EnsureIndex(x => x.GuildId);
+        _ = collection.EnsureIndex(x => x.GuildId, unique: true);
         return collection;
     }
 }

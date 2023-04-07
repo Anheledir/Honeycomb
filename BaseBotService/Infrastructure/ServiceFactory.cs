@@ -64,6 +64,7 @@ public static class ServiceFactory
 
         // data services
             .AddSingleton<IPersistenceService, PersistenceService>()
+            .AddSingleton<MigrationManager>()
 
         // data repositories
             .AddSingleton<IGuildHCRepository, GuildHCRepository>()
@@ -74,7 +75,7 @@ public static class ServiceFactory
             .AddScoped(GuildHC.GetServiceRegistration)
             .AddScoped(MemberHC.GetServiceRegistration)
             .AddScoped(GuildMemberHC.GetServiceRegistration)
-            .AddScoped(HCAchievementBase.GetServiceRegistration);
+            .AddScoped(AchievementBase.GetServiceRegistration);
 
         return services.BuildServiceProvider();
     }

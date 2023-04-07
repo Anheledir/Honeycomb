@@ -1,5 +1,6 @@
 ﻿using BaseBotService.Core.Interfaces;
 using BaseBotService.Data.Interfaces;
+using BaseBotService.Utilities.Extensions;
 using LiteDB;
 
 namespace BaseBotService.Data;
@@ -8,27 +9,60 @@ public class PersistenceService : IPersistenceService
 {
     private readonly LiteDatabase _database;
     private readonly ILogger _logger;
-    private readonly Timer _timer;
+    private Timer _timer = null!;
     private readonly object _lock = new();
     private bool _disposedValue;
+    private readonly TimeSpan _savingInterval = TimeSpan.FromMinutes(1);
+    private readonly TimeSpan _checkpointInterval = TimeSpan.FromDays(1);
+    private bool _isReady;
+    private DateTime _lastCheckpoint = DateTime.UtcNow;
 
-    public PersistenceService(ILogger logger, IEnvironmentService environment)
+    public PersistenceService(ILogger logger, MigrationManager migrationManager, IEnvironmentService environment)
     {
         _logger = logger.ForContext<PersistenceService>();
 
-        string connectionString = $"Filename={environment.DatabaseFile};";
-        _logger.Information($"LiteDB connection string: {connectionString}");
-        _database = new LiteDatabase(connectionString);
+        var connection = new ConnectionString(environment.ConnectionString);
+        _logger.Debug("Loading LightDB with '{@connection}'", connection);
+        BsonMapper mapper = new();
+        _database = new LiteDatabase(connection, mapper);
+        _database.Checkpoint();
+        Task.Run(async () =>
+        {
+            _logger.Debug($"Checking for database migrations available for version {_database.UserVersion}.");
+            if (migrationManager.AreMigrationsAvailable(_database))
+            {
+                _logger.Information("The database must get migrated.");
+                _logger.Debug($"Creating backup of database at '{connection.Filename}'.");
+                string backupPath = await _database.BackupDatabaseAsync(connection.Filename);
+                _logger.Information($"Database backup was created at '{backupPath}'.");
 
-        // Set up the timer to trigger every minute
-        _timer = new Timer(HandleAutoSaveTimer);
-        _ = _timer.Change(TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
+                _logger.Debug("Applying database migrations.");
+                if (!await migrationManager.ApplyMigrations(_database))
+                {
+                    _logger.Fatal("Database migration couldn't be completed.");
+                    throw new OperationCanceledException();
+                }
+                _logger.Information("Database migration finished.");
+            }
+
+            _logger.Debug("Registering database collections and relations in-between them.");
+            CollectionMapper.RegisterCollections(ref mapper);
+            _logger.Information($"Starting the database save timer, interval is {_savingInterval.TotalSeconds} seconds.");
+            _timer = new Timer(HandleAutoSaveTimer);
+            _ = _timer.Change(TimeSpan.FromMinutes(1), _savingInterval);
+            _isReady = true;
+        });
     }
 
     private void HandleAutoSaveTimer(object? state) => Commit();
 
     public ILiteCollection<T> GetCollection<T>()
     {
+        while (!_isReady)
+        {
+            Thread.Sleep(100);
+        }
+
         _logger.Debug($"GetCollection<{typeof(T)}>()");
         return _database.GetCollection<T>();
     }
@@ -39,6 +73,13 @@ public class PersistenceService : IPersistenceService
         {
             _logger.Debug("Commit transaction to database file.");
             _ = _database.Commit();
+
+            if (DateTime.UtcNow - _lastCheckpoint > _checkpointInterval)
+            {
+                _logger.Debug("Creating database checkpoint.");
+                _database.Checkpoint();
+                _lastCheckpoint = DateTime.UtcNow;
+            }
         }
     }
 

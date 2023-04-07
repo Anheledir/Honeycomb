@@ -53,7 +53,7 @@ public class AchievementFactoryTests
     }
 }
 
-public class CustomHCAchievement : HCAchievementBase
+public class CustomHCAchievement : AchievementBase
 {
     // You can add custom properties or methods for this test class
 }

@@ -31,8 +31,8 @@ public class EnvironmentService : IEnvironmentService
         HealthPort = int.Parse(Environment.GetEnvironmentVariable("HEALTH_PORT") ?? "8080");
         logger.Information($"http-port for health probe set to '{HealthPort}'.");
 
-        DatabaseFile = Environment.GetEnvironmentVariable("DATABASE_FILEPATH") ?? "honeycomb.db";
-        logger.Information($"Path and filename for our LiteDB database: '{DatabaseFile}'.");
+        ConnectionString = Environment.GetEnvironmentVariable("ConnectionString") ?? "Filename=honeycomb.db;";
+        logger.Information($"LiteDB database connection string: '{ConnectionString}'.");
 
         EnvironmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "unknown";
         logger.Information($"Environment identifier is '{EnvironmentName}'.");
@@ -47,7 +47,7 @@ public class EnvironmentService : IEnvironmentService
 
     public int HealthPort { get; }
 
-    public string DatabaseFile { get; }
+    public string ConnectionString { get; }
 
     public string GetUptime()
     {

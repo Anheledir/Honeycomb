@@ -8,6 +8,6 @@ public interface IEnvironmentService
     RegisterCommandsOnStartup RegisterCommands { get; }
     string EnvironmentName { get; }
     int HealthPort { get; }
-    string DatabaseFile { get; }
+    string ConnectionString { get; }
     string GetUptime();
 }

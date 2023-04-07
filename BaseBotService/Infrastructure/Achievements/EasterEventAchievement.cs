@@ -3,7 +3,7 @@ using BaseBotService.Core.Interfaces;
 using BaseBotService.Utilities;
 
 namespace BaseBotService.Infrastructure.Achievements;
-public class EasterEventAchievement : HCAchievementBase
+public class EasterEventAchievement : AchievementBase
 {
     public const string Identifier = "0077B1DF-0E12-4E05-91B1-05A9E9E88248";
     public const string TranslationKey = "achievement-event-easter";

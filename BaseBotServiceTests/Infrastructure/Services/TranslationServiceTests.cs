@@ -73,6 +73,7 @@ public class TranslationServiceTests
     [TestCase("de", _germanTranslation)]
     [TestCase("es", _spanishTranslation)]
     [TestCase("fr", _frenchTranslation)]
+    [TestCase("missing", _englishTranslation)]
     public void GetString_ValidId_WithLocale_ReturnsTranslation(string locale, string translation)
     {
         string expectedTranslation = _translationService.GetString(_messageId, locale);
@@ -85,6 +86,7 @@ public class TranslationServiceTests
     [TestCase("de", _germanTranslationAlt)]
     [TestCase("es", _spanishTranslationAlt)]
     [TestCase("fr", _frenchTranslationAlt)]
+    [TestCase("missing", _englishTranslationAlt)]
     public void GetAttrString_WithValidIdAndAttribute_ReturnsExpectedTranslation(string locale, string translation)
     {
         string result = _translationService.GetString(_messageId, _attribute, locale);

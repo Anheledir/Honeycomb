@@ -98,7 +98,7 @@ public class EasterEventService : IEasterEventService
         if (channel is not SocketGuildChannel guildChannel) return;
         SocketGuild guild = guildChannel.Guild;
         MemberHC memberHC = _memberHCRepository.GetUser(user.Id, true)!;
-        List<HCAchievementBase> userAchievements = memberHC.Achievements.Where(a => a.SourceIdentifier == new Guid(EasterEventAchievement.Identifier)).ToList();
+        List<AchievementBase> userAchievements = memberHC.Achievements.Where(a => a.SourceIdentifier == new Guid(EasterEventAchievement.Identifier)).ToList();
 
         // A user can only get this achievement once per guild and year
         int currentYear = _dateTime.GetCurrentUtcDate().Year;

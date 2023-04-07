@@ -1,8 +1,9 @@
 ﻿using BaseBotService.Core.Interfaces;
+using BaseBotService.Data.Models;
 using LiteDB;
 
 namespace BaseBotService.Core.Base;
-public abstract class HCAchievementBase : HCModelBase
+public abstract class AchievementBase : ModelBase
 {
     protected Dictionary<string, object>? EventAttributes;
     protected bool IsGlobal => GuildId == null;
@@ -16,10 +17,12 @@ public abstract class HCAchievementBase : HCModelBase
     public int Points { get; set; }
     public string? ImageUrl { get; set; }
     public Guid SourceIdentifier { get; set; }
+    public MemberHC Member { get; set; } = null!;
+    public GuildHC? Guild { get; set; }
 
-    public static ILiteCollection<HCAchievementBase> GetServiceRegistration(IServiceProvider services)
+    public static ILiteCollection<AchievementBase> GetServiceRegistration(IServiceProvider services)
     {
-        ILiteCollection<HCAchievementBase> collection = GetServiceRegistration<HCAchievementBase>(services);
+        ILiteCollection<AchievementBase> collection = GetServiceRegistration<AchievementBase>(services);
         _ = collection.EnsureIndex(x => x.MemberId);
         _ = collection.EnsureIndex(x => x.GuildId);
         _ = collection.EnsureIndex(x => new { x.GuildId, x.MemberId });

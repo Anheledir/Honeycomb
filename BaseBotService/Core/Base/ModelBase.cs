@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BaseBotService.Core.Base;
 
-public abstract class HCModelBase
+public abstract class ModelBase
 {
     [BsonId]
     public ObjectId Id { get; set; } = null!;
