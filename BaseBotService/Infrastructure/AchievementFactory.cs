@@ -1,4 +1,5 @@
 ﻿using BaseBotService.Core.Base;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BaseBotService.Infrastructure;
 
@@ -16,7 +17,13 @@ public static class AchievementFactory
     /// <returns>A new instance of the specified achievement type, inheriting <see cref="HCAchievementBase"/>.</returns>
     public static T CreateAchievement<T>(ulong userId, ulong? guildId = null) where T : HCAchievementBase
     {
-        T achievement = Activator.CreateInstance<T>();
+        T? achievement = Program.ServiceProvider.GetService<T>();
+        if (achievement == null)
+        {
+            string error = $"Could not create achievement of type {typeof(T).Name}. Make sure the achievement is registered in the DI container.";
+            Program.ServiceProvider.GetRequiredService<ILogger>().Error(error);
+            throw new ArgumentException(error);
+        }
         achievement.MemberId = userId;
         achievement.GuildId = guildId;
         achievement.CreatedAt = Instant.FromDateTimeUtc(DateTime.UtcNow);

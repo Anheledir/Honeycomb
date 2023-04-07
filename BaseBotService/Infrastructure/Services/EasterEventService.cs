@@ -9,7 +9,7 @@ using BaseBotService.Utilities.Extensions;
 using Discord.WebSocket;
 
 namespace BaseBotService.Infrastructure.Services;
-public class EasterEventService
+public class EasterEventService : IEasterEventService
 {
     /// <summary>
     /// The probability of reacting to a message (0.1 = 10%)
@@ -38,6 +38,7 @@ public class EasterEventService
     private readonly DiscordSocketClient _client;
     private readonly IMemberHCRepository _memberHCRepository;
     private readonly ITranslationService _translationService;
+    private readonly Random _random;
 
     public EasterEventService(ILogger logger, IDateTimeProvider dateTime, DiscordSocketClient client, IMemberHCRepository memberHCRepository, ITranslationService translationService)
     {
@@ -46,6 +47,7 @@ public class EasterEventService
         _client = client;
         _memberHCRepository = memberHCRepository;
         _translationService = translationService;
+        _random = new Random();
         logger.Debug($"Initialized {nameof(EasterEventService)}");
     }
 
@@ -55,19 +57,18 @@ public class EasterEventService
 
     public async Task HandleMessageReceivedAsync(MessageReceivedNotification arg)
     {
-        if (arg.Message is not SocketMessage message) return;
+        if (arg.Message.Author.IsBot || arg.Message.Author.IsWebhook || !IsEasterPeriod()) return;
 
-        if (message.Author.IsBot || message.Author.IsWebhook || !IsEasterPeriod()) return;
-
-        var random = new Random();
-        if (random.NextDouble() < ReactionProbability)
+        var rnd = _random.NextDouble();
+        _logger.Debug($"Rolling the dice [{ReactionProbability:P1}]: {rnd} ");
+        if (rnd < ReactionProbability)
         {
             IEmote easterEmoji = new Emoji(_easterEmojis.GetRandomItem());
-            await message.AddReactionAsync(easterEmoji);
+            await arg.Message.AddReactionAsync(easterEmoji);
         }
     }
 
-    internal async Task HandleReactionAddedAsync(ReactionAddedNotification arg)
+    public async Task HandleReactionAddedAsync(ReactionAddedNotification arg)
     {
         // Messages within a DM are not eligible
         var channel = await arg.Channel.GetOrDownloadAsync();
@@ -88,7 +89,7 @@ public class EasterEventService
         if (message.Author.IsBot) return;
 
         // Make sure the initial reaction was made by the bot
-        bool isEventReaction = await message.GetReactionUsersAsync(arg.Reaction.Emote, 2)
+        bool isEventReaction = await message.GetReactionUsersAsync(arg.Reaction.Emote, 50)
             .FlattenAsync()
             .ContinueWith(r => r.Result.Any(u => u.Id == _client.CurrentUser.Id));
         if (!isEventReaction) return;
@@ -112,14 +113,15 @@ public class EasterEventService
         bool update = _memberHCRepository.UpdateUser(memberHC);
         if (!update)
         {
-            _logger.Warning("Could not update user {userid} after adding {@achievement}", memberHC.MemberId, achievement);
+            _logger.Warning($"Could not update user {memberHC.MemberId} after adding {nameof(EasterEventAchievement)}");
         }
         else
         {
-            _logger.Debug("Updated user {userid} after adding {@achievement}", memberHC.MemberId, achievement);
+            _logger.Debug($"Updated user {memberHC.MemberId} after adding {nameof(EasterEventAchievement)}");
         }
 
         // Send achievement notification message at last
-        await user.SendMessageAsync(_translationService.GetAttrString(EasterEventAchievement.TranslationKey, "notification"));
+        var arguments = TranslationHelper.Arguments("username", user.Mention);
+        await message.Channel.SendMessageAsync(_translationService.GetAttrString(EasterEventAchievement.TranslationKey, "notification", arguments));
     }
 }

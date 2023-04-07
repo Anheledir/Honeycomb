@@ -51,7 +51,6 @@ public static class ServiceFactory
             .AddScoped<BotModule>()
 
         // achievements
-            .AddScoped<HCAchievementBase>()
             .AddScoped<EasterEventAchievement>()
 
         // utilities
@@ -60,6 +59,7 @@ public static class ServiceFactory
             .AddSingleton<IEnvironmentService, EnvironmentService>()
             .AddSingleton<IDateTimeProvider, NodaDateTimeService>()
             .AddScoped<IEngagementService, EngagementService>()
+            .AddScoped<IEasterEventService, EasterEventService>()
             .AddSingleton<RateLimiter>()
 
         // data services

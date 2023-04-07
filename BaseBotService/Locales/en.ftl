@@ -159,7 +159,7 @@ achievement-event-easter = Easter { $year }
     .description = You've participated in the Easter event { $year }.
     .emoji = :egg:
     .image = https://i.imgur.com/removed.png
-    .notification = We wish you a happy Easter! :rabbit: :hatching_chick: :hibiscus:
+    .notification = Happy Easter, { $username }! :rabbit: :hatching_chick: :hibiscus:
 
 
 

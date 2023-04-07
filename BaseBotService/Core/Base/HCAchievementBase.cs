@@ -4,7 +4,6 @@ using LiteDB;
 namespace BaseBotService.Core.Base;
 public abstract class HCAchievementBase : HCModelBase
 {
-    protected ITranslationService TranslationService { get; set; } = null!;
     protected Dictionary<string, object>? EventAttributes;
     protected bool IsGlobal => GuildId == null;
 

@@ -1,27 +1,29 @@
-﻿using BaseBotService.Core.Messages;
-using BaseBotService.Infrastructure.Services;
+﻿using BaseBotService.Core.Interfaces;
+using BaseBotService.Core.Messages;
 
 namespace BaseBotService.Interactions;
 public class EasterEventServiceHandlers : INotificationHandler<MessageReceivedNotification>, INotificationHandler<ReactionAddedNotification>
 {
     private readonly ILogger _logger;
-    private readonly EasterEventService _easterEvent;
+    private readonly IEasterEventService _easterEvent;
 
-    public EasterEventServiceHandlers(ILogger logger, EasterEventService easterEvent)
+    public EasterEventServiceHandlers(ILogger logger, IEasterEventService easterEvent)
     {
         _logger = logger.ForContext<EasterEventServiceHandlers>();
         _easterEvent = easterEvent;
     }
 
-    public async Task Handle(MessageReceivedNotification notification, CancellationToken cancellationToken)
+    public Task Handle(MessageReceivedNotification notification, CancellationToken cancellationToken)
     {
-        _logger.Debug("{handler} received {@notification}", nameof(EasterEventServiceHandlers), notification);
-        await _easterEvent.HandleMessageReceivedAsync(notification);
+        _logger.Debug($"{nameof(EasterEventServiceHandlers)} received {nameof(MessageReceivedNotification)}");
+        _easterEvent.HandleMessageReceivedAsync(notification);
+        return Task.CompletedTask;
     }
 
-    public async Task Handle(ReactionAddedNotification notification, CancellationToken cancellationToken)
+    public Task Handle(ReactionAddedNotification notification, CancellationToken cancellationToken)
     {
-        _logger.Debug("{handler} received {@notification}", nameof(EasterEventServiceHandlers), notification);
-        await _easterEvent.HandleReactionAddedAsync(notification);
+        _logger.Debug($"{nameof(EasterEventServiceHandlers)} received {nameof(ReactionAddedNotification)}");
+        _easterEvent.HandleReactionAddedAsync(notification);
+        return Task.CompletedTask;
     }
 }
