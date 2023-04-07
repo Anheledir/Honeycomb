@@ -8,25 +8,17 @@ public class GuildMemberHCRepository : IGuildMemberHCRepository
 {
     private readonly ILiteCollection<GuildMemberHC> _guildMembers;
 
-    public GuildMemberHCRepository(ILiteCollection<GuildMemberHC> guildMembers)
-    {
-        _guildMembers = guildMembers;
-    }
+    public GuildMemberHCRepository(ILiteCollection<GuildMemberHC> guildMembers) => _guildMembers = guildMembers;
 
     public GuildMemberHC GetUser(ulong guildId, ulong userId)
     {
         return _guildMembers.FindOne(a => a.GuildId == guildId && a.MemberId == userId);
     }
 
-    public void AddUser(GuildMemberHC user)
-    {
-        _guildMembers.Insert(user);
-    }
+    public void AddUser(GuildMemberHC user) => _guildMembers.Insert(user);
 
     public bool UpdateUser(GuildMemberHC user)
-    {
-        return _guildMembers.Update(user);
-    }
+    => _guildMembers.Update(user);
 
     public bool DeleteUser(ulong guildId, ulong userId)
     {

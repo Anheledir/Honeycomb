@@ -10,6 +10,7 @@ public class MemberHC : HCModelBase
     public Countries Country { get; set; } = Countries.Unknown;
     public Languages Languages { get; set; } = Languages.Other;
     public Timezone Timezone { get; set; } = Timezone.GMT;
+    public List<HCAchievementBase> Achievements { get; set; } = new();
     public GenderIdentity GenderIdentity { get; set; } = GenderIdentity.Unknown;
 
     public static ILiteCollection<MemberHC> GetServiceRegistration(IServiceProvider services)

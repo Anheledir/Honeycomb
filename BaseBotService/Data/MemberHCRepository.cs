@@ -8,10 +8,7 @@ public class MemberHCRepository : IMemberHCRepository
 {
     private readonly ILiteCollection<MemberHC> _members;
 
-    public MemberHCRepository(ILiteCollection<MemberHC> members)
-    {
-        _members = members;
-    }
+    public MemberHCRepository(ILiteCollection<MemberHC> members) => _members = members;
 
     public MemberHC? GetUser(ulong userId, bool touch = false)
     {
@@ -24,15 +21,9 @@ public class MemberHCRepository : IMemberHCRepository
         return result;
     }
 
-    public void AddUser(MemberHC user)
-    {
-        _members.Insert(user);
-    }
+    public void AddUser(MemberHC user) => _members.Insert(user);
 
-    public bool UpdateUser(MemberHC user)
-    {
-        return _members.Update(user);
-    }
+    public bool UpdateUser(MemberHC user) => _members.Update(user);
 
     public bool DeleteUser(ulong userId)
     {

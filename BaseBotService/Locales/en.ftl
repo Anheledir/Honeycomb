@@ -141,6 +141,29 @@ profile = { $username } @ { $guildname }
 
 
 ####################################
+## Achievements
+####################################
+
+achievements = Achievement: { $name }
+    .title = Achievements
+    .description = You can earn achievements by participating in servers. The more you participate, the more achievements you can earn. You can see your current achievements by using the command `/user achievements`.
+    .no-achievements = You don't have any achievements yet. You can earn achievements by participating in servers. The more you participate, the more achievements you can earn. You can see your current achievements by using the command `/user achievements`.
+    .none-other = { $username } doesn't have any achievements yet.
+    .none-self = You don't have any achievements yet.
+    .issued = { $username } earned the achievement "{ $name }"! { $points ->
+        [one] ({ $points } point)
+       *[other] ({ $points } points)
+    }
+
+achievement-event-easter = Easter { $year }
+    .description = You've participated in the Easter event { $year }.
+    .emoji = :egg:
+    .image = https://i.imgur.com/removed.png
+    .notification = We wish you a happy Easter! :rabbit: :hatching_chick: :hibiscus:
+
+
+
+####################################
 ## Utilities
 ####################################
 

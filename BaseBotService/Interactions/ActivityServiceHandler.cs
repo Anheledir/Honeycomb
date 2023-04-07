@@ -2,11 +2,11 @@
 using Discord.WebSocket;
 
 namespace BaseBotService.Interactions;
-public class ActivityHandler : INotificationHandler<ClientReadyNotification>
+public class ActivityServiceHandler : INotificationHandler<ClientReadyNotification>
 {
     private readonly DiscordSocketClient _client;
 
-    public ActivityHandler(DiscordSocketClient client)
+    public ActivityServiceHandler(DiscordSocketClient client)
     {
         _client = client;
     }

@@ -1,10 +1,12 @@
 ﻿using BaseBotService.Commands;
 using BaseBotService.Commands.Interfaces;
 using BaseBotService.Core;
+using BaseBotService.Core.Base;
 using BaseBotService.Core.Interfaces;
 using BaseBotService.Data;
 using BaseBotService.Data.Interfaces;
 using BaseBotService.Data.Models;
+using BaseBotService.Infrastructure.Achievements;
 using BaseBotService.Infrastructure.Services;
 using BaseBotService.Utilities;
 using Discord.WebSocket;
@@ -48,10 +50,15 @@ public static class ServiceFactory
             .AddScoped<UserModule>()
             .AddScoped<BotModule>()
 
+        // achievements
+            .AddScoped<HCAchievementBase>()
+            .AddScoped<EasterEventAchievement>()
+
         // utilities
             .AddSingleton<ITranslationService>(_ => new TranslationService(TranslationFactory.CreateMessageContexts()))
             .AddSingleton<IAssemblyService, AssemblyService>()
             .AddSingleton<IEnvironmentService, EnvironmentService>()
+            .AddSingleton<IDateTimeProvider, NodaDateTimeService>()
             .AddScoped<IEngagementService, EngagementService>()
             .AddSingleton<RateLimiter>()
 
@@ -59,12 +66,15 @@ public static class ServiceFactory
             .AddSingleton<IPersistenceService, PersistenceService>()
 
         // data repositories
+            .AddSingleton<IGuildHCRepository, GuildHCRepository>()
             .AddSingleton<IGuildMemberHCRepository, GuildMemberHCRepository>()
             .AddSingleton<IMemberHCRepository, MemberHCRepository>()
 
         // data models
+            .AddScoped(GuildHC.GetServiceRegistration)
             .AddScoped(MemberHC.GetServiceRegistration)
-            .AddScoped(GuildMemberHC.GetServiceRegistration);
+            .AddScoped(GuildMemberHC.GetServiceRegistration)
+            .AddScoped(HCAchievementBase.GetServiceRegistration);
 
         return services.BuildServiceProvider();
     }

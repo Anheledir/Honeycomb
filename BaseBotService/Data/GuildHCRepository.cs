@@ -8,10 +8,7 @@ public class GuildHCRepository : IGuildHCRepository
 {
     private readonly ILiteCollection<GuildHC> _guilds;
 
-    public GuildHCRepository(ILiteCollection<GuildHC> guilds)
-    {
-        _guilds = guilds;
-    }
+    public GuildHCRepository(ILiteCollection<GuildHC> guilds) => _guilds = guilds;
 
     public GuildHC? GetGuild(ulong guildId, bool touch = false)
     {
@@ -24,15 +21,9 @@ public class GuildHCRepository : IGuildHCRepository
         return guild;
     }
 
-    public void AddGuild(GuildHC guild)
-    {
-        _guilds.Insert(guild);
-    }
+    public void AddGuild(GuildHC guild) => _guilds.Insert(guild);
 
-    public bool UpdateGuild(GuildHC guild)
-    {
-        return _guilds.Update(guild);
-    }
+    public bool UpdateGuild(GuildHC guild) => _guilds.Update(guild);
 
     public bool DeleteGuild(ulong guildId)
     {
