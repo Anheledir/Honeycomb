@@ -1,15 +1,15 @@
-﻿using BaseBotService.Data;
-using BaseBotService.Data.Interfaces;
+﻿using BaseBotService.Data.Interfaces;
 using BaseBotService.Data.Models;
+using BaseBotService.Data.Repositories;
 using LiteDB;
 
-namespace BaseBotService.Tests.Data;
+namespace BaseBotService.Tests.Data.Repositories;
 
 [TestFixture]
-public class GuildHCRepositoryTests
+public class GuildRepositoryTests
 {
     private ILiteCollection<GuildHC> _guilds;
-    private IGuildHCRepository _repository;
+    private IGuildRepository _repository;
     private Faker<GuildHC> _guildFaker;
     private readonly Faker _faker = new();
 
@@ -19,7 +19,7 @@ public class GuildHCRepositoryTests
         var db = new LiteDatabase(":memory:");
         _guilds = db.GetCollection<GuildHC>("guilds");
 
-        _repository = new GuildHCRepository(_guilds);
+        _repository = new GuildRepository(_guilds);
 
         _guildFaker = new Faker<GuildHC>()
             .RuleFor(g => g.GuildId, f => f.Random.ULong())

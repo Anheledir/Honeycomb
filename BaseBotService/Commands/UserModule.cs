@@ -19,9 +19,9 @@ public class UserModule : BaseModule
 {
     private readonly ITranslationService _translationService;
     private readonly IEngagementService _engagementService;
-    private readonly IMemberHCRepository _memberRepository;
+    private readonly IMemberRepository _memberRepository;
 
-    public UserModule(ILogger logger, ITranslationService translationService, IEngagementService engagementService, IMemberHCRepository memberRepository)
+    public UserModule(ILogger logger, ITranslationService translationService, IEngagementService engagementService, IMemberRepository memberRepository)
     {
         Logger = logger.ForContext<UserModule>();
         _translationService = translationService;

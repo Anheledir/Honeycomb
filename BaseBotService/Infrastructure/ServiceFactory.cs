@@ -6,6 +6,7 @@ using BaseBotService.Core.Interfaces;
 using BaseBotService.Data;
 using BaseBotService.Data.Interfaces;
 using BaseBotService.Data.Models;
+using BaseBotService.Data.Repositories;
 using BaseBotService.Infrastructure.Achievements;
 using BaseBotService.Infrastructure.Services;
 using BaseBotService.Utilities;
@@ -67,9 +68,9 @@ public static class ServiceFactory
             .AddSingleton<MigrationManager>()
 
         // data repositories
-            .AddSingleton<IGuildHCRepository, GuildHCRepository>()
-            .AddSingleton<IGuildMemberHCRepository, GuildMemberHCRepository>()
-            .AddSingleton<IMemberHCRepository, MemberHCRepository>()
+            .AddSingleton<IGuildRepository, GuildRepository>()
+            .AddSingleton<IGuildMemberRepository, GuildMemberRepository>()
+            .AddSingleton<IMemberRepository, MemberRepository>()
 
         // data models
             .AddScoped(GuildHC.GetServiceRegistration)

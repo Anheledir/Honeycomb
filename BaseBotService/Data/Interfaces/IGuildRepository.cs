@@ -5,7 +5,7 @@ namespace BaseBotService.Data.Interfaces;
 /// <summary>
 /// Represents a repository for managing GuildHC objects.
 /// </summary>
-public interface IGuildHCRepository
+public interface IGuildRepository
 {
     /// <summary>
     /// Retrieves a GuildHC object by its guild ID.

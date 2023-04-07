@@ -36,11 +36,11 @@ public class EasterEventService : IEasterEventService
     private readonly ILogger _logger;
     private readonly IDateTimeProvider _dateTime;
     private readonly DiscordSocketClient _client;
-    private readonly IMemberHCRepository _memberHCRepository;
+    private readonly IMemberRepository _memberHCRepository;
     private readonly ITranslationService _translationService;
     private readonly Random _random;
 
-    public EasterEventService(ILogger logger, IDateTimeProvider dateTime, DiscordSocketClient client, IMemberHCRepository memberHCRepository, ITranslationService translationService)
+    public EasterEventService(ILogger logger, IDateTimeProvider dateTime, DiscordSocketClient client, IMemberRepository memberHCRepository, ITranslationService translationService)
     {
         _logger = logger.ForContext<EasterEventService>();
         _dateTime = dateTime;

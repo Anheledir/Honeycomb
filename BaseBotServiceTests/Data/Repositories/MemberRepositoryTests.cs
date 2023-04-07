@@ -1,16 +1,16 @@
 ﻿using BaseBotService.Commands.Enums;
-using BaseBotService.Data;
 using BaseBotService.Data.Interfaces;
 using BaseBotService.Data.Models;
+using BaseBotService.Data.Repositories;
 using LiteDB;
 
-namespace BaseBotService.Tests.Data;
+namespace BaseBotService.Tests.Data.Repositories;
 
 [TestFixture]
-public class MemberHCRepositoryTests
+public class MemberRepositoryTests
 {
     private ILiteCollection<MemberHC> _members;
-    private IMemberHCRepository _repository;
+    private IMemberRepository _repository;
     private Faker<MemberHC> _memberFaker;
     private readonly Faker _faker = new();
 
@@ -20,7 +20,7 @@ public class MemberHCRepositoryTests
         var db = new LiteDatabase(":memory:");
         _members = db.GetCollection<MemberHC>("members");
 
-        _repository = new MemberHCRepository(_members);
+        _repository = new MemberRepository(_members);
 
         _memberFaker = new Faker<MemberHC>()
             .RuleFor(u => u.MemberId, f => f.Random.ULong())

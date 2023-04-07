@@ -5,7 +5,7 @@ namespace BaseBotService.Data.Interfaces;
 /// <summary>
 /// Interface for the MemberHC repository, providing CRUD operations for MemberHC entities.
 /// </summary>
-public interface IMemberHCRepository
+public interface IMemberRepository
 {
     /// <summary>
     /// Retrieves a MemberHC entity by its user ID.

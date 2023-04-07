@@ -2,13 +2,13 @@
 using BaseBotService.Data.Models;
 using LiteDB;
 
-namespace BaseBotService.Data;
+namespace BaseBotService.Data.Repositories;
 
-public class GuildMemberHCRepository : IGuildMemberHCRepository
+public class GuildMemberRepository : IGuildMemberRepository
 {
     private readonly ILiteCollection<GuildMemberHC> _guildMembers;
 
-    public GuildMemberHCRepository(ILiteCollection<GuildMemberHC> guildMembers) => _guildMembers = guildMembers;
+    public GuildMemberRepository(ILiteCollection<GuildMemberHC> guildMembers) => _guildMembers = guildMembers;
 
     public GuildMemberHC GetUser(ulong guildId, ulong userId)
     {

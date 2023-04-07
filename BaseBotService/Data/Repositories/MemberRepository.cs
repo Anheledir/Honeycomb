@@ -2,13 +2,13 @@
 using BaseBotService.Data.Models;
 using LiteDB;
 
-namespace BaseBotService.Data;
+namespace BaseBotService.Data.Repositories;
 
-public class MemberHCRepository : IMemberHCRepository
+public class MemberRepository : IMemberRepository
 {
     private readonly ILiteCollection<MemberHC> _members;
 
-    public MemberHCRepository(ILiteCollection<MemberHC> members) => _members = members;
+    public MemberRepository(ILiteCollection<MemberHC> members) => _members = members;
 
     public MemberHC? GetUser(ulong userId, bool touch = false)
     {

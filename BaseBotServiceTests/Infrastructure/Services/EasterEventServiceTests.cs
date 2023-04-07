@@ -15,7 +15,7 @@ public class EasterEventServiceTests
     private ILogger _logger;
     private IDateTimeProvider _dateTime;
     private DiscordSocketClient _client;
-    private IMemberHCRepository _memberHCRepository;
+    private IMemberRepository _memberHCRepository;
     private ITranslationService _translationService;
     private Faker _faker;
 
@@ -25,7 +25,7 @@ public class EasterEventServiceTests
         _logger = Substitute.For<ILogger>();
         _dateTime = Substitute.For<IDateTimeProvider>();
         _client = Substitute.For<DiscordSocketClient>();
-        _memberHCRepository = Substitute.For<IMemberHCRepository>();
+        _memberHCRepository = Substitute.For<IMemberRepository>();
         _translationService = Substitute.For<ITranslationService>();
 
         _easterEventService = new EasterEventService(_logger, _dateTime, _client, _memberHCRepository, _translationService);
