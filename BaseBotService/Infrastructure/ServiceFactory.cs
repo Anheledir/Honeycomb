@@ -51,9 +51,6 @@ public static class ServiceFactory
             .AddScoped<UserModule>()
             .AddScoped<BotModule>()
 
-        // achievements
-            .AddScoped<EasterEventAchievement>()
-
         // utilities
             .AddSingleton<ITranslationService>(_ => new TranslationService(TranslationFactory.CreateMessageContexts()))
             .AddSingleton<IAssemblyService, AssemblyService>()
@@ -71,6 +68,12 @@ public static class ServiceFactory
             .AddSingleton<IGuildRepository, GuildRepository>()
             .AddSingleton<IGuildMemberRepository, GuildMemberRepository>()
             .AddSingleton<IMemberRepository, MemberRepository>()
+            .AddSingleton(typeof(IAchievementRepository<>), typeof(AchievementRepository<>))
+
+        // data achievement models
+            .AddScoped(AchievementBase.GetServiceRegistration)
+            .AddScoped<AchievementBase, EasterEventAchievement>()
+            .AddScoped<EasterEventAchievement>()
 
         // data models
             .AddScoped(GuildHC.GetServiceRegistration)

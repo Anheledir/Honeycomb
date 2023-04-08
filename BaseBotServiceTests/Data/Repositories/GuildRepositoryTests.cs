@@ -10,31 +10,22 @@ public class GuildRepositoryTests
 {
     private ILiteCollection<GuildHC> _guilds;
     private IGuildRepository _repository;
-    private Faker<GuildHC> _guildFaker;
     private readonly Faker _faker = new();
 
     [SetUp]
     public void SetUp()
     {
-        var db = new LiteDatabase(":memory:");
-        _guilds = db.GetCollection<GuildHC>("guilds");
+        LiteDatabase db = FakeDataHelper.GetTestDatabase();
+        _guilds = db.GetCollection<GuildHC>();
 
         _repository = new GuildRepository(_guilds);
-
-        _guildFaker = new Faker<GuildHC>()
-            .RuleFor(g => g.GuildId, f => f.Random.ULong())
-            .RuleFor(g => g.ActivityPointsAverageActiveHours, f => f.Random.Int(1, 12))
-            .RuleFor(g => g.ActivityPointsName, f => f.Commerce.ProductName())
-            .RuleFor(g => g.ActivityPointsSymbol, _ => FakeDataHelper.RandomEmoji())
-            .RuleFor(g => g.ArtistRoles, _ => FakeDataHelper.GenerateRandomUlongList())
-            .RuleFor(g => g.ModeratorRoles, _ => FakeDataHelper.GenerateRandomUlongList());
     }
 
     [Test]
     public void GetGuild_WhenGuildExists_ReturnsGuild()
     {
         // Arrange
-        var guild = _guildFaker.Generate();
+        var guild = FakeDataHelper.GuildFaker.Generate();
         _guilds.Insert(guild);
 
         // Act
@@ -42,7 +33,7 @@ public class GuildRepositoryTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.Should().BeEquivalentTo(guild);
+        result.Should().BeEquivalentTo(guild, o => o.Excluding(g => g.GuildMembers));
     }
 
     [Test]
@@ -76,7 +67,7 @@ public class GuildRepositoryTests
     public void AddGuild_AddsGuildToCollection()
     {
         // Arrange
-        var newGuild = _guildFaker.Generate();
+        var newGuild = FakeDataHelper.GuildFaker.Generate();
 
         // Act
         _repository.AddGuild(newGuild);
@@ -84,14 +75,15 @@ public class GuildRepositoryTests
         // Assert
         var result = _guilds.FindOne(g => g.GuildId == newGuild.GuildId);
         result.ShouldNotBeNull();
-        result.Should().BeEquivalentTo(newGuild);
+        result.Should().BeEquivalentTo(newGuild, o => o.Excluding(g => g.GuildMembers));
     }
 
     [Test]
     public void UpdateGuild_UpdatesGuildInCollection()
     {
         // Arrange
-        var existingGuild = _guildFaker.Generate();
+        var existingGuild = FakeDataHelper.GuildFaker.Generate();
+
         _guilds.Insert(existingGuild);
 
         existingGuild.ActivityPointsAverageActiveHours += 2;
@@ -107,14 +99,14 @@ public class GuildRepositoryTests
         result.ShouldBeTrue();
         var updatedGuild = _guilds.FindOne(g => g.GuildId == existingGuild.GuildId);
         updatedGuild.ShouldNotBeNull();
-        updatedGuild.Should().BeEquivalentTo(existingGuild);
+        updatedGuild.Should().BeEquivalentTo(existingGuild, o => o.Excluding(g => g.GuildMembers));
     }
 
     [Test]
     public void DeleteGuild_WhenGuildExists_DeletesGuildFromCollection()
     {
         // Arrange
-        var existingGuild = _guildFaker.Generate();
+        var existingGuild = FakeDataHelper.GuildFaker.Generate();
         _guilds.Insert(existingGuild);
 
         // Act

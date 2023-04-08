@@ -1,10 +1,58 @@
-﻿namespace BaseBotService.Tests;
+﻿using BaseBotService.Commands.Enums;
+using BaseBotService.Core.Base;
+using BaseBotService.Data;
+using BaseBotService.Data.Models;
+using BaseBotService.Infrastructure.Achievements;
+using Bogus;
+using LiteDB;
+
+namespace BaseBotService.Tests;
 
 /// <summary>
 /// A helper class for generating fake data, such as random emoji and lists of random ulong values.
 /// </summary>
 public static class FakeDataHelper
 {
+    public static LiteDatabase GetTestDatabase()
+    {
+        var mapper = new BsonMapper();
+        CollectionMapper.RegisterCollections(ref mapper);
+        return new LiteDatabase(":memory:", mapper);
+    }
+
+    public static Faker<EasterEventAchievement> GetEasterEventFaker(MemberHC member, GuildHC guild) => new Faker<EasterEventAchievement>()
+            .RuleFor(a => a.Id, _ => ObjectId.NewObjectId())
+            .RuleFor(a => a.Member, _ => member)
+            .RuleFor(a => a.Guild, _ => guild)
+            .RuleFor(a => a.CreatedAt, f => Instant.FromDateTimeUtc(f.Date.Past(1)));
+
+    public static Faker<MemberHC> MemberFaker => new Faker<MemberHC>()
+            .RuleFor(u => u.Id, _ => ObjectId.NewObjectId())
+            .RuleFor(u => u.MemberId, f => f.Random.ULong())
+            .RuleFor(u => u.Timezone, f => f.Random.Enum<Timezone>())
+            .RuleFor(u => u.Country, f => f.Random.Enum<Countries>())
+            .RuleFor(u => u.Languages, f => f.Random.Enum<Languages>())
+            .RuleFor(u => u.Birthday, f => f.Date.Between(DateTime.Today.AddYears(-50), DateTime.Today.AddYears(-13)))
+            .RuleFor(u => u.GenderIdentity, f => f.Random.Enum<GenderIdentity>());
+
+    public static Faker<GuildMemberHC> GetGuildMemberFaker(GuildHC guild, MemberHC member) => new Faker<GuildMemberHC>()
+            .RuleFor(u => u.Id, _ => ObjectId.NewObjectId())
+            .RuleFor(u => u.Member, _ => member)
+            .RuleFor(u => u.Guild, _ => guild)
+            .RuleFor(u => u.ActivityPoints, f => f.Random.UInt())
+            .RuleFor(u => u.LastActive, f => f.Date.Recent())
+            .RuleFor(u => u.LastActivityPoint, f => f.Date.Recent());
+
+    public static Faker<GuildHC> GuildFaker => new Faker<GuildHC>()
+            .RuleFor(g => g.Id, _ => ObjectId.NewObjectId())
+            .RuleFor(g => g.GuildId, f => f.Random.ULong())
+            .RuleFor(g => g.ActivityPointsAverageActiveHours, f => f.Random.Int(1, 12))
+            .RuleFor(g => g.ActivityPointsName, f => f.Commerce.ProductName())
+            .RuleFor(g => g.ActivityPointsSymbol, _ => RandomEmoji())
+            .RuleFor(g => g.ArtistRoles, _ => GenerateRandomUlongList())
+            .RuleFor(g => g.ModeratorRoles, _ => GenerateRandomUlongList())
+            .FinishWith((_, g) => g.GuildMembers = GetGuildMemberFaker(g, MemberFaker.Generate()).GenerateBetween(1, 5).ToList());
+
     /// <summary>
     /// Generates a list of random ulong values with a random length between the specified min and max bounds (inclusive).
     /// </summary>

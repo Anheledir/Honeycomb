@@ -16,7 +16,11 @@ public class GuildHC : ModelBase
 
     public GuildHC()
     {
-        Settings = GuildSettings.EnableActivityPoints | GuildSettings.EnableUserProfilesGenderIdentity | GuildSettings.EnableUserProfilesBirthday | GuildSettings.EnablePublicUserProfiles;
+        Settings = GuildSettings.EnableActivityPoints
+            | GuildSettings.EnableUserProfilesGenderIdentity
+            | GuildSettings.EnableUserProfilesBirthday
+            | GuildSettings.EnablePublicUserProfiles
+            | GuildSettings.EnableGlobalEvents;
         ModeratorRoles = new List<ulong>();
         ArtistRoles = new List<ulong>();
     }

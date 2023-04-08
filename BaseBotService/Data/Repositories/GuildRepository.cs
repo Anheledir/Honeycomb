@@ -12,11 +12,13 @@ public class GuildRepository : IGuildRepository
 
     public GuildHC? GetGuild(ulong guildId, bool touch = false)
     {
-        GuildHC? guild = _guilds.FindOne(g => g.GuildId == guildId);
+        GuildHC? guild = _guilds
+            .Include(m => m.GuildMembers)
+            .FindOne(g => g.GuildId == guildId);
         if (guild == null && touch)
         {
             _guilds.Insert(new GuildHC { GuildId = guildId });
-            guild = _guilds.FindOne(a => a.GuildId == guildId);
+            return GetGuild(guildId, false);
         }
         return guild;
     }

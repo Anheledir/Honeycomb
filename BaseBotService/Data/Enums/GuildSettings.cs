@@ -30,4 +30,9 @@ public enum GuildSettings
     /// Enables public visibility for user profiles.
     /// </summary>
     EnablePublicUserProfiles = 1 << 3,
+
+    /// <summary>
+    /// Enable global events within the guild.
+    /// </summary>
+    EnableGlobalEvents = 1 << 4,
 }

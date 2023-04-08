@@ -11,6 +11,7 @@ public class MemberHC : ModelBase
     public Languages Languages { get; set; } = Languages.Other;
     public Timezone Timezone { get; set; } = Timezone.GMT;
     public List<AchievementBase> Achievements { get; set; } = new();
+    public List<T> GetAchievements<T>() where T : AchievementBase => Achievements.OfType<T>().ToList();
     public GenderIdentity GenderIdentity { get; set; } = GenderIdentity.Unknown;
 
     public static ILiteCollection<MemberHC> GetServiceRegistration(IServiceProvider services)

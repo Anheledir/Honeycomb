@@ -1,4 +1,5 @@
 ﻿using BaseBotService.Core.Base;
+using BaseBotService.Data.Models;
 using BaseBotService.Infrastructure;
 using Serilog;
 
@@ -6,13 +7,11 @@ namespace BaseBotService.Tests.Infrastructure;
 
 public class AchievementFactoryTests
 {
-    private Faker _faker;
     private IServiceProvider _serviceProvider;
 
     [SetUp]
     public void SetUp()
     {
-        _faker = new Faker();
         _serviceProvider = Substitute.For<IServiceProvider>();
         _serviceProvider.GetService(typeof(CustomHCAchievement)).Returns(new CustomHCAchievement());
         _serviceProvider.GetService(typeof(ILogger)).Returns(Substitute.For<ILogger>());
@@ -23,16 +22,15 @@ public class AchievementFactoryTests
     public void CreateAchievement_ShouldCreateValidAchievement()
     {
         // Arrange
-        ulong userId = _faker.Random.ULong();
-        ulong guildId = _faker.Random.ULong();
+        GuildMemberHC guildMember = FakeDataHelper.GuildFaker.Generate().GuildMembers[0];
 
         // Act
-        var achievement = AchievementFactory.CreateAchievement<CustomHCAchievement>(userId, guildId);
+        var achievement = AchievementFactory.CreateAchievement<CustomHCAchievement>(guildMember);
 
         // Assert
         achievement.ShouldNotBeNull();
-        achievement.MemberId.ShouldBe(userId);
-        achievement.GuildId.ShouldBe(guildId);
+        achievement.MemberId.ShouldBe(guildMember.MemberId);
+        achievement.GuildId.ShouldBe(guildMember.GuildId);
         achievement.CreatedAt.ShouldBeLessThanOrEqualTo(SystemClock.Instance.GetCurrentInstant());
     }
 
@@ -40,14 +38,14 @@ public class AchievementFactoryTests
     public void CreateAchievement_WithNoGuildId_ShouldCreateValidGlobalAchievement()
     {
         // Arrange
-        ulong userId = _faker.Random.ULong();
+        MemberHC member = FakeDataHelper.MemberFaker.Generate();
 
         // Act
-        var achievement = AchievementFactory.CreateAchievement<CustomHCAchievement>(userId, null);
+        var achievement = AchievementFactory.CreateAchievement<CustomHCAchievement>(member);
 
         // Assert
         achievement.ShouldNotBeNull();
-        achievement.MemberId.ShouldBe(userId);
+        achievement.MemberId.ShouldBe(member.MemberId);
         achievement.GuildId.ShouldBeNull();
         achievement.CreatedAt.ShouldBeLessThanOrEqualTo(SystemClock.Instance.GetCurrentInstant());
     }

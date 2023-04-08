@@ -1,6 +1,8 @@
-﻿using BaseBotService.Core.Interfaces;
+﻿using BaseBotService.Commands.Interfaces;
+using BaseBotService.Core.Interfaces;
 using BaseBotService.Core.Messages;
 using BaseBotService.Data.Interfaces;
+using BaseBotService.Infrastructure.Achievements;
 using BaseBotService.Infrastructure.Services;
 using BaseBotService.Utilities.Extensions;
 using Discord;
@@ -17,6 +19,9 @@ public class EasterEventServiceTests
     private DiscordSocketClient _client;
     private IMemberRepository _memberHCRepository;
     private ITranslationService _translationService;
+    private IAchievementRepository<EasterEventAchievement> _achievementRepository;
+    private IGuildMemberRepository _guildMemberHCRepository;
+    private IEngagementService _engagementService;
     private Faker _faker;
 
     [SetUp]
@@ -27,8 +32,11 @@ public class EasterEventServiceTests
         _client = Substitute.For<DiscordSocketClient>();
         _memberHCRepository = Substitute.For<IMemberRepository>();
         _translationService = Substitute.For<ITranslationService>();
+        _achievementRepository = Substitute.For<IAchievementRepository<EasterEventAchievement>>();
+        _guildMemberHCRepository = Substitute.For<IGuildMemberRepository>();
+        _engagementService = Substitute.For<IEngagementService>();
 
-        _easterEventService = new EasterEventService(_logger, _dateTime, _client, _memberHCRepository, _translationService);
+        _easterEventService = new EasterEventService(_logger, _dateTime, _client, _memberHCRepository, _translationService, _achievementRepository, _guildMemberHCRepository, _engagementService);
 
         _faker = new Faker();
     }

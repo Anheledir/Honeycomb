@@ -1,4 +1,5 @@
 ﻿using BaseBotService.Core.Base;
+using BaseBotService.Data.Models;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BaseBotService.Infrastructure;
@@ -8,14 +9,20 @@ namespace BaseBotService.Infrastructure;
 /// </summary>
 public static class AchievementFactory
 {
+    public static T CreateAchievement<T>(MemberHC user)
+        where T : AchievementBase
+        => CreateAchievement<T>(user, null);
+
+    public static T CreateAchievement<T>(GuildMemberHC guildUser)
+        where T : AchievementBase
+        => CreateAchievement<T>(guildUser.Member, guildUser.Guild);
+
     /// <summary>
     /// Creates a new achievement of the specified type.
     /// </summary>
     /// <typeparam name="T">The type of the achievement. Must inherit <see cref="AchievementBase"/>.</typeparam>
-    /// <param name="userId">The discord id of the user getting the achievement.</param>
-    /// <param name="guildId">The discord id of the guild where the achievement was attributed to the user. Can be null for global achievements.</param>
     /// <returns>A new instance of the specified achievement type, inheriting <see cref="AchievementBase"/>.</returns>
-    public static T CreateAchievement<T>(ulong userId, ulong? guildId = null) where T : AchievementBase
+    private static T CreateAchievement<T>(MemberHC user, GuildHC? guild) where T : AchievementBase
     {
         T? achievement = (T?)Program.ServiceProvider.GetService(typeof(T));
         if (achievement == null)
@@ -24,8 +31,10 @@ public static class AchievementFactory
             Program.ServiceProvider.GetRequiredService<ILogger>().Error(error);
             throw new ArgumentException(error);
         }
-        achievement.MemberId = userId;
-        achievement.GuildId = guildId;
+        achievement.MemberId = user.MemberId;
+        achievement.GuildId = guild?.GuildId;
+        achievement.Member = user;
+        achievement.Guild = guild;
         achievement.CreatedAt = Instant.FromDateTimeUtc(DateTime.UtcNow);
         return achievement;
     }

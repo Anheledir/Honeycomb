@@ -11,9 +11,10 @@ public class GuildMemberRepository : IGuildMemberRepository
     public GuildMemberRepository(ILiteCollection<GuildMemberHC> guildMembers) => _guildMembers = guildMembers;
 
     public GuildMemberHC GetUser(ulong guildId, ulong userId)
-    {
-        return _guildMembers.FindOne(a => a.GuildId == guildId && a.MemberId == userId);
-    }
+        => _guildMembers
+            .Include(u => u.Member)
+            .Include(g => g.Guild)
+            .FindOne(a => a.GuildId == guildId && a.MemberId == userId);
 
     public void AddUser(GuildMemberHC user) => _guildMembers.Insert(user);
 

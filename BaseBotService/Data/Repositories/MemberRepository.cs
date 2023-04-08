@@ -12,7 +12,9 @@ public class MemberRepository : IMemberRepository
 
     public MemberHC? GetUser(ulong userId, bool touch = false)
     {
-        MemberHC? result = _members.FindOne(a => a.MemberId == userId);
+        MemberHC? result = _members
+            .Include(a => a.Achievements)
+            .FindOne(a => a.MemberId == userId);
         if (touch && result == null)
         {
             _members.Insert(new MemberHC { MemberId = userId });

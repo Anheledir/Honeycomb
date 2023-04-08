@@ -5,8 +5,8 @@ using BaseBotService.Utilities;
 namespace BaseBotService.Infrastructure.Achievements;
 public class EasterEventAchievement : AchievementBase
 {
-    public const string Identifier = "0077B1DF-0E12-4E05-91B1-05A9E9E88248";
-    public const string TranslationKey = "achievement-event-easter";
+    public static new string Identifier => "0077B1DF-0E12-4E05-91B1-05A9E9E88248";
+    public static new string TranslationKey => "achievement-event-easter";
 
     public EasterEventAchievement(ILogger logger, ITranslationService translationService, IDateTimeProvider dateTimeProvider)
     {

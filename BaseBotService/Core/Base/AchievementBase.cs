@@ -1,11 +1,13 @@
-﻿using BaseBotService.Core.Interfaces;
-using BaseBotService.Data.Models;
+﻿using BaseBotService.Data.Models;
 using LiteDB;
 
 namespace BaseBotService.Core.Base;
 public abstract class AchievementBase : ModelBase
 {
     protected Dictionary<string, object>? EventAttributes;
+    private MemberHC _member = null!;
+    private GuildHC? _guild;
+
     protected bool IsGlobal => GuildId == null;
 
     public ulong MemberId { get; set; }
@@ -17,8 +19,26 @@ public abstract class AchievementBase : ModelBase
     public int Points { get; set; }
     public string? ImageUrl { get; set; }
     public Guid SourceIdentifier { get; set; }
-    public MemberHC Member { get; set; } = null!;
-    public GuildHC? Guild { get; set; }
+    public MemberHC Member
+    {
+        get => _member;
+        set
+        {
+            _member = value;
+            MemberId = value.MemberId;
+        }
+    }
+    public GuildHC? Guild
+    {
+        get => _guild;
+        set
+        {
+            _guild = value;
+            GuildId = _guild?.GuildId;
+        }
+    }
+    public static string Identifier => "00000000-0000-0000-0000-000000000000";
+    public static string TranslationKey => "achievement";
 
     public static ILiteCollection<AchievementBase> GetServiceRegistration(IServiceProvider services)
     {
