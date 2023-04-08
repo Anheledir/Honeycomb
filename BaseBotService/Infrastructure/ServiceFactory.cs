@@ -64,7 +64,7 @@ public static class ServiceFactory
         // data services
             .AddSingleton<IPersistenceService, PersistenceService>()
             .AddSingleton<MigrationManager>()
-            .AddAllImplementationsOf<IMigrationChangeset>(typeof(IMigrationChangeset).Assembly)
+            .AddAllImplementationsOf<IMigrationChangeset>(typeof(IMigrationChangeset).Assembly, ServiceLifetime.Singleton)
 
         // data repositories
             .AddSingleton<IGuildRepository, GuildRepository>()

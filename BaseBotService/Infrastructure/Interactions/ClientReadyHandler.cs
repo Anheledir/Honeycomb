@@ -1,6 +1,8 @@
 ﻿using BaseBotService.Core.Enums;
 using BaseBotService.Core.Interfaces;
 using BaseBotService.Core.Messages;
+using BaseBotService.Infrastructure.Achievements;
+using BaseBotService.Infrastructure.Services;
 
 namespace BaseBotService.Infrastructure.Interactions;
 
@@ -10,13 +12,17 @@ public class ClientReadyHandler : INotificationHandler<ClientReadyNotification>
     private readonly IEnvironmentService _environmentService;
     private readonly IAssemblyService _assemblyService;
     private readonly InteractionService _interactionService;
+    private readonly ITranslationService _translationService;
+    private readonly IMediator _mediator;
 
-    public ClientReadyHandler(ILogger logger, IEnvironmentService environmentService, IAssemblyService assemblyService, InteractionService interactionService)
+    public ClientReadyHandler(ILogger logger, IEnvironmentService environmentService, IAssemblyService assemblyService, InteractionService interactionService, ITranslationService translationService, IMediator mediator)
     {
         _logger = logger.ForContext<ClientReadyHandler>();
         _environmentService = environmentService;
         _assemblyService = assemblyService;
         _interactionService = interactionService;
+        _translationService = translationService;
+        _mediator = mediator;
     }
 
     public async Task Handle(ClientReadyNotification notification, CancellationToken cancellationToken)
@@ -46,5 +52,12 @@ public class ClientReadyHandler : INotificationHandler<ClientReadyNotification>
                 _ = await _interactionService.RegisterCommandsGloballyAsync(true);
                 break;
         }
+
+        await _mediator.Publish(new UpdateActivityNotification
+        {
+            ActivityType = ActivityType.CustomStatus,
+            Status = UserStatus.Online,
+            Description = _translationService.GetString("default-activity")
+        }, cancellationToken);
     }
 }

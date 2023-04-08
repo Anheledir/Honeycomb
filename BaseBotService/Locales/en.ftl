@@ -160,6 +160,14 @@ achievement-event-easter = Easter { $year }
     .emoji = :egg:
     .image = https://i.imgur.com/removed.png
     .notification = Happy Easter, { $username }! :rabbit: :hatching_chick: :hibiscus:
+    .activity = Happy Easter! :rabbit: :hatching_chick: :hibiscus:
+
+
+
+####################################
+## Activities
+####################################
+default-activity = { bot.website }
 
 
 

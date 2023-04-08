@@ -21,7 +21,7 @@ internal class ChangeSet20230408V1 : IMigrationChangeset
         _guildMemberHC = guildMemberHC;
     }
 
-    public async Task<bool> ApplyChangeset(ILiteDatabase db, int dbVersion)
+    public bool ApplyChangeset(ILiteDatabase db, int dbVersion)
     {
         if (dbVersion != Version)
         {
@@ -31,35 +31,32 @@ internal class ChangeSet20230408V1 : IMigrationChangeset
 
         try
         {
-            await Task.Run(() =>
+            _logger.Debug("Initializing the modified MemberHC property 'Achievements'.");
+            foreach (MemberHC? member in _memberHC.FindAll().ToList())
             {
-                _logger.Debug("Initializing the modified MemberHC property 'Achievements'.");
-                foreach (MemberHC? member in _memberHC.FindAll().ToList())
-                {
-                    if (member == null) continue;
+                if (member == null) continue;
 
-                    member.Achievements = new List<AchievementBase>();
-                }
+                member.Achievements = new List<AchievementBase>();
+            }
 
-                _logger.Debug("Populating the new GuildMemberHC properties 'Member' and 'Guild'.");
-                foreach (GuildMemberHC? guildMember in _guildMemberHC.FindAll().ToList())
-                {
-                    if (guildMember == null) continue;
+            _logger.Debug("Populating the new GuildMemberHC properties 'Member' and 'Guild'.");
+            foreach (GuildMemberHC? guildMember in _guildMemberHC.FindAll().ToList())
+            {
+                if (guildMember == null) continue;
 
-                    guildMember.Guild = _guildHC.FindOne(g => g.GuildId == guildMember.GuildId);
-                    guildMember.Member = _memberHC.FindOne(u => u.MemberId == guildMember.MemberId);
-                    _guildMemberHC.Update(guildMember);
-                }
+                guildMember.Guild = _guildHC.FindOne(g => g.GuildId == guildMember.GuildId);
+                guildMember.Member = _memberHC.FindOne(u => u.MemberId == guildMember.MemberId);
+                _guildMemberHC.Update(guildMember);
+            }
 
-                _logger.Debug("Populating the new GuildHC property 'GuildMembers'.");
-                foreach (GuildHC? guild in _guildHC.FindAll().ToList())
-                {
-                    if (guild == null) continue;
+            _logger.Debug("Populating the new GuildHC property 'GuildMembers'.");
+            foreach (GuildHC? guild in _guildHC.FindAll().ToList())
+            {
+                if (guild == null) continue;
 
-                    guild.GuildMembers = _guildMemberHC.Find(d => d.GuildId == guild.GuildId).ToList();
-                    _guildHC.Update(guild);
-                }
-            });
+                guild.GuildMembers = _guildMemberHC.Find(d => d.GuildId == guild.GuildId).ToList();
+                _guildHC.Update(guild);
+            }
             return true;
         }
         catch (Exception ex)

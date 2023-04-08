@@ -37,7 +37,7 @@ public class PersistenceService : IPersistenceService
                 _logger.Information($"Database backup was created at '{backupPath}'.");
 
                 _logger.Debug("Applying database migrations.");
-                if (!await migrationManager.ApplyMigrations(_database))
+                if (!migrationManager.ApplyMigrations(_database))
                 {
                     _logger.Fatal("Database migration couldn't be completed.");
                     throw new OperationCanceledException();

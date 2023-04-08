@@ -47,9 +47,10 @@ public class EasterEventService : IEasterEventService
     private readonly IAchievementRepository<EasterEventAchievement> _easterEventAchievements;
     private readonly IGuildMemberRepository _guildMemberRepository;
     private readonly IEngagementService _engagementService;
+    private readonly IMediator _mediator;
     private readonly Random _random;
 
-    public EasterEventService(ILogger logger, IDateTimeProvider dateTime, DiscordSocketClient client, IMemberRepository memberHCRepository, ITranslationService translationService, IAchievementRepository<EasterEventAchievement> easterEventAchievements, IGuildMemberRepository guildMemberRepository, IEngagementService engagementService)
+    public EasterEventService(ILogger logger, IDateTimeProvider dateTime, DiscordSocketClient client, IMemberRepository memberHCRepository, ITranslationService translationService, IAchievementRepository<EasterEventAchievement> easterEventAchievements, IGuildMemberRepository guildMemberRepository, IEngagementService engagementService, IMediator mediator)
     {
         _logger = logger.ForContext<EasterEventService>();
         _dateTime = dateTime;
@@ -59,6 +60,7 @@ public class EasterEventService : IEasterEventService
         _easterEventAchievements = easterEventAchievements;
         _guildMemberRepository = guildMemberRepository;
         _engagementService = engagementService;
+        _mediator = mediator;
         _random = new Random();
         logger.Debug($"Initialized {nameof(EasterEventService)}");
     }
@@ -69,7 +71,15 @@ public class EasterEventService : IEasterEventService
 
     public async Task HandleMessageReceivedAsync(MessageReceivedNotification arg)
     {
-        if (arg.Message.Author.IsBot || arg.Message.Author.IsWebhook /*|| !IsEasterPeriod()*/) return;
+        if (arg.Message.Author.IsBot || arg.Message.Author.IsWebhook || !IsEasterPeriod()) return;
+
+        await _mediator.Publish(new UpdateActivityNotification
+        {
+            ActivityType = ActivityType.CustomStatus,
+            Status = UserStatus.Online,
+            Emote = new Emoji(_translationService.GetAttrString(EasterEventAchievement.TranslationKey, "emoji")),
+            Description = _translationService.GetAttrString(EasterEventAchievement.TranslationKey, "activity")
+        });
 
         var rnd = _random.NextDouble();
         _logger.Debug($"Rolling the dice [{ReactionProbability:P1}]: {rnd} ");

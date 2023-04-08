@@ -2,7 +2,7 @@
 using Discord.WebSocket;
 
 namespace BaseBotService.Interactions;
-public class ActivityServiceHandler : INotificationHandler<ClientReadyNotification>
+public class ActivityServiceHandler : INotificationHandler<UpdateActivityNotification>
 {
     private readonly DiscordSocketClient _client;
 
@@ -11,11 +11,9 @@ public class ActivityServiceHandler : INotificationHandler<ClientReadyNotificati
         _client = client;
     }
 
-#pragma warning disable S1135
-    // TODO: Move this into its own service.
-    public async Task Handle(ClientReadyNotification notification, CancellationToken cancellationToken)
+    public async Task Handle(UpdateActivityNotification notification, CancellationToken cancellationToken)
     {
-        await _client.SetActivityAsync(new Game("the world burn", ActivityType.Watching));
-        await _client.SetStatusAsync(UserStatus.Online);
+        await _client.SetActivityAsync(new Game(notification.Description, notification.ActivityType));
+        await _client.SetStatusAsync(notification.Status);
     }
 }

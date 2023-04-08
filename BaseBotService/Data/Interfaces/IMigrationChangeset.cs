@@ -13,5 +13,5 @@ public interface IMigrationChangeset
     /// </summary>
     /// <param name="db">The LiteDB database.</param>
     /// <returns></returns>
-    public Task<bool> ApplyChangeset(ILiteDatabase db, int dbVersion);
+    public bool ApplyChangeset(ILiteDatabase db, int dbVersion);
 }

@@ -18,17 +18,17 @@ public class MigrationManager
 
     public bool AreMigrationsAvailable(ILiteDatabase database) => database != null && database.UserVersion < _targetDatabaseVersion;
 
-    public async Task<bool> ApplyMigrations(ILiteDatabase database)
+    public bool ApplyMigrations(ILiteDatabase database)
     {
         bool success = true;
         while (success && database.UserVersion < _targetDatabaseVersion)
         {
-            success = await ApplyChangesAsync(database);
+            success = ApplyChanges(database);
         }
         return success;
     }
 
-    private async Task<bool> ApplyChangesAsync(ILiteDatabase db)
+    private bool ApplyChanges(ILiteDatabase db)
     {
         int version = db.UserVersion;
         _logger.Information($"Looking for database migrations for version {version}");
@@ -45,7 +45,10 @@ public class MigrationManager
             if (matchingChangeset != null)
             {
                 _logger.Information($"Applying database migrations for version {version}");
-                await matchingChangeset.ApplyChangeset(db, version);
+                if (!matchingChangeset.ApplyChangeset(db, version))
+                {
+                    throw new InvalidOperationException();
+                }
             }
             else
             {
