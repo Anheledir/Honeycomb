@@ -7,6 +7,7 @@ using BaseBotService.Infrastructure.Services;
 using BaseBotService.Utilities.Extensions;
 using Discord;
 using Discord.WebSocket;
+using MediatR;
 using Serilog;
 
 namespace BaseBotService.Tests.Infrastructure.Services;
@@ -22,6 +23,7 @@ public class EasterEventServiceTests
     private IAchievementRepository<EasterEventAchievement> _achievementRepository;
     private IGuildMemberRepository _guildMemberHCRepository;
     private IEngagementService _engagementService;
+    private IMediator _mediator;
     private Faker _faker;
 
     [SetUp]
@@ -35,8 +37,9 @@ public class EasterEventServiceTests
         _achievementRepository = Substitute.For<IAchievementRepository<EasterEventAchievement>>();
         _guildMemberHCRepository = Substitute.For<IGuildMemberRepository>();
         _engagementService = Substitute.For<IEngagementService>();
+        _mediator = Substitute.For<IMediator>();
 
-        _easterEventService = new EasterEventService(_logger, _dateTime, _client, _memberHCRepository, _translationService, _achievementRepository, _guildMemberHCRepository, _engagementService);
+        _easterEventService = new EasterEventService(_logger, _dateTime, _client, _memberHCRepository, _translationService, _achievementRepository, _guildMemberHCRepository, _engagementService, _mediator);
 
         _faker = new Faker();
     }
