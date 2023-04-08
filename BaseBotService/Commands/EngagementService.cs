@@ -8,13 +8,17 @@ public class EngagementService : IEngagementService
     private readonly ILogger _logger;
     private readonly TimeSpan _activityPointInterval = TimeSpan.FromSeconds(864);
     private readonly IGuildMemberRepository _guildMemberRepository;
+    private readonly IMemberRepository _memberRepository;
+    private readonly IGuildRepository _guildRepository;
 
     public int MaxPointsPerDay => 100;
 
-    public EngagementService(ILogger logger, IGuildMemberRepository guildMemberRepository)
+    public EngagementService(ILogger logger, IGuildMemberRepository guildMemberRepository, IMemberRepository memberRepository, IGuildRepository guildRepository)
     {
         _logger = logger.ForContext<EngagementService>();
         _guildMemberRepository = guildMemberRepository;
+        _memberRepository = memberRepository;
+        _guildRepository = guildRepository;
     }
 
     public Task AddActivityTick(ulong guildId, ulong userId)
@@ -26,10 +30,12 @@ public class EngagementService : IEngagementService
             {
                 // First time seeing this user in this guild
                 _logger.Information($"First time seeing user '{userId}' in '{guildId}'.");
+                var member = _memberRepository.GetUser(userId, true)!;
+                var guild = _guildRepository.GetGuild(guildId, true)!;
                 _guildMemberRepository.AddUser(new GuildMemberHC
                 {
-                    MemberId = userId,
-                    GuildId = guildId,
+                    Member = member,
+                    Guild = guild,
                     ActivityPoints = 1,
                     LastActive = DateTime.UtcNow,
                     LastActivityPoint = DateTime.UtcNow

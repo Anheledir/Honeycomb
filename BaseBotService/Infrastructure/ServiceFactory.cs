@@ -10,6 +10,7 @@ using BaseBotService.Data.Repositories;
 using BaseBotService.Infrastructure.Achievements;
 using BaseBotService.Infrastructure.Services;
 using BaseBotService.Utilities;
+using BaseBotService.Utilities.Extensions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
@@ -63,6 +64,7 @@ public static class ServiceFactory
         // data services
             .AddSingleton<IPersistenceService, PersistenceService>()
             .AddSingleton<MigrationManager>()
+            .AddAllImplementationsOf<IMigrationChangeset>(typeof(IMigrationChangeset).Assembly)
 
         // data repositories
             .AddSingleton<IGuildRepository, GuildRepository>()
