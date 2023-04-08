@@ -12,8 +12,6 @@ public class GuildMemberRepository : IGuildMemberRepository
 
     public GuildMemberHC GetUser(ulong guildId, ulong userId)
         => _guildMembers
-            .Include(u => u.Member)
-            .Include(g => g.Guild)
             .FindOne(a => a.GuildId == guildId && a.MemberId == userId);
 
     public void AddUser(GuildMemberHC user) => _guildMembers.Insert(user);
@@ -29,5 +27,15 @@ public class GuildMemberRepository : IGuildMemberRepository
             return _guildMembers.Delete(user.Id);
         }
         return false;
+    }
+
+    public int DeleteGuild(ulong guildId)
+    {
+        var users = _guildMembers.Find(a => a.GuildId == guildId);
+        if (users != null)
+        {
+            return _guildMembers.DeleteMany(a => a.GuildId == guildId);
+        }
+        return 0;
     }
 }

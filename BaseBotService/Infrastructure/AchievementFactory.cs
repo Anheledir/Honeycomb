@@ -1,4 +1,5 @@
 ﻿using BaseBotService.Core.Base;
+using BaseBotService.Core.Interfaces;
 using BaseBotService.Data.Models;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,18 +12,18 @@ public static class AchievementFactory
 {
     public static T CreateAchievement<T>(MemberHC user)
         where T : AchievementBase
-        => CreateAchievement<T>(user, null);
+        => CreateAchievement<T>(user.MemberId, null);
 
     public static T CreateAchievement<T>(GuildMemberHC guildUser)
         where T : AchievementBase
-        => CreateAchievement<T>(guildUser.Member, guildUser.Guild);
+        => CreateAchievement<T>(guildUser.MemberId, guildUser.GuildId);
 
     /// <summary>
     /// Creates a new achievement of the specified type.
     /// </summary>
     /// <typeparam name="T">The type of the achievement. Must inherit <see cref="AchievementBase"/>.</typeparam>
     /// <returns>A new instance of the specified achievement type, inheriting <see cref="AchievementBase"/>.</returns>
-    private static T CreateAchievement<T>(MemberHC user, GuildHC? guild) where T : AchievementBase
+    private static T CreateAchievement<T>(ulong userId, ulong? guildId) where T : AchievementBase
     {
         T? achievement = (T?)Program.ServiceProvider.GetService(typeof(T));
         if (achievement == null)
@@ -31,11 +32,9 @@ public static class AchievementFactory
             Program.ServiceProvider.GetRequiredService<ILogger>().Error(error);
             throw new ArgumentException(error);
         }
-        achievement.MemberId = user.MemberId;
-        achievement.GuildId = guild?.GuildId;
-        achievement.Member = user;
-        achievement.Guild = guild;
-        achievement.CreatedAt = Instant.FromDateTimeUtc(DateTime.UtcNow);
+        achievement.MemberId = userId;
+        achievement.GuildId = guildId;
+        achievement.CreatedAt = DateTime.UtcNow;
         return achievement;
     }
 }

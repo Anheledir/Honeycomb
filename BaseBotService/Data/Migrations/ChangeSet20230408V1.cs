@@ -4,7 +4,7 @@ using LiteDB;
 using BaseBotService.Core.Base;
 
 namespace BaseBotService.Data.Migrations;
-internal class ChangeSet20230408V1 : IMigrationChangeset
+public class ChangeSet20230408V1 : IMigrationChangeset
 {
     private readonly ILogger _logger;
     private readonly ILiteCollection<MemberHC> _memberHC;
@@ -39,14 +39,10 @@ internal class ChangeSet20230408V1 : IMigrationChangeset
                 member.Achievements = new List<AchievementBase>();
             }
 
-            _logger.Debug("Populating the new GuildMemberHC properties 'Member' and 'Guild'.");
-            foreach (GuildMemberHC? guildMember in _guildMemberHC.FindAll().ToList())
+            _logger.Debug("Populating the new GuildHC collection with default entries for all Guilds in 'GuildMemberHC'.");
+            foreach (ulong guildId in _guildMemberHC.FindAll().Select(gm => gm.GuildId).Distinct().ToList())
             {
-                if (guildMember == null) continue;
-
-                guildMember.Guild = _guildHC.FindOne(g => g.GuildId == guildMember.GuildId);
-                guildMember.Member = _memberHC.FindOne(u => u.MemberId == guildMember.MemberId);
-                _guildMemberHC.Update(guildMember);
+                _ = _guildHC.Insert(new GuildHC() { GuildId = guildId, Members = new List<GuildMemberHC>() });
             }
 
             _logger.Debug("Populating the new GuildHC property 'GuildMembers'.");
@@ -54,7 +50,7 @@ internal class ChangeSet20230408V1 : IMigrationChangeset
             {
                 if (guild == null) continue;
 
-                guild.GuildMembers = _guildMemberHC.Find(d => d.GuildId == guild.GuildId).ToList();
+                guild.Members = _guildMemberHC.Find(d => d.GuildId == guild.GuildId).ToList();
                 _guildHC.Update(guild);
             }
             return true;

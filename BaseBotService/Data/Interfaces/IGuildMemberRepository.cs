@@ -35,4 +35,5 @@ public interface IGuildMemberRepository
     /// <param name="userId">The unique identifier of the user.</param>
     /// <returns>True if the delete was successful, otherwise false.</returns>
     bool DeleteUser(ulong guildId, ulong userId);
+    int DeleteGuild(ulong guildId);
 }

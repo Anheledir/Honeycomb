@@ -22,7 +22,8 @@ public class AchievementFactoryTests
     public void CreateAchievement_ShouldCreateValidAchievement()
     {
         // Arrange
-        GuildMemberHC guildMember = FakeDataHelper.GuildFaker.Generate().GuildMembers[0];
+
+        GuildMemberHC guildMember = FakeDataHelper.GuildFaker.Generate().Members[0];
 
         // Act
         var achievement = AchievementFactory.CreateAchievement<CustomHCAchievement>(guildMember);
@@ -31,7 +32,7 @@ public class AchievementFactoryTests
         achievement.ShouldNotBeNull();
         achievement.MemberId.ShouldBe(guildMember.MemberId);
         achievement.GuildId.ShouldBe(guildMember.GuildId);
-        achievement.CreatedAt.ShouldBeLessThanOrEqualTo(SystemClock.Instance.GetCurrentInstant());
+        achievement.CreatedAt.ShouldBeLessThanOrEqualTo(DateTime.UtcNow);
     }
 
     [Test]
@@ -47,7 +48,7 @@ public class AchievementFactoryTests
         achievement.ShouldNotBeNull();
         achievement.MemberId.ShouldBe(member.MemberId);
         achievement.GuildId.ShouldBeNull();
-        achievement.CreatedAt.ShouldBeLessThanOrEqualTo(SystemClock.Instance.GetCurrentInstant());
+        achievement.CreatedAt.ShouldBeLessThanOrEqualTo(DateTime.UtcNow);
     }
 }
 

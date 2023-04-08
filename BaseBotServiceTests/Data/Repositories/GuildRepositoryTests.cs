@@ -33,7 +33,7 @@ public class GuildRepositoryTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.Should().BeEquivalentTo(guild, o => o.Excluding(g => g.GuildMembers));
+        result.Should().BeEquivalentTo(guild, o => o.Excluding(g => g.Members));
     }
 
     [Test]
@@ -75,7 +75,7 @@ public class GuildRepositoryTests
         // Assert
         var result = _guilds.FindOne(g => g.GuildId == newGuild.GuildId);
         result.ShouldNotBeNull();
-        result.Should().BeEquivalentTo(newGuild, o => o.Excluding(g => g.GuildMembers));
+        result.Should().BeEquivalentTo(newGuild, o => o.Excluding(g => g.Members));
     }
 
     [Test]
@@ -99,7 +99,7 @@ public class GuildRepositoryTests
         result.ShouldBeTrue();
         var updatedGuild = _guilds.FindOne(g => g.GuildId == existingGuild.GuildId);
         updatedGuild.ShouldNotBeNull();
-        updatedGuild.Should().BeEquivalentTo(existingGuild, o => o.Excluding(g => g.GuildMembers));
+        updatedGuild.Should().BeEquivalentTo(existingGuild, o => o.Excluding(g => g.Members));
     }
 
     [Test]

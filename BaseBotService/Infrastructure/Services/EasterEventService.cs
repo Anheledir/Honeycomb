@@ -1,5 +1,4 @@
 ﻿using BaseBotService.Commands.Interfaces;
-using BaseBotService.Core.Base;
 using BaseBotService.Core.Interfaces;
 using BaseBotService.Core.Messages;
 using BaseBotService.Data.Interfaces;
@@ -71,7 +70,7 @@ public class EasterEventService : IEasterEventService
 
     public async Task HandleMessageReceivedAsync(MessageReceivedNotification arg)
     {
-        if (arg.Message.Author.IsBot || arg.Message.Author.IsWebhook || !IsEasterPeriod()) return;
+        if (arg.Message.Author.IsBot || arg.Message.Author.IsWebhook /*|| !IsEasterPeriod()*/) return;
 
         await _mediator.Publish(new UpdateActivityNotification
         {
@@ -135,7 +134,7 @@ public class EasterEventService : IEasterEventService
         // A user can only get this achievement once per guild and year
         int currentYear = _dateTime.GetCurrentUtcDate().Year;
         EasterEventAchievement? existingAchievement =
-            userAchievements.Find(a => a.GuildId == guild.Id && a.CreatedAt.InUtc().Year == currentYear);
+            userAchievements.Find(a => a.GuildId == guild.Id && a.CreatedAt.Year == currentYear);
         if (existingAchievement != null)
         {
             uint scaledPoints = (uint)(existingAchievement.Points * AchievementRepeatedPointScaling);
@@ -148,11 +147,12 @@ public class EasterEventService : IEasterEventService
         // Hooray, we made it this far! Remove the bots reaction again as it can only be redeemed once
         await message.RemoveReactionAsync(arg.Reaction.Emote, _client.CurrentUser);
 
-        _logger.Information($"The user {user.Id} on {guild.Id} got the {nameof(EasterEventAchievement)}");
+        _logger.Information($"The user {user.Id} on {guild.Id} got the {nameof(EasterEventAchievement)}.");
         EasterEventAchievement achievement = AchievementFactory.CreateAchievement<EasterEventAchievement>(gUsr);
         achievement.Id = _easterEventAchievements.Insert(achievement);
         memberHC.Achievements.Add(achievement);
-        bool update = _memberHCRepository.UpdateUser(memberHC);
+        gUsr.ActivityPoints += (uint)achievement.Points;
+        bool update = _memberHCRepository.UpdateUser(memberHC) && _guildMemberRepository.UpdateUser(gUsr);
         if (!update)
         {
             _logger.Warning($"Could not update user {memberHC.MemberId} after adding {nameof(EasterEventAchievement)}");

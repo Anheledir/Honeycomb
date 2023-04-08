@@ -13,6 +13,7 @@ using BaseBotService.Utilities;
 using BaseBotService.Utilities.Extensions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System.Reflection;
 
 namespace BaseBotService.Infrastructure;
@@ -40,8 +41,9 @@ public static class ServiceFactory
         // core services
             .AddSingleton(LoggerFactory.CreateLogger())
             .AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()))
+            .AddSingleton<CancellationTokenSource>()
 
-            // discord services
+        // discord services
             .AddSingleton(socketConfig)
             .AddSingleton<DiscordSocketClient>()
             .AddSingleton(serviceConfig)
@@ -64,7 +66,7 @@ public static class ServiceFactory
         // data services
             .AddSingleton<IPersistenceService, PersistenceService>()
             .AddSingleton<MigrationManager>()
-            .AddAllImplementationsOf<IMigrationChangeset>(typeof(IMigrationChangeset).Assembly, ServiceLifetime.Singleton)
+            .AddSingleton<CollectionMapper>()
 
         // data repositories
             .AddSingleton<IGuildRepository, GuildRepository>()
@@ -81,7 +83,10 @@ public static class ServiceFactory
             .AddScoped(GuildHC.GetServiceRegistration)
             .AddScoped(MemberHC.GetServiceRegistration)
             .AddScoped(GuildMemberHC.GetServiceRegistration)
-            .AddScoped(AchievementBase.GetServiceRegistration);
+            .AddScoped(AchievementBase.GetServiceRegistration)
+
+        // data migrations
+            .AddAllImplementationsOf<IMigrationChangeset>(typeof(IMigrationChangeset).Assembly, ServiceLifetime.Transient);
 
         return services.BuildServiceProvider();
     }

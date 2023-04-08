@@ -31,6 +31,6 @@ public static class Program
             .ConfigureServices(services => services.AddHostedService<HealthCheckService>())
             .Build();
 
-        await host.RunAsync();
+        await host.RunAsync(ServiceProvider.GetRequiredService<CancellationTokenSource>().Token);
     }
 }

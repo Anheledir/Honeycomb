@@ -10,13 +10,13 @@ public class EnvironmentService : IEnvironmentService
     private readonly DateTime _startupTime = DateTime.UtcNow;
     private readonly ITranslationService _translationService;
 
-    public EnvironmentService(ILogger logger, ITranslationService translationService)
+    public EnvironmentService(ILogger logger, ITranslationService translationService, CancellationTokenSource cts)
     {
         DiscordBotToken = Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN")!;
         if (string.IsNullOrWhiteSpace(DiscordBotToken))
         {
             logger.Fatal("Environment variable 'DISCORD_BOT_TOKEN' not set.");
-            throw new ArgumentException("The Discord token must not be empty.");
+            cts.Cancel();
         }
         logger.Information($"Environment variable 'DISCORD_BOT_TOKEN' set to '{DiscordBotToken.MaskToken()}.'");
 

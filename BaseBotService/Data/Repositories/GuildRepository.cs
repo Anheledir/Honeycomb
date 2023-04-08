@@ -13,7 +13,7 @@ public class GuildRepository : IGuildRepository
     public GuildHC? GetGuild(ulong guildId, bool touch = false)
     {
         GuildHC? guild = _guilds
-            .Include(m => m.GuildMembers)
+            .Include(m => m.Members)
             .FindOne(g => g.GuildId == guildId);
         if (guild == null && touch)
         {

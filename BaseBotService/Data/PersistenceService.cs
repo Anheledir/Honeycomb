@@ -14,17 +14,20 @@ public class PersistenceService : IPersistenceService
     private bool _disposedValue;
     private readonly TimeSpan _savingInterval = TimeSpan.FromMinutes(1);
     private readonly TimeSpan _checkpointInterval = TimeSpan.FromDays(1);
-    private bool _isReady;
     private DateTime _lastCheckpoint = DateTime.UtcNow;
 
-    public PersistenceService(ILogger logger, MigrationManager migrationManager, IEnvironmentService environment)
+    public PersistenceService(ILogger logger, MigrationManager migrationManager, IEnvironmentService environment, CancellationTokenSource cts, CollectionMapper collectionMapper)
     {
         _logger = logger.ForContext<PersistenceService>();
 
         var connection = new ConnectionString(environment.ConnectionString);
         _logger.Debug("Loading LightDB with '{@connection}'", connection);
         BsonMapper mapper = new();
-        _database = new LiteDatabase(connection, mapper);
+        collectionMapper.RegisterCollections(ref mapper);
+        _database = new LiteDatabase(connection, mapper)
+        {
+            UtcDate = true
+        };
         _database.Checkpoint();
         Task.Run(async () =>
         {
@@ -40,17 +43,15 @@ public class PersistenceService : IPersistenceService
                 if (!migrationManager.ApplyMigrations(_database))
                 {
                     _logger.Fatal("Database migration couldn't be completed.");
-                    throw new OperationCanceledException();
+                    cts.Cancel();
                 }
                 _logger.Information("Database migration finished.");
             }
 
             _logger.Debug("Registering database collections and relations in-between them.");
-            CollectionMapper.RegisterCollections(ref mapper);
             _logger.Information($"Starting the database save timer, interval is {_savingInterval.TotalSeconds} seconds.");
             _timer = new Timer(HandleAutoSaveTimer);
             _ = _timer.Change(TimeSpan.FromMinutes(1), _savingInterval);
-            _isReady = true;
         });
     }
 
@@ -58,11 +59,6 @@ public class PersistenceService : IPersistenceService
 
     public ILiteCollection<T> GetCollection<T>()
     {
-        while (!_isReady)
-        {
-            Thread.Sleep(100);
-        }
-
         _logger.Debug($"GetCollection<{typeof(T)}>()");
         return _database.GetCollection<T>();
     }

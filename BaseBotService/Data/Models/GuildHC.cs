@@ -12,7 +12,7 @@ public class GuildHC : ModelBase
     public double ActivityPointsAverageActiveHours { get; set; }
     public List<ulong> ModeratorRoles { get; set; }
     public List<ulong> ArtistRoles { get; set; }
-    public List<GuildMemberHC> GuildMembers { get; set; } = new();
+    public List<GuildMemberHC> Members { get; set; } = new();
 
     public GuildHC()
     {
@@ -23,6 +23,7 @@ public class GuildHC : ModelBase
             | GuildSettings.EnableGlobalEvents;
         ModeratorRoles = new List<ulong>();
         ArtistRoles = new List<ulong>();
+        ActivityPointsAverageActiveHours = 4;
     }
 
     public static ILiteCollection<GuildHC> GetServiceRegistration(IServiceProvider services)

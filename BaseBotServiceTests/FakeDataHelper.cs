@@ -1,9 +1,7 @@
 ﻿using BaseBotService.Commands.Enums;
-using BaseBotService.Core.Base;
 using BaseBotService.Data;
 using BaseBotService.Data.Models;
 using BaseBotService.Infrastructure.Achievements;
-using Bogus;
 using LiteDB;
 
 namespace BaseBotService.Tests;
@@ -16,15 +14,13 @@ public static class FakeDataHelper
     public static LiteDatabase GetTestDatabase()
     {
         var mapper = new BsonMapper();
-        CollectionMapper.RegisterCollections(ref mapper);
+        new CollectionMapper().RegisterCollections(ref mapper);
         return new LiteDatabase(":memory:", mapper);
     }
 
-    public static Faker<EasterEventAchievement> GetEasterEventFaker(MemberHC member, GuildHC guild) => new Faker<EasterEventAchievement>()
+    public static Faker<EasterEventAchievement> EasterEventFaker() => new Faker<EasterEventAchievement>()
             .RuleFor(a => a.Id, _ => ObjectId.NewObjectId())
-            .RuleFor(a => a.Member, _ => member)
-            .RuleFor(a => a.Guild, _ => guild)
-            .RuleFor(a => a.CreatedAt, f => Instant.FromDateTimeUtc(f.Date.Past(1)));
+            .RuleFor(a => a.CreatedAt, f => f.Date.Past(1));
 
     public static Faker<MemberHC> MemberFaker => new Faker<MemberHC>()
             .RuleFor(u => u.Id, _ => ObjectId.NewObjectId())
@@ -37,11 +33,11 @@ public static class FakeDataHelper
 
     public static Faker<GuildMemberHC> GetGuildMemberFaker(GuildHC guild, MemberHC member) => new Faker<GuildMemberHC>()
             .RuleFor(u => u.Id, _ => ObjectId.NewObjectId())
-            .RuleFor(u => u.Member, _ => member)
-            .RuleFor(u => u.Guild, _ => guild)
             .RuleFor(u => u.ActivityPoints, f => f.Random.UInt())
             .RuleFor(u => u.LastActive, f => f.Date.Recent())
-            .RuleFor(u => u.LastActivityPoint, f => f.Date.Recent());
+            .RuleFor(u => u.LastActivityPoint, f => f.Date.Recent())
+            .FinishWith((_, u) => u.MemberId = member.MemberId)
+            .FinishWith((_, u) => u.GuildId = guild.GuildId);
 
     public static Faker<GuildHC> GuildFaker => new Faker<GuildHC>()
             .RuleFor(g => g.Id, _ => ObjectId.NewObjectId())
@@ -51,7 +47,7 @@ public static class FakeDataHelper
             .RuleFor(g => g.ActivityPointsSymbol, _ => RandomEmoji())
             .RuleFor(g => g.ArtistRoles, _ => GenerateRandomUlongList())
             .RuleFor(g => g.ModeratorRoles, _ => GenerateRandomUlongList())
-            .FinishWith((_, g) => g.GuildMembers = GetGuildMemberFaker(g, MemberFaker.Generate()).GenerateBetween(1, 5).ToList());
+            .FinishWith((_, g) => g.Members = GetGuildMemberFaker(g, MemberFaker.Generate()).GenerateBetween(1, 5).ToList());
 
     /// <summary>
     /// Generates a list of random ulong values with a random length between the specified min and max bounds (inclusive).

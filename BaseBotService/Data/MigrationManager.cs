@@ -7,13 +7,12 @@ public class MigrationManager
 {
     private readonly int _targetDatabaseVersion;
     private readonly ILogger _logger;
-    private readonly IServiceProvider _service;
+    private readonly IServiceProvider _service = Program.ServiceProvider;
 
-    public MigrationManager(ILogger logger, IServiceProvider service, int targetDatabaseVersion = 1)
+    public MigrationManager()
     {
-        _logger = logger.ForContext<MigrationManager>();
-        _service = service;
-        _targetDatabaseVersion = targetDatabaseVersion;
+        _logger = _service.GetRequiredService<ILogger>().ForContext<MigrationManager>();
+        _targetDatabaseVersion = 1;
     }
 
     public bool AreMigrationsAvailable(ILiteDatabase database) => database != null && database.UserVersion < _targetDatabaseVersion;
@@ -21,9 +20,21 @@ public class MigrationManager
     public bool ApplyMigrations(ILiteDatabase database)
     {
         bool success = true;
+        database.BeginTrans();
+
         while (success && database.UserVersion < _targetDatabaseVersion)
         {
             success = ApplyChanges(database);
+        }
+
+        if (success)
+        {
+            database.Commit();
+            database.Checkpoint();
+        }
+        else
+        {
+            database.Rollback();
         }
         return success;
     }
@@ -33,7 +44,6 @@ public class MigrationManager
         int version = db.UserVersion;
         _logger.Information($"Looking for database migrations for version {version}");
 
-        db.BeginTrans();
         try
         {
             // Get all registered IMigrationChangeset instances
@@ -55,15 +65,22 @@ public class MigrationManager
                 _logger.Debug($"No database migrations found for version {version}");
             }
 
-            db.UserVersion++;
-            _logger.Information($"New database version is {db.UserVersion}, committing changes.");
-            db.Commit();
-            return true;
+            try
+            {
+                db.Commit();
+                db.UserVersion++;
+                _logger.Information($"New database version is {db.UserVersion}, committing changes.");
+                db.Commit();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
         catch (Exception ex)
         {
             _logger.Fatal(ex, $"The database migration for version {version} failed, doing rollback!");
-            db.Rollback();
             return false;
         }
     }
