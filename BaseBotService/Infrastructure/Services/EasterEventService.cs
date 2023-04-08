@@ -14,7 +14,7 @@ public class EasterEventService : IEasterEventService
     /// <summary>
     /// The probability of reacting to a message (0.05 = 5%)
     /// </summary>
-    public const double ReactionProbability = 0.5;
+    public const double ReactionProbability = 0.05;
 
     /// <summary>
     /// If the user has already received the achievement, the points will be scaled down by this factor (0.1 = 10%)
@@ -70,7 +70,7 @@ public class EasterEventService : IEasterEventService
 
     public async Task HandleMessageReceivedAsync(MessageReceivedNotification arg)
     {
-        if (arg.Message.Author.IsBot || arg.Message.Author.IsWebhook /*|| !IsEasterPeriod()*/) return;
+        if (arg.Message.Author.IsBot || arg.Message.Author.IsWebhook || !IsEasterPeriod()) return;
 
         await _mediator.Publish(new UpdateActivityNotification
         {
