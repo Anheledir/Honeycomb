@@ -5,15 +5,15 @@ namespace BaseBotService.Data.Interfaces;
 /// <summary>
 /// Interface for the MemberHC repository, providing CRUD operations for MemberHC entities.
 /// </summary>
-public interface IMemberHCRepository
+public interface IMemberRepository
 {
     /// <summary>
     /// Retrieves a MemberHC entity by its user ID.
     /// </summary>
     /// <param name="userId">The user ID of the MemberHC entity to retrieve.</param>
-    /// <param name="touch">If <c>true</c> it will create a new user and return it in case no user with <paramref name="userId"/> exists.</param>
-    /// <returns>The MemberHC entity if found; otherwise, null. If <paramref name="touch"/> is <c>true</c> will always return an entity.</returns>
-    MemberHC GetUser(ulong userId, bool touch = false);
+    /// <param name="create">If true it will create a new user and return it in case no user with <paramref name="userId"/> exists. Default is false.</param>
+    /// <returns>The MemberHC entity if found; otherwise, null. If <paramref name="create"/> is true will always return an entity.</returns>
+    MemberHC? GetUser(ulong userId, bool create = false);
 
     /// <summary>
     /// Adds a new MemberHC entity to the repository.

@@ -10,7 +10,7 @@ namespace BaseBotService;
 
 public static class Program
 {
-    public static IServiceProvider ServiceProvider { get; } = ServiceFactory.CreateServiceProvider();
+    public static IServiceProvider ServiceProvider { get; internal set; } = ServiceFactory.CreateServiceProvider();
 
     private static void Main() => RunAsync().GetAwaiter().GetResult();
 
@@ -31,6 +31,6 @@ public static class Program
             .ConfigureServices(services => services.AddHostedService<HealthCheckService>())
             .Build();
 
-        await host.RunAsync();
+        await host.RunAsync(ServiceProvider.GetRequiredService<CancellationTokenSource>().Token);
     }
 }

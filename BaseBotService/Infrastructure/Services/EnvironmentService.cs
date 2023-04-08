@@ -1,5 +1,6 @@
 ﻿using BaseBotService.Core.Enums;
 using BaseBotService.Core.Interfaces;
+using BaseBotService.Utilities;
 using BaseBotService.Utilities.Extensions;
 
 namespace BaseBotService.Infrastructure.Services;
@@ -9,13 +10,13 @@ public class EnvironmentService : IEnvironmentService
     private readonly DateTime _startupTime = DateTime.UtcNow;
     private readonly ITranslationService _translationService;
 
-    public EnvironmentService(ILogger logger, ITranslationService translationService)
+    public EnvironmentService(ILogger logger, ITranslationService translationService, CancellationTokenSource cts)
     {
         DiscordBotToken = Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN")!;
         if (string.IsNullOrWhiteSpace(DiscordBotToken))
         {
             logger.Fatal("Environment variable 'DISCORD_BOT_TOKEN' not set.");
-            throw new ArgumentException("The Discord token must not be empty.");
+            cts.Cancel();
         }
         logger.Information($"Environment variable 'DISCORD_BOT_TOKEN' set to '{DiscordBotToken.MaskToken()}.'");
 
@@ -30,8 +31,8 @@ public class EnvironmentService : IEnvironmentService
         HealthPort = int.Parse(Environment.GetEnvironmentVariable("HEALTH_PORT") ?? "8080");
         logger.Information($"http-port for health probe set to '{HealthPort}'.");
 
-        DatabaseFile = Environment.GetEnvironmentVariable("DATABASE_FILEPATH") ?? "honeycomb.db";
-        logger.Information($"Path and filename for our LiteDB database: '{DatabaseFile}'.");
+        ConnectionString = Environment.GetEnvironmentVariable("ConnectionString") ?? "Filename=honeycomb.db;";
+        logger.Information($"LiteDB database connection string: '{ConnectionString}'.");
 
         EnvironmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "unknown";
         logger.Information($"Environment identifier is '{EnvironmentName}'.");
@@ -46,12 +47,12 @@ public class EnvironmentService : IEnvironmentService
 
     public int HealthPort { get; }
 
-    public string DatabaseFile { get; }
+    public string ConnectionString { get; }
 
     public string GetUptime()
     {
         TimeSpan uptime = DateTime.UtcNow - _startupTime;
-        string result = _translationService.GetString("uptime-format", _translationService.Arguments(
+        string result = _translationService.GetString("uptime-format", TranslationHelper.Arguments(
             "days", uptime.Days,
             "hours", uptime.Hours,
             "minutes", uptime.Minutes,

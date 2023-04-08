@@ -1,38 +1,32 @@
-﻿using BaseBotService.Data;
-using BaseBotService.Data.Interfaces;
+﻿using BaseBotService.Data.Interfaces;
 using BaseBotService.Data.Models;
+using BaseBotService.Data.Repositories;
 using LiteDB;
 
-namespace BaseBotService.Tests.Data;
+namespace BaseBotService.Tests.Data.Repositories;
 
 [TestFixture]
-public class GuildMemberHCRepositoryTests
+public class GuildMemberRepositoryTests
 {
     private ILiteCollection<GuildMemberHC> _guildMembers;
-    private IGuildMemberHCRepository _repository;
-    private Faker<GuildMemberHC> _guildMemberFaker;
+    private ILiteCollection<GuildHC> _guilds;
+    private IGuildMemberRepository _repository;
 
     [SetUp]
     public void SetUp()
     {
-        var db = new LiteDatabase(":memory:");
-        _guildMembers = db.GetCollection<GuildMemberHC>("guildMembers");
-
-        _repository = new GuildMemberHCRepository(_guildMembers);
-
-        _guildMemberFaker = new Faker<GuildMemberHC>()
-            .RuleFor(u => u.MemberId, f => f.Random.ULong())
-            .RuleFor(u => u.GuildId, f => f.Random.ULong())
-            .RuleFor(u => u.ActivityPoints, f => f.Random.UInt())
-            .RuleFor(u => u.LastActive, f => f.Date.Recent())
-            .RuleFor(u => u.LastActivityPoint, f => f.Date.Recent());
+        LiteDatabase db = FakeDataHelper.GetTestDatabase();
+        _guildMembers = db.GetCollection<GuildMemberHC>();
+        _guilds = db.GetCollection<GuildHC>();
+        _repository = new GuildMemberRepository(_guildMembers);
     }
 
     [Test]
     public void GetUser_ShouldReturnCorrectUser()
     {
         // Arrange
-        var guildMember = _guildMemberFaker.Generate();
+        var guild = FakeDataHelper.GuildFaker.Generate();
+        var guildMember = guild.Members[0];
         _guildMembers.Insert(guildMember);
 
         // Act
@@ -48,13 +42,16 @@ public class GuildMemberHCRepositoryTests
     public void AddUser_ShouldAddNewUser()
     {
         // Arrange
-        var newUser = _guildMemberFaker.Generate();
+        var guild = FakeDataHelper.GuildFaker.Generate();
+        var newUser = guild.Members[0];
+        _guilds.Insert(guild);
 
         // Act
         _repository.AddUser(newUser);
 
         // Assert
-        var result = _guildMembers.FindOne(u => u.MemberId == newUser.MemberId && u.GuildId == newUser.GuildId);
+        var result = _guildMembers
+            .FindOne(u => u.MemberId == newUser.MemberId && u.GuildId == newUser.GuildId);
         result.ShouldNotBeNull();
         result.MemberId.ShouldBe(newUser.MemberId);
         result.GuildId.ShouldBe(newUser.GuildId);
@@ -64,7 +61,7 @@ public class GuildMemberHCRepositoryTests
     public void UpdateUser_ShouldUpdateExistingUser()
     {
         // Arrange
-        var existingUser = _guildMemberFaker.Generate();
+        var existingUser = FakeDataHelper.GuildFaker.Generate().Members[0];
         _guildMembers.Insert(existingUser);
 
         existingUser.ActivityPoints++;
@@ -83,7 +80,7 @@ public class GuildMemberHCRepositoryTests
     public void DeleteUser_ShouldDeleteExistingUser()
     {
         // Arrange
-        var existingUser = _guildMemberFaker.Generate();
+        var existingUser = FakeDataHelper.GuildFaker.Generate().Members[0];
         _guildMembers.Insert(existingUser);
 
         // Act

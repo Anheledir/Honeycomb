@@ -1,5 +1,4 @@
-﻿using BaseBotService.Core.Interfaces;
-using BaseBotService.Core.Messages;
+﻿using BaseBotService.Core.Messages;
 using Discord.WebSocket;
 using System.Reflection;
 
@@ -35,9 +34,13 @@ public class DiscordEventListener
 
         _client.MessageReceived += (socketMessage) => _mediator.Publish(new MessageReceivedNotification(socketMessage), _cancellationToken);
         _client.Log += (msg) => _mediator.Publish(new LogNotification(msg), _cancellationToken);
+        _client.ReactionAdded += (cache, channel, reaction) => _mediator.Publish(new ReactionAddedNotification(cache, channel, reaction), _cancellationToken);
         _client.Ready += () => _mediator.Publish(new ClientReadyNotification(), _cancellationToken);
         _client.Disconnected += (ex) => _mediator.Publish(new ClientDisconnectedNotification(ex), _cancellationToken);
         _client.InteractionCreated += (interaction) => _mediator.Publish(new InteractionCreatedNotification(interaction), _cancellationToken);
+        _client.JoinedGuild += (guild) => _mediator.Publish(new JoinedGuildNotification(guild), _cancellationToken);
+        _client.LeftGuild += (guild) => _mediator.Publish(new LeftGuildNotification(guild), _cancellationToken);
+        _client.UserJoined += (user) => _mediator.Publish(new UserJoinedNotification(user), _cancellationToken);
         _handler.Log += (msg) => _mediator.Publish(new LogNotification(msg), _cancellationToken);
 
         _ = await _handler.AddModulesAsync(Assembly.GetEntryAssembly(), _services);

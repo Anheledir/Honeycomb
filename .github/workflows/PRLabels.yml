@@ -1,4 +1,4 @@
-name: Labels Test
+name: Identifying PR Labels
 
 on:
   pull_request:

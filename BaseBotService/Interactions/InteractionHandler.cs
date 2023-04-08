@@ -1,6 +1,5 @@
 ﻿using BaseBotService.Core.Messages;
 using Discord.WebSocket;
-using Serilog.Formatting.Json;
 
 namespace BaseBotService.Interactions;
 public class InteractionHandler : INotificationHandler<InteractionCreatedNotification>

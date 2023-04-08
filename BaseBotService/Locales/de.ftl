@@ -1,41 +1,36 @@
 ﻿#######################################################################################
 # de.ftl
-# Diese Datei enthält die Übersetzungsstrings für die Anwendung auf Deutsch.
-# Weitere Informationen zu Fluent finden Sie unter https://projectfluent.org/fluent/guide/.
+# This file contains the localization strings for the application in German.
+# See https://projectfluent.org/fluent/guide/ for more information about Fluent.
+#######################################################################################
 
 ####################################
 ## Application Info
 ####################################
 
 # Application Name
-bot-name = Honeycomb
-
-# Bot Website
-bot-website = https://honeycombs.cloud/
-
-# Bot description
-bot-description = Honeycomb ist ein Discord-Bot, der Künstlern nützliche Funktionen bietet, um ihre Erfahrung auf Discord zu verbessern. Mit seinen Funktionen können Künstler ein Portfolio erstellen, zufällige Einträge daraus anzeigen, eine Preisliste für Aufträge verwalten und ihre Auftragswarteschlange im Auge behalten. Der Bot wird unter der MIT-Lizenz auf GitHub veröffentlicht.
-
-# The version of the bot
-# Variables:
-#  - $version (String) - The version of the bot.
-#  - $environment (String) - The environment the bot is running in.
-bot-version = v{ $version } ({ $environment })
-
-# The name of the bot with the version
-bot-name-with-version = { bot-name } { bot-version }
+bot = Honeycomb
+    .website = https://honeycombs.cloud/
+    .github = https://github.com/Anheledir/Honeycomb
+    .invite = https://discord.com/api/oauth2/authorize?client_id=1078320972286918686&permissions=2199023255383&scope=bot%20applications.commands
+    .description = Honeycomb is a Discord bot designed to provide artists with some useful functions to enhance their experience on Discord. With its features, artists can create a portfolio, display random entries from it, manage a commission price list, and keep track of their commission queue. The bot is released under the MIT license on GitHub.
+    .version = v{ $version } ({ $environment })
+    .name = { bot } { bot.version }
 
 
 ####################################
 ## Core Module
 ####################################
 
-follow-up-in-DM = Du hast eine DM erhalten!
-not-available = n/v
+follow-up-in-DM = You've got a DM!
+not-available = n/a
 
 # Interaction Buttons
-button-close = Schließen
-button-back = Zurück
+button-close = Close
+button-back = Go back
+button-invite = Invite me!
+button-website = Visit website
+button-github = Visit GitHub
 
 
 
@@ -50,24 +45,24 @@ button-back = Zurück
 #  - $minutes (Number) - The number of minutes.
 #  - $seconds (Number) - The number of seconds.
 time-unit-days = { $days ->
-    [one] { $days } Tag
-   *[other] { $days } Tage
+    [one] { $days } day
+   *[other] { $days } days
 }
 time-unit-hours = { $hours ->
-    [one] { $hours } Stunde
-   *[other] { $hours } Stunden
+    [one] { $hours } hour
+   *[other] { $hours } hours
 }
 time-unit-minutes = { $minutes ->
-    [one] { $minutes } Minute
-   *[other] { $minutes } Minuten
+    [one] { $minutes } minute
+   *[other] { $minutes } minutes
 }
 time-unit-seconds = { $seconds ->
-    [one] { $seconds } Sekunde
-   *[other] { $seconds } Sekunden
+    [one] { $seconds } second
+   *[other] { $seconds } seconds
 }
 
 # Uptime format
-uptime-format = { time-unit-days }, { time-unit-hours }, { time-unit-minutes } und { time-unit-seconds }
+uptime-format = { time-unit-days }, { time-unit-hours }, { time-unit-minutes }, and { time-unit-seconds }
 
 
 
@@ -75,11 +70,16 @@ uptime-format = { time-unit-days }, { time-unit-hours }, { time-unit-minutes } u
 ## Bot Module
 ####################################
 
-uptime = Laufzeit
-total-servers = Insgesamt Server
-ping-response = :ping_pong: Es hat { $latency }ms gedauert, um Ihnen zu antworten!
-documentation-filename = honeycomb_v{ $version }.json
-documentation-created = Dies ist die aktuellste Dokumentation, extra für Sie erstellt!
+uptime = Uptime
+total-servers = Total Servers
+ping-response = :ping_pong: It took me { $latency }ms to respond to you!
+documentation = JSON-Documentation for all bot commands
+    .filename = honeycomb_v{ $version }.json
+    .created = This is the most recent documentation, freshly created just for you!
+invite = Invite me to your server!
+    .description = Click the button below to invite me to your server. I'll be happy to help you!
+    .button = { button-invite }
+    .link = { bot.invite }
 
 
 
@@ -87,53 +87,53 @@ documentation-created = Dies ist die aktuellste Dokumentation, extra für Sie er
 ## User Module
 ####################################
 
-profile-select-setting = Bitte wählen Sie die Einstellung, die Sie ändern möchten.
-profile-config = Wählen Sie die Benutzereinstellung, die Sie ändern möchten, oder klicken Sie auf Abbrechen, um zu beenden.
-profile-saved = Ihr Profil wurde gespeichert.
-profile-config-country = Wählen Sie das Land, in dem Sie leben.
-profile-config-languages = Wählen Sie bis zu vier Sprachen, die Sie sprechen.
-profile-config-gender = Wählen Sie Ihre bevorzugte Geschlechtsidentität.
-profile-config-timezone = Bitte wählen Sie die Zeitzone, in der Sie leben.
-profile-config-birthday-title = Geburtstag
-profile-config-birthday-day = Tag
-profile-config-birthday-day-placeholder = z. B. 29
-profile-config-birthday-month = Monat
-profile-config-birthday-month-placeholder = z. B. 03
-profile-config-birthday-year = Jahr
-profile-config-birthday-year-placeholder = { $exampleYear } oder leer lassen
+profile-saved = Your profile has been saved.
+profile-config = Please select the setting you want to change.
+    .country = Select the country you are living in.
+    .languages = Select up to four languages you are speaking.
+    .gender = Select your preferred gender identity.
+    .timezone = Please select the timezone you are living in.
+profile-birthday = Birthday
+    .day = Day
+    .day-placeholder = e.g. 29
+    .month = Month
+    .month-placeholder = e.g. 03
+    .year = Year
+    .year-placeholder = { $exampleYear } or leave empty
 
-profile-name = Name
-profile-created = Erstellt am
-profile-country = Wohnort
-profile-languages = Sprachen
-profile-gender = Geschlechtsidentität
-profile-timezone = Zeitzone
-profile-birthday = Geburtstag
-profile-joined = Beigetreten am
-profile-active = Zuletzt aktiv
-profile-points = Serverpunkte
-profile-roles = Rollen
-profile-roles-none = Keine
-profile-permissions = Berechtigungen
-profile-permissions-none = Keine
-profile-title = { $username } @ { $guildname }
-profile-activity = Aktivitätsanzeige
-profile-activity-rating = { $activityScore ->
-    [0] Du bist ein Phantom!
-    [1] So selten gesichtet wie Bigfoot!
-    [2] Du bist wie ein Ninja, der sich im Schatten bewegt!
-    [3] Der geheimnisvolle Umschweifer!
-    [4] Ein Gelegenheits-Plauderer!
-    [5] Du tauchst auf und ab wie ein Wiesel!
-    [6] Ein echter Schmetterling unter den Plaudertaschen!
-    [7] Stimmungsmacher der Party!
-    [8] Du redest wie ein Wasserfall!
-    [9] Ein wahrer Plaudermeister!
-   [10] Du bist überall und nirgendwo!
-   [11] Bist du etwa ein Bot?
-   [12] Unaufhaltbar! Der Server platzt gleich!
-   *[other] Ungültige Aktivitätspunktzahl
+profile = { $username } @ { $guildname }
+    .name = Name
+    .created = Created at
+    .country = Living in
+    .languages = Speaking
+    .gender = Gender Identity
+    .timezone = Timezone
+    .birthday = Birthday
+    .joined = Joined at
+    .active = Last active
+    .points = Server points
+    .roles = Roles
+    .roles-none = None
+    .permissions = Permissions
+    .permissions-none = None
+    .activity = Activity Meter
+    .activity-rating = { $score ->
+    [0] You're a ghost!
+    [1] Rarely seen, like Bigfoot!
+    [2] You're like a ninja, sneaking around!
+    [3] The mysterious wanderer!
+    [4] A casual chit-chatter!
+    [5] You pop in and out like a meerkat!
+    [6] A pretty social butterfly!
+    [7] The life of the party!
+    [8] You're like a talkative parrot!
+    [9] A true chatterbox!
+   [10] The ever-present overlord!
+   [11] Are you a bot?
+   [12] Unstoppable! We're running out of server space!
+   *[other] Invalid activity score
 }
+
 
 
 
@@ -142,74 +142,74 @@ profile-activity-rating = { $activityScore ->
 ####################################
 
 # Country names
-country-united-states = Vereinigte Staaten von Amerika
-country-canada = Kanada
-country-united-kingdom = Vereinigtes Königreich
-country-australia = Australien
-country-germany = Deutschland
-country-france = Frankreich
-country-brazil = Brasilien
-country-mexico = Mexiko
-country-netherlands = Niederlande
-country-sweden = Schweden
-country-norway = Norwegen
-country-denmark = Dänemark
-country-finland = Finnland
-country-spain = Spanien
-country-italy = Italien
-country-poland = Polen
+country-united-states = United States
+country-canada = Canada
+country-united-kingdom = United Kingdom
+country-australia = Australia
+country-germany = Germany
+country-france = France
+country-brazil = Brazil
+country-mexico = Mexico
+country-netherlands = Netherlands
+country-sweden = Sweden
+country-norway = Norway
+country-denmark = Denmark
+country-finland = Finland
+country-spain = Spain
+country-italy = Italy
+country-poland = Poland
 country-japan = Japan
-country-south-korea = Südkorea
+country-south-korea = South Korea
 country-china = China
-country-turkey = Türkei
-country-indonesia = Indonesien
-country-philippines = Philippinen
-country-austria = Österreich
-country-swiss = Schweiz
+country-turkey = Turkey
+country-indonesia = Indonesia
+country-philippines = Philippines
+country-austria = Austria
+country-swiss = Swiss
 
 # Gender Identities
-gender-unknown = Unbekannt
-gender-male = Männlich
-gender-female = Weiblich
-gender-non-binary = Nicht-binär
-gender-transgender-male = Transgender-Mann
-gender-transgender-female = Transgender-Frau
+gender-unknown = Unknown
+gender-male = Male
+gender-female = Female
+gender-non-binary = Non-binary
+gender-transgender-male = Transgender Male
+gender-transgender-female = Transgender Female
 gender-genderqueer = Genderqueer
-gender-other = Andere
+gender-other = Other
 
 # Languages
-language-unknown = Unbekannt
-language-english = Englisch
-language-german = Deutsch
-language-french = Französisch
-language-portuguese = Portugiesisch
-language-spanish = Spanisch
-language-dutch = Niederländisch
-language-swedish = Schwedisch
-language-norwegian = Norwegisch
-language-danish = Dänisch
-language-finnish = Finnisch
-language-polish = Polnisch
-language-russian = Russisch
-language-japanese = Japanisch
-language-korean = Koreanisch
-language-chinese = Chinesisch
+language-unknown = Unknown
+language-english = English
+language-german = German
+language-french = French
+language-portuguese = Portuguese
+language-spanish = Spanish
+language-dutch = Dutch
+language-swedish = Swedish
+language-norwegian = Norwegian
+language-danish = Danish
+language-finnish = Finnish
+language-polish = Polish
+language-russian = Russian
+language-japanese = Japanese
+language-korean = Korean
+language-chinese = Chinese
 language-hindi = Hindi
-language-turkish = Türkisch
-language-indonesian = Indonesisch
+language-turkish = Turkish
+language-indonesian = Indonesian
 language-filipino_tagalog = Filipino (Tagalog)
-language-italian = Italienisch
-language-arabic = Arabisch
+language-italian = Italian
+language-arabic = Arabic
 language-thai = Thai
-language-vietnamese = Vietnamesisch
-language-greek = Griechisch
+language-vietnamese = Vietnamese
+language-greek = Greek
 
 # User configurations
-userconfig-country = Land
-userconfig-languages = Sprachen
-userconfig-gender-identity = Geschlechtsidentität
-userconfig-timezone = Zeitzone
-userconfig-birthday = Geburtstag
+userconfig-country = Country
+userconfig-languages = Languages
+userconfig-gender-identity = Gender Identity
+userconfig-timezone = Timezone
+userconfig-birthday = Birthday
 
 
 
@@ -218,10 +218,10 @@ userconfig-birthday = Geburtstag
 ####################################
 
 # Error message for invalid input
-error-invalid-input = Ungültige Eingabe. Bitte versuchen Sie es erneut.
+error-invalid-input = Invalid input. Please try again.
 
 # Error message for connection issues
-error-connection = Verbindung nicht möglich. Bitte überprüfen Sie Ihre Internetverbindung.
+error-connection = Unable to connect. Please check your Internet connection.
 
 # Error message for rate limit
-error-rate-limit = Sie haben das Nutzungslimit für diesen Befehl erreicht. Bitte warten Sie, bevor Sie es erneut versuchen.
+error-rate-limit = You have reached the rate limit for this command. Please wait before trying again.

@@ -1,14 +1,19 @@
 ﻿using BaseBotService.Commands;
 using BaseBotService.Commands.Interfaces;
 using BaseBotService.Core;
+using BaseBotService.Core.Base;
 using BaseBotService.Core.Interfaces;
 using BaseBotService.Data;
 using BaseBotService.Data.Interfaces;
 using BaseBotService.Data.Models;
+using BaseBotService.Data.Repositories;
+using BaseBotService.Infrastructure.Achievements;
 using BaseBotService.Infrastructure.Services;
 using BaseBotService.Utilities;
+using BaseBotService.Utilities.Extensions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System.Reflection;
 
 namespace BaseBotService.Infrastructure;
@@ -36,8 +41,9 @@ public static class ServiceFactory
         // core services
             .AddSingleton(LoggerFactory.CreateLogger())
             .AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()))
+            .AddSingleton<CancellationTokenSource>()
 
-            // discord services
+        // discord services
             .AddSingleton(socketConfig)
             .AddSingleton<DiscordSocketClient>()
             .AddSingleton(serviceConfig)
@@ -52,19 +58,35 @@ public static class ServiceFactory
             .AddSingleton<ITranslationService>(_ => new TranslationService(TranslationFactory.CreateMessageContexts()))
             .AddSingleton<IAssemblyService, AssemblyService>()
             .AddSingleton<IEnvironmentService, EnvironmentService>()
-            .AddScoped<IEngagementService, EngagementService>()
+            .AddSingleton<IDateTimeProvider, NodaDateTimeService>()
             .AddSingleton<RateLimiter>()
+            .AddScoped<IEngagementService, EngagementService>()
+            .AddScoped<IEasterEventService, EasterEventService>()
 
         // data services
             .AddSingleton<IPersistenceService, PersistenceService>()
+            .AddSingleton<MigrationManager>()
+            .AddSingleton<CollectionMapper>()
 
         // data repositories
-            .AddSingleton<IGuildMemberHCRepository, GuildMemberHCRepository>()
-            .AddSingleton<IMemberHCRepository, MemberHCRepository>()
+            .AddScoped<IGuildRepository, GuildRepository>()
+            .AddScoped<IGuildMemberRepository, GuildMemberRepository>()
+            .AddScoped<IMemberRepository, MemberRepository>()
+            .AddScoped(typeof(IAchievementRepository<>), typeof(AchievementRepository<>))
+
+        // data achievement models
+            .AddScoped(AchievementBase.GetServiceRegistration)
+            .AddScoped<AchievementBase, EasterEventAchievement>()
+            .AddScoped<EasterEventAchievement>()
 
         // data models
+            .AddScoped(GuildHC.GetServiceRegistration)
             .AddScoped(MemberHC.GetServiceRegistration)
-            .AddScoped(GuildMemberHC.GetServiceRegistration);
+            .AddScoped(GuildMemberHC.GetServiceRegistration)
+            .AddScoped(AchievementBase.GetServiceRegistration)
+
+        // data migrations
+            .AddAllImplementationsOf<IMigrationChangeset>(typeof(IMigrationChangeset).Assembly, ServiceLifetime.Transient);
 
         return services.BuildServiceProvider();
     }

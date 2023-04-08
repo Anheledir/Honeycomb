@@ -2,21 +2,20 @@
 using BaseBotService.Data.Models;
 using LiteDB;
 
-namespace BaseBotService.Data;
+namespace BaseBotService.Data.Repositories;
 
-public class MemberHCRepository : IMemberHCRepository
+public class MemberRepository : IMemberRepository
 {
     private readonly ILiteCollection<MemberHC> _members;
 
-    public MemberHCRepository(ILiteCollection<MemberHC> members)
-    {
-        _members = members;
-    }
+    public MemberRepository(ILiteCollection<MemberHC> members) => _members = members;
 
-    public MemberHC GetUser(ulong userId, bool touch = false)
+    public MemberHC? GetUser(ulong userId, bool create = false)
     {
-        MemberHC result = _members.FindOne(a => a.MemberId == userId);
-        if (touch && result == null)
+        MemberHC? result = _members
+            .Include(a => a.Achievements)
+            .FindOne(a => a.MemberId == userId);
+        if (create && result == null)
         {
             _members.Insert(new MemberHC { MemberId = userId });
             result = _members.FindOne(a => a.MemberId == userId);
@@ -24,15 +23,9 @@ public class MemberHCRepository : IMemberHCRepository
         return result;
     }
 
-    public void AddUser(MemberHC user)
-    {
-        _members.Insert(user);
-    }
+    public void AddUser(MemberHC user) => _members.Insert(user);
 
-    public bool UpdateUser(MemberHC user)
-    {
-        return _members.Update(user);
-    }
+    public bool UpdateUser(MemberHC user) => _members.Update(user);
 
     public bool DeleteUser(ulong userId)
     {

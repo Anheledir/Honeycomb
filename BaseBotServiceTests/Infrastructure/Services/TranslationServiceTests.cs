@@ -7,17 +7,20 @@ public class TranslationServiceTests
 {
     private TranslationService _translationService;
     private IEnumerable<MessageContext> _messageContexts;
-    private Faker _faker;
     private const string _messageId = "test-message";
+    private const string _attribute = "alternative";
     private const string _englishTranslation = "Hello, world!";
     private const string _germanTranslation = "Hallo, Welt!";
     private const string _spanishTranslation = "¡Hola, mundo!";
     private const string _frenchTranslation = "Bonjour, le monde!";
+    private const string _englishTranslationAlt = "English Greeting";
+    private const string _germanTranslationAlt = "Deutsche Begrüßung";
+    private const string _spanishTranslationAlt = "¡Hola, mundo alternativo!";
+    private const string _frenchTranslationAlt = "Bonjour, le différent monde!";
 
     [SetUp]
     public void Setup()
     {
-        _faker = new Faker();
         _messageContexts = CreateMessageContexts();
         _translationService = new TranslationService(_messageContexts);
     }
@@ -56,10 +59,21 @@ public class TranslationServiceTests
         expectedTranslation.ShouldBeEquivalentTo(_englishTranslation);
     }
 
+    [Test]
+    public void GetString_ValidIdAndAttribute_ReturnsTranslation()
+    {
+        string expectedTranslation = _translationService.GetAttrString(_messageId, _attribute);
+
+        _translationService.PreferredLocale.ShouldBe("en");
+        expectedTranslation.ShouldNotBeNullOrEmpty();
+        expectedTranslation.ShouldBeEquivalentTo(_englishTranslationAlt);
+    }
+
     [TestCase("en", _englishTranslation)]
     [TestCase("de", _germanTranslation)]
     [TestCase("es", _spanishTranslation)]
     [TestCase("fr", _frenchTranslation)]
+    [TestCase("missing", _englishTranslation)]
     public void GetString_ValidId_WithLocale_ReturnsTranslation(string locale, string translation)
     {
         string expectedTranslation = _translationService.GetString(_messageId, locale);
@@ -68,37 +82,23 @@ public class TranslationServiceTests
         expectedTranslation.ShouldBeEquivalentTo(translation);
     }
 
+    [TestCase("en", _englishTranslationAlt)]
+    [TestCase("de", _germanTranslationAlt)]
+    [TestCase("es", _spanishTranslationAlt)]
+    [TestCase("fr", _frenchTranslationAlt)]
+    [TestCase("missing", _englishTranslationAlt)]
+    public void GetAttrString_WithValidIdAndAttribute_ReturnsExpectedTranslation(string locale, string translation)
+    {
+        string result = _translationService.GetString(_messageId, _attribute, locale);
+        Assert.That(result, Is.EqualTo(translation));
+    }
+
     [Test]
     public void GetString_InvalidId_ReturnsEmptyString()
     {
         string translation = _translationService.GetString(string.Concat(_messageId, "-non-existing"));
 
         translation.ShouldBeEmpty();
-    }
-
-    [Test]
-    public void Arguments_ValidInput_ReturnsDictionary()
-    {
-        string name = _faker.Name.FirstName();
-        object value = _faker.Random.Int();
-        string name2 = _faker.Name.LastName();
-        object value2 = _faker.Random.Int();
-
-        Dictionary<string, object> args = _translationService.Arguments(name, value, name2, value2);
-
-        _ = args.ShouldNotBeNull();
-        args.Count.ShouldBe(2);
-        args[name].ShouldBe(value);
-        args[name2].ShouldBe(value2);
-    }
-
-    [Test]
-    public void Arguments_InvalidInput_ThrowsException()
-    {
-        string name = string.Empty;
-        object value = _faker.Random.Int();
-
-        _ = Should.Throw<ArgumentNullException>(() => _translationService.Arguments(name, value));
     }
 
     [Test]

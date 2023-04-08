@@ -5,7 +5,7 @@ namespace BaseBotService.Data.Interfaces;
 /// <summary>
 /// Represents a repository for managing GuildMemberHC entities.
 /// </summary>
-public interface IGuildMemberHCRepository
+public interface IGuildMemberRepository
 {
     /// <summary>
     /// Retrieves a GuildMemberHC entity for the specified user in the specified guild.
@@ -35,4 +35,5 @@ public interface IGuildMemberHCRepository
     /// <param name="userId">The unique identifier of the user.</param>
     /// <returns>True if the delete was successful, otherwise false.</returns>
     bool DeleteUser(ulong guildId, ulong userId);
+    int DeleteGuild(ulong guildId);
 }

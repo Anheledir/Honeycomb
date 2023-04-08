@@ -1,40 +1,31 @@
-﻿using BaseBotService.Commands.Enums;
-using BaseBotService.Data;
-using BaseBotService.Data.Interfaces;
+﻿using BaseBotService.Data.Interfaces;
 using BaseBotService.Data.Models;
+using BaseBotService.Data.Repositories;
 using LiteDB;
 
-namespace BaseBotService.Tests.Data;
+namespace BaseBotService.Tests.Data.Repositories;
 
 [TestFixture]
-public class MemberHCRepositoryTests
+public class MemberRepositoryTests
 {
     private ILiteCollection<MemberHC> _members;
-    private IMemberHCRepository _repository;
-    private Faker<MemberHC> _memberFaker;
+    private IMemberRepository _repository;
+    private readonly Faker _faker = new();
 
     [SetUp]
     public void SetUp()
     {
-        var db = new LiteDatabase(":memory:");
-        _members = db.GetCollection<MemberHC>("members");
+        LiteDatabase db = FakeDataHelper.GetTestDatabase();
+        _members = db.GetCollection<MemberHC>();
 
-        _repository = new MemberHCRepository(_members);
-
-        _memberFaker = new Faker<MemberHC>()
-            .RuleFor(u => u.MemberId, f => f.Random.ULong())
-            .RuleFor(u => u.Timezone, f => f.Random.Enum<Timezone>())
-            .RuleFor(u => u.Country, f => f.Random.Enum<Countries>())
-            .RuleFor(u => u.Languages, f => f.Random.Enum<Languages>())
-            .RuleFor(u => u.Birthday, f => f.Date.Between(DateTime.Today.AddYears(-50), DateTime.Today.AddYears(-13)))
-            .RuleFor(u => u.GenderIdentity, f => f.Random.Enum<GenderIdentity>());
+        _repository = new MemberRepository(_members);
     }
 
     [Test]
     public void GetUser_WhenUserExists_ShouldReturnCorrectUser()
     {
         // Arrange
-        var member = _memberFaker.Generate();
+        var member = FakeDataHelper.MemberFaker.Generate();
         _members.Insert(member);
 
         // Act
@@ -43,6 +34,7 @@ public class MemberHCRepositoryTests
         // Assert
         result.Should().NotBeNull();
         result.Should().BeEquivalentTo(member, options => options
+        .Excluding(u => u.Achievements)
         // allow rounding errors on comparing times
         .Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromMilliseconds(1)))
         .WhenTypeIs<DateTime>());
@@ -52,7 +44,7 @@ public class MemberHCRepositoryTests
     public void GetUser_WhenUserDoesNotExistAndTouchIsFalse_ShouldReturnNull()
     {
         // Arrange
-        const ulong nonExistentUserId = 12345;
+        ulong nonExistentUserId = _faker.Random.ULong();
 
         // Act
         var result = _repository.GetUser(nonExistentUserId, false);
@@ -65,18 +57,19 @@ public class MemberHCRepositoryTests
     public void GetUser_WhenUserDoesNotExistAndTouchIsTrue_ShouldCreateAndReturnNewUser()
     {
         // Arrange
-        const ulong nonExistentUserId = 12345;
+        ulong nonExistentUserId = _faker.Random.ULong();
 
         // Act
         var result = _repository.GetUser(nonExistentUserId, true);
 
         // Assert
         result.Should().NotBeNull();
-        result.MemberId.Should().Be(nonExistentUserId);
+        result?.MemberId.Should().Be(nonExistentUserId);
 
         var createdUser = _members.FindOne(a => a.MemberId == nonExistentUserId);
         createdUser.Should().NotBeNull();
         createdUser.Should().BeEquivalentTo(result, options => options
+        .Excluding(u => u!.Achievements)
         // allow rounding errors on comparing times
         .Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromMilliseconds(1)))
         .WhenTypeIs<DateTime>());
@@ -86,7 +79,7 @@ public class MemberHCRepositoryTests
     public void AddUser_ShouldAddNewUser()
     {
         // Arrange
-        var newUser = _memberFaker.Generate();
+        var newUser = FakeDataHelper.MemberFaker.Generate();
 
         // Act
         _repository.AddUser(newUser);
@@ -95,6 +88,7 @@ public class MemberHCRepositoryTests
         var result = _members.FindOne(u => u.MemberId == newUser.MemberId);
         result.ShouldNotBeNull();
         result.Should().BeEquivalentTo(newUser, options => options
+        .Excluding(u => u.Achievements)
         // allow rounding errors on comparing times
         .Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromMilliseconds(1)))
         .WhenTypeIs<DateTime>());
@@ -104,16 +98,14 @@ public class MemberHCRepositoryTests
     public void UpdateUser_ShouldUpdateExistingUser()
     {
         // Arrange
-        var existingUser = _memberFaker.Generate();
+        var existingUser = FakeDataHelper.MemberFaker.Generate();
         _members.Insert(existingUser);
 
         existingUser.Timezone += 60;
         existingUser.Country++;
         existingUser.Languages++;
         existingUser.GenderIdentity++;
-#pragma warning disable CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
-        existingUser.Birthday += TimeSpan.FromDays(1);
-#pragma warning restore CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
+        existingUser.Birthday = existingUser.Birthday! + TimeSpan.FromDays(1);
 
         // Act
         var updateResult = _repository.UpdateUser(existingUser);
@@ -123,6 +115,7 @@ public class MemberHCRepositoryTests
         var updatedUser = _members.FindOne(u => u.MemberId == existingUser.MemberId);
         updatedUser.ShouldNotBeNull();
         updatedUser.Should().BeEquivalentTo(existingUser, options => options
+        .Excluding(u => u.Achievements)
         // allow rounding errors on comparing times
         .Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromMilliseconds(1)))
         .WhenTypeIs<DateTime>());
@@ -132,7 +125,7 @@ public class MemberHCRepositoryTests
     public void DeleteUser_ShouldDeleteExistingUser()
     {
         // Arrange
-        var existingUser = _memberFaker.Generate();
+        var existingUser = FakeDataHelper.MemberFaker.Generate();
         _members.Insert(existingUser);
 
         // Act
