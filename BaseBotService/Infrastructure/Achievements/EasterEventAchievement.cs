@@ -8,6 +8,8 @@ public class EasterEventAchievement : AchievementBase
     public static new string Identifier => "0077B1DF-0E12-4E05-91B1-05A9E9E88248";
     public static new string TranslationKey => "achievement-event-easter";
 
+    internal EasterEventAchievement() { }
+
     public EasterEventAchievement(ILogger logger, ITranslationService translationService, IDateTimeProvider dateTimeProvider)
     {
         EventAttributes = TranslationHelper.Arguments("year", dateTimeProvider.GetCurrentUtcDate().Year);

@@ -126,7 +126,7 @@ public class EasterEventService : IEasterEventService
         if (channel is not SocketGuildChannel guildChannel) return;
         SocketGuild guild = guildChannel.Guild;
         MemberHC memberHC = _memberHCRepository.GetUser(user.Id, true)!;
-        List<EasterEventAchievement> userAchievements = memberHC.GetAchievements<EasterEventAchievement>();
+        List<EasterEventAchievement> userAchievements = memberHC.GetAchievements(_easterEventAchievements);
         _ = _engagementService.AddActivityTick(guild.Id, memberHC.MemberId);
         var gUsr = _guildMemberRepository.GetUser(guild.Id, memberHC.MemberId);
 
@@ -135,6 +135,10 @@ public class EasterEventService : IEasterEventService
         int currentYear = _dateTime.GetCurrentUtcDate().Year;
         EasterEventAchievement? existingAchievement =
             userAchievements.Find(a => a.GuildId == guild.Id && a.CreatedAt.Year == currentYear);
+
+        // Hooray, we made it this far! Remove the bots reaction again as it can only be redeemed once
+        await message.RemoveReactionAsync(arg.Reaction.Emote, _client.CurrentUser);
+
         if (existingAchievement != null)
         {
             uint scaledPoints = (uint)(existingAchievement.Points * AchievementRepeatedPointScaling);
@@ -143,9 +147,6 @@ public class EasterEventService : IEasterEventService
             _guildMemberRepository.UpdateUser(gUsr);
             return;
         }
-
-        // Hooray, we made it this far! Remove the bots reaction again as it can only be redeemed once
-        await message.RemoveReactionAsync(arg.Reaction.Emote, _client.CurrentUser);
 
         _logger.Information($"The user {user.Id} on {guild.Id} got the {nameof(EasterEventAchievement)}.");
         EasterEventAchievement achievement = AchievementFactory.CreateAchievement<EasterEventAchievement>(gUsr);

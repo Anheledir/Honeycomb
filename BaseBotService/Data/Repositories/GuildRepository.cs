@@ -10,12 +10,12 @@ public class GuildRepository : IGuildRepository
 
     public GuildRepository(ILiteCollection<GuildHC> guilds) => _guilds = guilds;
 
-    public GuildHC? GetGuild(ulong guildId, bool touch = false)
+    public GuildHC? GetGuild(ulong guildId, bool create = false)
     {
         GuildHC? guild = _guilds
             .Include(m => m.Members)
             .FindOne(g => g.GuildId == guildId);
-        if (guild == null && touch)
+        if (guild == null && create)
         {
             _guilds.Insert(new GuildHC { GuildId = guildId });
             return GetGuild(guildId, false);

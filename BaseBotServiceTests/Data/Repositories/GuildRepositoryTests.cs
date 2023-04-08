@@ -56,7 +56,7 @@ public class GuildRepositoryTests
         ulong guildId = new Faker().Random.ULong();
 
         // Act
-        var result = _repository.GetGuild(guildId, touch: true);
+        var result = _repository.GetGuild(guildId, create: true);
 
         // Assert
         result.ShouldNotBeNull();

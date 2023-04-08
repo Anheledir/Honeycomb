@@ -11,9 +11,9 @@ public interface IMemberRepository
     /// Retrieves a MemberHC entity by its user ID.
     /// </summary>
     /// <param name="userId">The user ID of the MemberHC entity to retrieve.</param>
-    /// <param name="touch">If true it will create a new user and return it in case no user with <paramref name="userId"/> exists. Default is false.</param>
-    /// <returns>The MemberHC entity if found; otherwise, null. If <paramref name="touch"/> is true will always return an entity.</returns>
-    MemberHC? GetUser(ulong userId, bool touch = false);
+    /// <param name="create">If true it will create a new user and return it in case no user with <paramref name="userId"/> exists. Default is false.</param>
+    /// <returns>The MemberHC entity if found; otherwise, null. If <paramref name="create"/> is true will always return an entity.</returns>
+    MemberHC? GetUser(ulong userId, bool create = false);
 
     /// <summary>
     /// Adds a new MemberHC entity to the repository.

@@ -10,12 +10,12 @@ public class MemberRepository : IMemberRepository
 
     public MemberRepository(ILiteCollection<MemberHC> members) => _members = members;
 
-    public MemberHC? GetUser(ulong userId, bool touch = false)
+    public MemberHC? GetUser(ulong userId, bool create = false)
     {
         MemberHC? result = _members
             .Include(a => a.Achievements)
             .FindOne(a => a.MemberId == userId);
-        if (touch && result == null)
+        if (create && result == null)
         {
             _members.Insert(new MemberHC { MemberId = userId });
             result = _members.FindOne(a => a.MemberId == userId);

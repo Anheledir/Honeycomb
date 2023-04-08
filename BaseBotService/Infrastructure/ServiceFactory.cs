@@ -59,9 +59,9 @@ public static class ServiceFactory
             .AddSingleton<IAssemblyService, AssemblyService>()
             .AddSingleton<IEnvironmentService, EnvironmentService>()
             .AddSingleton<IDateTimeProvider, NodaDateTimeService>()
+            .AddSingleton<RateLimiter>()
             .AddScoped<IEngagementService, EngagementService>()
             .AddScoped<IEasterEventService, EasterEventService>()
-            .AddSingleton<RateLimiter>()
 
         // data services
             .AddSingleton<IPersistenceService, PersistenceService>()
@@ -69,10 +69,10 @@ public static class ServiceFactory
             .AddSingleton<CollectionMapper>()
 
         // data repositories
-            .AddSingleton<IGuildRepository, GuildRepository>()
-            .AddSingleton<IGuildMemberRepository, GuildMemberRepository>()
-            .AddSingleton<IMemberRepository, MemberRepository>()
-            .AddSingleton(typeof(IAchievementRepository<>), typeof(AchievementRepository<>))
+            .AddScoped<IGuildRepository, GuildRepository>()
+            .AddScoped<IGuildMemberRepository, GuildMemberRepository>()
+            .AddScoped<IMemberRepository, MemberRepository>()
+            .AddScoped(typeof(IAchievementRepository<>), typeof(AchievementRepository<>))
 
         // data achievement models
             .AddScoped(AchievementBase.GetServiceRegistration)

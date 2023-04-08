@@ -8,6 +8,8 @@ namespace BaseBotService.Data.Interfaces;
 /// <typeparam name="T">The type of the achievement derived from AchievementBase.</typeparam>
 public interface IAchievementRepository<T> where T : AchievementBase
 {
+    Guid Identifier { get; }
+
     /// <summary>
     /// Retrieves all achievements.
     /// </summary>

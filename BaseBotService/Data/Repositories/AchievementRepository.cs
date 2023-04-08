@@ -8,18 +8,18 @@ namespace BaseBotService.Data.Repositories;
 public class AchievementRepository<T> : IAchievementRepository<T> where T : AchievementBase
 {
     private readonly ILiteCollection<AchievementBase> _achievements;
-    private readonly Guid _identifier = GetIdentifier();
+    public Guid Identifier => GetIdentifier();
 
     public AchievementRepository(ILiteCollection<AchievementBase> achievements) => _achievements = achievements;
 
     public List<T> GetByUserId(ulong userId)
-        => _achievements.Find(a => a.SourceIdentifier == _identifier && a.MemberId == userId).OfType<T>().ToList();
+        => _achievements.Find(a => a.SourceIdentifier == Identifier && a.MemberId == userId).OfType<T>().ToList();
 
     public List<T> GetByGuildId(ulong guildId)
-        => _achievements.Find(a => a.SourceIdentifier == _identifier && a.GuildId == guildId).OfType<T>().ToList();
+        => _achievements.Find(a => a.SourceIdentifier == Identifier && a.GuildId == guildId).OfType<T>().ToList();
 
     public List<T> Get(ulong userId, ulong guildId)
-        => _achievements.Find(a => a.SourceIdentifier == _identifier && a.MemberId == userId && a.GuildId == guildId).OfType<T>().ToList();
+        => _achievements.Find(a => a.SourceIdentifier == Identifier && a.MemberId == userId && a.GuildId == guildId).OfType<T>().ToList();
 
     /// <summary>
     /// Retrieves all achievements of type T with the same Identifier value as the T type.
@@ -28,7 +28,7 @@ public class AchievementRepository<T> : IAchievementRepository<T> where T : Achi
     public List<T> GetAll()
     {
         // Filter the achievements based on the Identifier property value
-        return _achievements.Find(a => a.SourceIdentifier == _identifier).OfType<T>().ToList();
+        return _achievements.Find(a => a.SourceIdentifier == Identifier).OfType<T>().ToList();
     }
 
     [SuppressMessage("Roslynator", "RCS1158:Static member in generic type should use a type parameter.", Justification = "Only used internally.")]

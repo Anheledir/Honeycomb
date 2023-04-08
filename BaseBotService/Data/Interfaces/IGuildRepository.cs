@@ -11,9 +11,9 @@ public interface IGuildRepository
     /// Retrieves a GuildHC object by its guild ID.
     /// </summary>
     /// <param name="guildId">The guild ID.</param>
-    /// <param name="touch">If true, it will create a new guild and return it in case no user with <paramref name="guildId"/> exists. Default is false.</param>
-    /// <returns>The GuildHC object with the specified guild ID, or null if not found. If <paramref name="touch"/> is true will always return an entity.</returns>
-    GuildHC? GetGuild(ulong guildId, bool touch = false);
+    /// <param name="create">If true, it will create a new guild and return it in case no user with <paramref name="guildId"/> exists. Default is false.</param>
+    /// <returns>The GuildHC object with the specified guild ID, or null if not found. If <paramref name="create"/> is true will always return an entity.</returns>
+    GuildHC? GetGuild(ulong guildId, bool create = false);
 
     /// <summary>
     /// Adds a new GuildHC object to the repository.
