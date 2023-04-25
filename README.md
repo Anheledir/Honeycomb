@@ -40,6 +40,8 @@ Project Honeycomb is a Discord bot designed to provide artists with some useful 
 
 📝 Project Honeycomb is released under the [MIT License](LICENSE.txt).
 
+[Logo](https://www.flaticon.com/free-icon/bee_7299846?term=bee&page=1&position=41&origin=tag&related_id=7299846): <a href="https://www.flaticon.com/free-icons/bee" title="bee icons">Bee icons created by Deylotus Creative Design - Flaticon</a>
+
 ## Roadmap
 
 🗺️ The project is currently in a ramp-up phase, with a focus on creating a solid base. Here are some upcoming features:
