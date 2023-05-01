@@ -14,18 +14,23 @@ Thank you for your contributing to this project
 
 Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context. List any dependencies that are required for this change.
 
+
 # Fixes
 
 Please add linking to issue fixes. Follow the [recommendations](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue).
 
 Fixes #(issue)
 
-# How Has This Been Tested?
 
-Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration
+# Changelogs
+- (added) X is live now
+- (changed) Y is changed now
+- (deprecated) Z is deprecated
+- (fixed) A is squashed 
+- (removed) B refactored
+- (security) releasing a security patch for C
+- (added) D is live too
 
-- [ ] Test A
-- [ ] Test B
 
 # Checklist:
 
