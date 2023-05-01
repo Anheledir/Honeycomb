@@ -5,7 +5,7 @@
 [![GitHub](https://img.shields.io/github/license/Anheledir/Honeycomb)](https://github.com/Anheledir/Honeycomb/blob/main/LICENSE)
 [![GitHub contributors](https://img.shields.io/github/contributors/Anheledir/Honeycomb)](https://github.com/Anheledir/Honeycomb/graphs/contributors)
 [![GitHub last commit](https://img.shields.io/github/last-commit/Anheledir/Honeycomb)](https://github.com/Anheledir/Honeycomb/commits/main)
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Anheledir/Honeycomb/codeql.yml?label=CodeQL)](https://github.com/Anheledir/Honeycomb/actions/workflows/codeql.yml)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Anheledir/Honeycomb/codeql.yml?label=CodeQL)](https://github.com/Anheledir/Honeycomb/actions/workflows/codeql.yml) [![CodeFactor](https://www.codefactor.io/repository/github/anheledir/honeycomb/badge)](https://www.codefactor.io/repository/github/anheledir/honeycomb)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Anheledir/Honeycomb/main_projecthoneycomb.yml?label=Azure%20Deployment)](https://github.com/Anheledir/Honeycomb/actions/workflows/main_projecthoneycomb.yml) [![GitHub branch checks state](https://img.shields.io/github/checks-status/Anheledir/Honeycomb/main)](https://github.com/Anheledir/Honeycomb/actions?query=branch%3Amain) [![Uptime Discord Bot](https://img.shields.io/uptimerobot/status/m793909898-a59e48b604b1e59f44950792)](https://stats.uptimerobot.com/vpoBKHEYWJ) [![GitHub issues by-label](https://img.shields.io/github/issues-raw/Anheledir/Honeycomb/translation)](https://github.com/Anheledir/Honeycomb/issues?q=is%3Aissue+is%3Aopen+label%3Atranslation)
 
 
