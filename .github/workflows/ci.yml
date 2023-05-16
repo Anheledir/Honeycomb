@@ -10,7 +10,7 @@ jobs:
      steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # avoid shallow clone to calculate semVer 
+          fetch-depth: 0 # avoid shallow clone to calculate semVer
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v3
         with:
