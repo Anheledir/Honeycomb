@@ -10,6 +10,14 @@
         <RootNamespace>BaseBotService.Tests</RootNamespace>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+      <LangVersion>preview</LangVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+      <LangVersion>preview</LangVersion>
+    </PropertyGroup>
+
     <ItemGroup>
       <None Remove="Resources\de.ftl" />
       <None Remove="Resources\en.ftl" />

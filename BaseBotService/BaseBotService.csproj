@@ -11,16 +11,22 @@
         <SignAssembly>False</SignAssembly>
         <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <LangVersion>preview</LangVersion>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <LangVersion>preview</LangVersion>
+    </PropertyGroup>
     <ItemGroup>
-      <Compile Remove="Locales\i18n\**" />
-      <EmbeddedResource Remove="Locales\i18n\**" />
-      <None Remove="Locales\i18n\**" />
+        <Compile Remove="Locales\i18n\**" />
+        <EmbeddedResource Remove="Locales\i18n\**" />
+        <None Remove="Locales\i18n\**" />
     </ItemGroup>
     <ItemGroup>
-      <None Remove="Locales\de.ftl" />
-      <None Remove="Locales\en.ftl" />
-      <None Remove="Locales\es.ftl" />
-      <None Remove="Locales\fr.ftl" />
+        <None Remove="Locales\de.ftl" />
+        <None Remove="Locales\en.ftl" />
+        <None Remove="Locales\es.ftl" />
+        <None Remove="Locales\fr.ftl" />
     </ItemGroup>
     <ItemGroup>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
@@ -28,10 +34,10 @@
         </AssemblyAttribute>
     </ItemGroup>
     <ItemGroup>
-      <EmbeddedResource Include="Locales\de.ftl" />
-      <EmbeddedResource Include="Locales\en.ftl" />
-      <EmbeddedResource Include="Locales\es.ftl" />
-      <EmbeddedResource Include="Locales\fr.ftl" />
+        <EmbeddedResource Include="Locales\de.ftl" />
+        <EmbeddedResource Include="Locales\en.ftl" />
+        <EmbeddedResource Include="Locales\es.ftl" />
+        <EmbeddedResource Include="Locales\fr.ftl" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Discord.Net" Version="3.10.0" />
