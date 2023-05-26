@@ -6,18 +6,58 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace BaseBotService.Core.Base;
+/// <summary>
+/// Base class for all modules that provide interaction-based commands.
+/// </summary>
 public abstract class BaseModule : InteractionModuleBase<SocketInteractionContext>
 {
-    // Dependencies can be accessed through Property injection,
-    // public properties with public setters will be set by the service provider
+    /// <summary>
+    /// The logger for the current module.
+    /// </summary>
     public ILogger Logger { get; set; } = null!;
+    /// <summary>
+    /// The user that invoked the command.
+    /// </summary>
     public SocketUser Caller => Context.Interaction.User;
+    /// <summary>
+    /// The guild in which the command was invoked.
+    /// </summary>
+    public ulong? GuildId => Context.Interaction.GuildId;
+    /// <summary>
+    /// The bot user instance.
+    /// </summary>
     public SocketSelfUser BotUser => Context.Client.CurrentUser;
+    /// <summary>
+    /// The rate limiter instance to be used.
+    /// </summary>
     public RateLimiter RateLimiter { get; set; } = null!;
+    /// <summary>
+    /// Provides information about available assemblies.
+    /// </summary>
     public IAssemblyService AssemblyService { get; set; } = null!;
+    /// <summary>
+    /// The environment information instance.
+    /// </summary>
     public IEnvironmentService EnvironmentService { get; set; } = null!;
+    /// <summary>
+    /// Provides translation services.
+    /// </summary>
     public ITranslationService TranslationService { get; set; } = null!;
 
+    /// <summary>
+    /// Sends a reply or a follow-up in a private message.
+    /// </summary>
+    /// <param name="text">The text to send.</param>
+    /// <param name="isTTS">Whether or not the message should be text-to-speech enabled.</param>
+    /// <param name="embed">The embed object to send.</param>
+    /// <param name="options">The request options to use.</param>
+    /// <param name="allowedMentions">The allowed mentions properties for the message.</param>
+    /// <param name="messageReference">The message to reference.</param>
+    /// <param name="components">The message components to include.</param>
+    /// <param name="stickers">Message stickers to include.</param>
+    /// <param name="embeds">Embed objects to include.</param>
+    /// <param name="flags">Flags to include.</param>
+    /// <param name="ephemeral">Whether or not the message should be ephemeral.</param>
     protected async Task RespondOrFollowupInDMAsync(
         string? text = null,
         bool isTTS = false,
@@ -61,6 +101,17 @@ public abstract class BaseModule : InteractionModuleBase<SocketInteractionContex
         }
     }
 
+    /// <summary>
+    /// Sends a reply or a follow-up in the current context.
+    /// </summary>
+    /// <param name="text">The text to send.</param>
+    /// <param name="isTTS">Whether or not the message should be text-to-speech enabled.</param>
+    /// <param name="embed">The embed object to send.</param>
+    /// <param name="options">The request options to use.</param>
+    /// <param name="allowedMentions">The allowed mentions properties for the message.</param>
+    /// <param name="components">The message components to include.</param>
+    /// <param name="embeds">Embed objects to include.</param>
+    /// <param name="ephemeral">Whether or not the message should be ephemeral.</param>
     protected async Task RespondOrFollowupAsync(
     string? text = null,
     bool isTTS = false,
@@ -96,6 +147,10 @@ public abstract class BaseModule : InteractionModuleBase<SocketInteractionContex
         }
     }
 
+    /// <summary>
+    /// Gets an <see cref="EmbedBuilder"/> instance for use.
+    /// </summary>
+    /// <returns>An <see cref="EmbedBuilder"/> instance.</returns>
     protected EmbedBuilder GetEmbedBuilder() => new()
     {
         Author = new EmbedAuthorBuilder
@@ -135,6 +190,7 @@ public abstract class BaseModule : InteractionModuleBase<SocketInteractionContex
     /// }
     /// </code>
     /// </example>
+    /// <param name="commandName"></param>
     protected async Task<bool> CheckRateLimitAsync([CallerMemberName] string commandName = "")
     {
         MethodInfo? method = GetType().GetMethod(commandName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
