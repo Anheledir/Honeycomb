@@ -85,6 +85,20 @@ invite = Invite me to your server!
 
 
 ####################################
+## Admin Module
+####################################
+
+modrole = Moderator Role
+    .description = The role that is allowed to use the moderation commands.
+    .button = Set Moderator Role
+    .emoji = :hammer:
+    .error = You need to mention a role or provide a role ID.
+    .success = The moderator role has been set to { $role }.
+    .reset = The moderator role has been reset.
+
+
+
+####################################
 ## User Module
 ####################################
 
@@ -259,3 +273,9 @@ error-connection = Unable to connect. Please check your Internet connection.
 
 # Error message for rate limit
 error-rate-limit = You have reached the rate limit for this command. Please wait before trying again.
+
+# Error message for missing guild
+error-guild-missing = This command can only be used in a server.
+
+# Error message when the guild could not be loaded or created in the database
+error-guild-load = Unable to load the server. Please try again later.

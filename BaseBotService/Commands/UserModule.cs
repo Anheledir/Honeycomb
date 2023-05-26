@@ -15,20 +15,8 @@ using System.Text.RegularExpressions;
 namespace BaseBotService.Commands;
 
 [Group("user", "The user management module of Honeycomb.")]
-public class UserModule : BaseModule
+public class UserModule(ITranslationService TranslationService, IEngagementService EngagementService, IMemberRepository MemberRepository) : BaseModule
 {
-    private readonly ITranslationService _translationService;
-    private readonly IEngagementService _engagementService;
-    private readonly IMemberRepository _memberRepository;
-
-    public UserModule(ILogger logger, ITranslationService translationService, IEngagementService engagementService, IMemberRepository memberRepository)
-    {
-        Logger = logger.ForContext<UserModule>();
-        _translationService = translationService;
-        _engagementService = engagementService;
-        _memberRepository = memberRepository;
-    }
-
     [UserCommand("User Profile")]
     public async Task UserInfoCommandAsync(IUser user) =>
         await RespondOrFollowupAsync(
@@ -45,10 +33,10 @@ public class UserModule : BaseModule
 
         ComponentBuilder configBtn = new ComponentBuilder()
             .WithButton(
-                _translationService.GetAttrString("profile-config", "button"),
+                TranslationService.GetAttrString("profile-config", "button"),
                 "profile.config",
                 ButtonStyle.Primary,
-                Emoji.Parse(_translationService.GetAttrString("profile-config", "emoji")));
+                Emoji.Parse(TranslationService.GetAttrString("profile-config", "emoji")));
 
         await RespondOrFollowupAsync(embed: GetUserProfileEmbed(user, false).Build(), components: configBtn.Build(), ephemeral: false);
     }
@@ -57,21 +45,21 @@ public class UserModule : BaseModule
     [ComponentInteraction("profile.config", ignoreGroupNames: true)]
     public async Task ConfigProfileAsync()
     {
-        await RespondOrFollowupInDMAsync(_translationService.GetString("profile-config"), components: ShowUserConfigMenu().Build());
+        await RespondOrFollowupInDMAsync(TranslationService.GetString("profile-config"), components: ShowUserConfigMenu().Build());
     }
 
     private ComponentBuilder ShowUserConfigMenu()
     {
         var userConfigMenu = new SelectMenuBuilder()
-            .WithPlaceholder(_translationService.GetString("profile-config"))
+            .WithPlaceholder(TranslationService.GetString("profile-config"))
             .WithCustomId("user.profile.config")
             .WithMinValues(1)
             .WithMaxValues(1)
-            .AddOptionsFromEnum<UserConfigs>(-1, e => e.GetUserSettingsName(_translationService));
+            .AddOptionsFromEnum<UserConfigs>(-1, e => e.GetUserSettingsName(TranslationService));
 
         return new ComponentBuilder()
             .WithSelectMenu(userConfigMenu)
-            .WithButton(new ButtonBuilder(_translationService.GetString("button-close"), "user.profile.close", ButtonStyle.Primary));
+            .WithButton(new ButtonBuilder(TranslationService.GetString("button-close"), "user.profile.close", ButtonStyle.Primary));
     }
 
     [ComponentInteraction("user.profile.close", ignoreGroupNames: true)]
@@ -81,7 +69,7 @@ public class UserModule : BaseModule
         SocketMessageComponent component = (SocketMessageComponent)Context.Interaction;
         await component.ModifyOriginalResponseAsync(x =>
         {
-            x.Content = _translationService.GetString("profile-saved");
+            x.Content = TranslationService.GetString("profile-saved");
             x.Components = null;
         });
         await Task.Delay(TimeSpan.FromSeconds(3)).ContinueWith(_ => component.DeleteOriginalResponseAsync());
@@ -94,7 +82,7 @@ public class UserModule : BaseModule
         SocketMessageComponent component = (SocketMessageComponent)Context.Interaction;
         await component.ModifyOriginalResponseAsync(x =>
         {
-            x.Content = _translationService.GetString("profile-config");
+            x.Content = TranslationService.GetString("profile-config");
             x.Components = ShowUserConfigMenu().Build();
         });
     }
@@ -103,10 +91,10 @@ public class UserModule : BaseModule
     public async Task SaveProfileCountryAsync(string[] selections)
     {
         Countries selection = Enum.Parse<Countries>(selections.FirstOrDefault() ?? "0");
-        MemberHC member = _memberRepository.GetUser(Caller.Id, true)!;
+        MemberHC member = MemberRepository.GetUser(Caller.Id, true)!;
 
         member.Country = selection;
-        _memberRepository.UpdateUser(member);
+        MemberRepository.UpdateUser(member);
         await DeferAsync();
     }
 
@@ -114,10 +102,10 @@ public class UserModule : BaseModule
     public async Task SaveProfileGenderIdentityAsync(string[] selections)
     {
         GenderIdentity selection = Enum.Parse<GenderIdentity>(selections.FirstOrDefault() ?? "0");
-        MemberHC member = _memberRepository.GetUser(Caller.Id, true)!;
+        MemberHC member = MemberRepository.GetUser(Caller.Id, true)!;
 
         member.GenderIdentity = selection;
-        _memberRepository.UpdateUser(member);
+        MemberRepository.UpdateUser(member);
         await DeferAsync();
     }
 
@@ -125,10 +113,10 @@ public class UserModule : BaseModule
     public async Task SaveProfileTimezoneAsync(string[] selections)
     {
         Timezone selection = Enum.Parse<Timezone>(selections.FirstOrDefault() ?? "0");
-        MemberHC member = _memberRepository.GetUser(Caller.Id, true)!;
+        MemberHC member = MemberRepository.GetUser(Caller.Id, true)!;
 
         member.Timezone = selection;
-        _memberRepository.UpdateUser(member);
+        MemberRepository.UpdateUser(member);
         await DeferAsync();
     }
 
@@ -137,9 +125,9 @@ public class UserModule : BaseModule
     {
         if (data?.Validate() == true)
         {
-            MemberHC member = _memberRepository.GetUser(Caller.Id, true)!;
+            MemberHC member = MemberRepository.GetUser(Caller.Id, true)!;
             member.Birthday = data.GetBirthday();
-            _memberRepository.UpdateUser(member);
+            MemberRepository.UpdateUser(member);
         }
 
         await DeferAsync();
@@ -158,10 +146,10 @@ public class UserModule : BaseModule
             }
         }
 
-        MemberHC member = _memberRepository.GetUser(Caller.Id, true)!;
+        MemberHC member = MemberRepository.GetUser(Caller.Id, true)!;
 
         member.Languages = selectedLanguages;
-        _memberRepository.UpdateUser(member);
+        MemberRepository.UpdateUser(member);
         await DeferAsync();
     }
 
@@ -169,7 +157,7 @@ public class UserModule : BaseModule
     public async Task UserProfileConfigAsync(string[] selections)
     {
         UserConfigs selection = Enum.Parse<UserConfigs>(selections.FirstOrDefault() ?? "0");
-        MemberHC member = _memberRepository.GetUser(Caller.Id, true)!;
+        MemberHC member = MemberRepository.GetUser(Caller.Id, true)!;
 
         SelectMenuBuilder configSetting = new();
         string message = string.Empty;
@@ -177,50 +165,50 @@ public class UserModule : BaseModule
         switch (selection)
         {
             case UserConfigs.Country:
-                configSetting.WithPlaceholder(_translationService.GetAttrString("profile-config", "country"))
+                configSetting.WithPlaceholder(TranslationService.GetAttrString("profile-config", "country"))
                     .WithCustomId("user.profile.save.country")
                     .WithMinValues(1)
                     .WithMaxValues(1)
-                    .AddOptionsFromEnum<Countries>((int)member.Country, e => e.GetCountryNameWithFlag(_translationService));
-                message = _translationService.GetAttrString("profile-config", "country");
+                    .AddOptionsFromEnum<Countries>((int)member.Country, e => e.GetCountryNameWithFlag(TranslationService));
+                message = TranslationService.GetAttrString("profile-config", "country");
                 break;
             case UserConfigs.Languages:
-                configSetting.WithPlaceholder(_translationService.GetAttrString("profile-config", "languages"))
+                configSetting.WithPlaceholder(TranslationService.GetAttrString("profile-config", "languages"))
                     .WithCustomId("user.profile.save.languages")
                     .WithMinValues(1)
                     .WithMaxValues(4)
-                    .AddOptionsFromEnum<Languages>((int)member.Languages, e => e.GetFlaggedLanguageNames(_translationService));
-                message = _translationService.GetAttrString("profile-config", "languages");
+                    .AddOptionsFromEnum<Languages>((int)member.Languages, e => e.GetFlaggedLanguageNames(TranslationService));
+                message = TranslationService.GetAttrString("profile-config", "languages");
                 break;
             case UserConfigs.GenderIdentity:
-                configSetting.WithPlaceholder(_translationService.GetAttrString("profile-config", "gender"))
+                configSetting.WithPlaceholder(TranslationService.GetAttrString("profile-config", "gender"))
                     .WithCustomId("user.profile.save.gender")
                     .WithMinValues(1)
                     .WithMaxValues(1)
-                    .AddOptionsFromEnum<GenderIdentity>((int)member.GenderIdentity, e => e.GetFlaggedGenderName(_translationService));
-                message = _translationService.GetAttrString("profile-config", "gender");
+                    .AddOptionsFromEnum<GenderIdentity>((int)member.GenderIdentity, e => e.GetFlaggedGenderName(TranslationService));
+                message = TranslationService.GetAttrString("profile-config", "gender");
                 break;
             case UserConfigs.Timezone:
-                configSetting.WithPlaceholder(_translationService.GetAttrString("profile-config", "timezone"))
+                configSetting.WithPlaceholder(TranslationService.GetAttrString("profile-config", "timezone"))
                     .WithCustomId("user.profile.save.timezone")
                     .WithMinValues(1)
                     .WithMaxValues(1)
                     .AddOptionsFromEnum<Timezone>((int)member.Timezone, e => e.GetNameWithOffset());
-                message = _translationService.GetAttrString("profile-config", "timezone");
+                message = TranslationService.GetAttrString("profile-config", "timezone");
                 break;
             case UserConfigs.Birthday:
                 var mb = new ModalBuilder()
-                    .WithTitle(_translationService.GetString("profile-birthday"))
+                    .WithTitle(TranslationService.GetString("profile-birthday"))
                     .WithCustomId("user.profile.save.birthday")
-                    .AddTextInput(_translationService.GetAttrString("profile-birthday", "day"), "day",
-                        placeholder: _translationService.GetAttrString("profile-birthday", "day-placeholder"),
+                    .AddTextInput(TranslationService.GetAttrString("profile-birthday", "day"), "day",
+                        placeholder: TranslationService.GetAttrString("profile-birthday", "day-placeholder"),
                         maxLength: 2, value: member.Birthday?.Day.ToString("D2"))
-                    .AddTextInput(_translationService.GetAttrString("profile-birthday", "month"), "month",
-                        placeholder: _translationService.GetAttrString("profile-birthday", "month-placeholder"),
+                    .AddTextInput(TranslationService.GetAttrString("profile-birthday", "month"), "month",
+                        placeholder: TranslationService.GetAttrString("profile-birthday", "month-placeholder"),
                         maxLength: 2, value: member.Birthday?.Month.ToString("D2"))
                     .AddTextInput(
-                        _translationService.GetAttrString("profile-birthday", "year"), "year",
-                        placeholder: _translationService.GetAttrString("profile-birthday", "year-placeholder",
+                        TranslationService.GetAttrString("profile-birthday", "year"), "year",
+                        placeholder: TranslationService.GetAttrString("profile-birthday", "year-placeholder",
                             TranslationHelper.Arguments("exampleYear", DateTime.UtcNow.Year - 18)),
                         maxLength: 4, required: false,
                         value:
@@ -238,7 +226,7 @@ public class UserModule : BaseModule
 
         ComponentBuilder components = new ComponentBuilder()
             .WithSelectMenu(configSetting)
-            .WithButton(new ButtonBuilder(_translationService.GetString("button-back"), "user.profile.main", ButtonStyle.Primary));
+            .WithButton(new ButtonBuilder(TranslationService.GetString("button-back"), "user.profile.main", ButtonStyle.Primary));
 
         await ModifyOriginalResponseAsync(x =>
         {
@@ -261,10 +249,10 @@ public class UserModule : BaseModule
 
         DateTimeOffset startCountingDate = userJoined.Value > botJoined.Value ? userJoined.Value : botJoined.Value;
         double daysCounting = (DateTime.UtcNow - startCountingDate).TotalDays;
-        double maxPoints = daysCounting * _engagementService.MaxPointsPerDay;
+        double maxPoints = daysCounting * EngagementService.MaxPointsPerDay;
         double scaledMaxPoints = maxPoints * scalingFactor;
         Logger.Debug($"User {user!.Id} has been in the guild for {daysCounting} days, which would result in {maxPoints} points. The scaling factor is {scalingFactor}, so the maximum points are {scaledMaxPoints}.");
-        return Math.Min(100, _engagementService.GetActivityPoints(user.GuildId, user.Id) / scaledMaxPoints * 100);
+        return Math.Min(100, EngagementService.GetActivityPoints(user.GuildId, user.Id) / scaledMaxPoints * 100);
     }
 
     private EmbedBuilder GetUserProfileEmbed(IUser user, bool includePermissions)
@@ -278,42 +266,42 @@ public class UserModule : BaseModule
         {
             new EmbedFieldBuilder
             {
-                Name = _translationService.GetAttrString("profile", "name"),
+                Name = TranslationService.GetAttrString("profile", "name"),
                 Value = $"{user} {(user.IsBot ? UnicodeEmojiHelper.robotFace : string.Empty)}{(user.IsWebhook ? UnicodeEmojiHelper.satelliteAntenna : string.Empty)}"
             },
             new EmbedFieldBuilder
             {
-                Name = _translationService.GetAttrString("profile", "created"),
-                Value = $"{user.CreatedAt.ToDiscordTimestamp(_translationService, DiscordTimestampFormat.ShortDateTime)}\n({user.CreatedAt.ToDiscordTimestamp(_translationService, DiscordTimestampFormat.RelativeTime)})",
+                Name = TranslationService.GetAttrString("profile", "created"),
+                Value = $"{user.CreatedAt.ToDiscordTimestamp(TranslationService, DiscordTimestampFormat.ShortDateTime)}\n({user.CreatedAt.ToDiscordTimestamp(TranslationService, DiscordTimestampFormat.RelativeTime)})",
                 IsInline = true
             }
         };
 
-        MemberHC? member = _memberRepository.GetUser(user.Id);
+        MemberHC? member = MemberRepository.GetUser(user.Id);
         if (member != null)
         {
             fields.AddRange(new[] {
                 new EmbedFieldBuilder
                 {
-                    Name = _translationService.GetAttrString("profile", "country"),
-                    Value = member.Country.GetCountryNameWithFlag(_translationService),
+                    Name = TranslationService.GetAttrString("profile", "country"),
+                    Value = member.Country.GetCountryNameWithFlag(TranslationService),
                     IsInline = true
                 },
                 new EmbedFieldBuilder
                 {
-                    Name = _translationService.GetAttrString("profile", "languages"),
-                    Value = member.Languages.GetFlaggedLanguageNames(_translationService),
+                    Name = TranslationService.GetAttrString("profile", "languages"),
+                    Value = member.Languages.GetFlaggedLanguageNames(TranslationService),
                     IsInline = true
                 },
                 new EmbedFieldBuilder
                 {
-                    Name = _translationService.GetAttrString("profile", "gender"),
-                    Value = member.GenderIdentity.GetFlaggedGenderName(_translationService),
+                    Name = TranslationService.GetAttrString("profile", "gender"),
+                    Value = member.GenderIdentity.GetFlaggedGenderName(TranslationService),
                     IsInline = true
                 },
                 new EmbedFieldBuilder
                 {
-                    Name = _translationService.GetAttrString("profile", "timezone"),
+                    Name = TranslationService.GetAttrString("profile", "timezone"),
                     Value = member.Timezone.GetNameWithOffset(),
                     IsInline = true
                 }
@@ -324,10 +312,10 @@ public class UserModule : BaseModule
                 fields.Add(
                     new EmbedFieldBuilder
                     {
-                        Name = _translationService.GetAttrString("profile", "birthday"),
+                        Name = TranslationService.GetAttrString("profile", "birthday"),
                         IsInline = true,
                         Value = member.Birthday.Value.Year > 1
-                            ? $"{member.Birthday.Value.ToDiscordTimestamp(_translationService, DiscordTimestampFormat.ShortDate)} ({member.Birthday.Value.GetAge()})"
+                            ? $"{member.Birthday.Value.ToDiscordTimestamp(TranslationService, DiscordTimestampFormat.ShortDate)} ({member.Birthday.Value.GetAge()})"
                             : $"{member.Birthday.Value.GetDayAndMonth(member.Country)}"
                     }
                 );
@@ -339,8 +327,8 @@ public class UserModule : BaseModule
             fields.Add(
             new EmbedFieldBuilder
             {
-                Name = _translationService.GetAttrString("profile", "joined"),
-                Value = $"{gUser.JoinedAt?.ToDiscordTimestamp(_translationService, DiscordTimestampFormat.ShortDateTime)}\n({gUser.JoinedAt?.ToDiscordTimestamp(_translationService, DiscordTimestampFormat.RelativeTime)})",
+                Name = TranslationService.GetAttrString("profile", "joined"),
+                Value = $"{gUser.JoinedAt?.ToDiscordTimestamp(TranslationService, DiscordTimestampFormat.ShortDateTime)}\n({gUser.JoinedAt?.ToDiscordTimestamp(TranslationService, DiscordTimestampFormat.RelativeTime)})",
                 IsInline = true
             });
 
@@ -357,7 +345,7 @@ public class UserModule : BaseModule
                     .Append(' ')
                     .AppendFormat("{0:F2}", userActivityScore)
                     .AppendLine("%")
-                    .Append(_translationService.GetAttrString(
+                    .Append(TranslationService.GetAttrString(
                         "profile", "activity-rating",
                         TranslationHelper.Arguments("score", userActivityProgress)
                         )
@@ -367,14 +355,14 @@ public class UserModule : BaseModule
                 fields.AddRange(new[] {
                     new EmbedFieldBuilder
                     {
-                        Name = _translationService.GetAttrString("profile", "active"),
-                        Value = $"{_engagementService.GetLastActive(gUser.GuildId, user.Id).ToDiscordTimestamp(_translationService, DiscordTimestampFormat.ShortDateTime)}\n({_engagementService.GetLastActive(gUser.GuildId, user.Id).ToDiscordTimestamp(_translationService, DiscordTimestampFormat.RelativeTime)})",
+                        Name = TranslationService.GetAttrString("profile", "active"),
+                        Value = $"{EngagementService.GetLastActive(gUser.GuildId, user.Id).ToDiscordTimestamp(TranslationService, DiscordTimestampFormat.ShortDateTime)}\n({EngagementService.GetLastActive(gUser.GuildId, user.Id).ToDiscordTimestamp(TranslationService, DiscordTimestampFormat.RelativeTime)})",
                         IsInline = true
                     },
                     new EmbedFieldBuilder
                     {
-                        Name = _translationService.GetAttrString("profile", "activity"),
-                        Value = isTooNewForProgress ? _translationService.GetAttrString("profile", "activity-calc") : progressBar.ToString()
+                        Name = TranslationService.GetAttrString("profile", "activity"),
+                        Value = isTooNewForProgress ? TranslationService.GetAttrString("profile", "activity-calc") : progressBar.ToString()
                     }
                 });
             }
@@ -383,8 +371,8 @@ public class UserModule : BaseModule
             fields.Add(
                 new EmbedFieldBuilder
                 {
-                    Name = _translationService.GetAttrString("profile", "roles"),
-                    Value = roleMentions.Any() ? string.Join(", ", roleMentions) : _translationService.GetAttrString("profile", "roles-none")
+                    Name = TranslationService.GetAttrString("profile", "roles"),
+                    Value = roleMentions.Any() ? string.Join(", ", roleMentions) : TranslationService.GetAttrString("profile", "roles-none")
                 });
 
             if (includePermissions)
@@ -397,11 +385,11 @@ public class UserModule : BaseModule
                 fields.Add(
                 new EmbedFieldBuilder
                 {
-                    Name = _translationService.GetAttrString("profile", "permissions"),
-                    Value = permissionNames.Any() ? string.Join(", ", permissionNames) : _translationService.GetAttrString("profile", "permissions-none")
+                    Name = TranslationService.GetAttrString("profile", "permissions"),
+                    Value = permissionNames.Any() ? string.Join(", ", permissionNames) : TranslationService.GetAttrString("profile", "permissions-none")
                 });
             }
-            result.Title = _translationService
+            result.Title = TranslationService
                 .GetString("profile",
                 TranslationHelper.Arguments("username", gUser.DisplayName, "guildname", gUser.Guild.Name));
             result.ThumbnailUrl = gUser.GetDisplayAvatarUrl();
