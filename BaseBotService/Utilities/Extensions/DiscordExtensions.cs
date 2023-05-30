@@ -91,9 +91,8 @@ public static class DiscordExtensions
         return builder;
     }
 
-    public static async Task<SelectMenuBuilder> AddOptionsFromGuildRoles(this SelectMenuBuilder builder,
-                                                             DiscordSocketClient client, ulong guildId,
-                                                             List<ulong> currentValues, ILogger logger)
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+    public static async Task<SelectMenuBuilder> GetSelectMenuBuilderAsync(this SelectMenuBuilder builder, DiscordSocketClient client, ulong guildId, List<ulong> currentValues, ILogger logger)
     {
         // Get the guild from the client.
         var guild = client.GetGuild(guildId);
@@ -107,14 +106,14 @@ public static class DiscordExtensions
         foreach (SocketRole? role in guild.Roles.Where(role => !role.IsEveryone && !string.IsNullOrEmpty(role.Name)))
         {
             var option = new SelectMenuOptionBuilder()
-                .WithLabel(string.IsNullOrEmpty(role.Mention) ? role.Name : role.Mention)
+                .WithLabel(role.Name)
                 .WithValue(role.Id.ToString())
                 .WithDefault(currentValues.Contains(role.Id));
             _ = builder.AddOption(option);
         }
         return builder;
     }
-
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 
     /// <summary>
     /// This extension method makes it easier to modify specific text inputs in a modal after it is created.

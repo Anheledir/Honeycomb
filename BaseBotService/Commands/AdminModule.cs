@@ -10,6 +10,7 @@ namespace BaseBotService.Commands;
 
 [Group("admin", "Administration of the bot for the current server.")]
 [EnabledInDm(false)]
+[RequireContext(ContextType.Guild)]
 [RequireUserPermission(GuildPermission.Administrator)]
 public class AdminModule : BaseModule
 {
@@ -24,10 +25,9 @@ public class AdminModule : BaseModule
     }
 
     [SlashCommand("guild", "Change the settings for the current guild.")]
-    [ComponentInteraction("guild.config", ignoreGroupNames: true)]
     public async Task ConfigGuildAsync()
     {
-        await RespondOrFollowupInDMAsync(_translationService.GetString("guild-config"), components: ShowGuildConfigMenu().Build());
+        await RespondOrFollowupAsync(_translationService.GetString("guild-config"), components: ShowGuildConfigMenu().Build(), ephemeral: true);
     }
 
     private ComponentBuilder ShowGuildConfigMenu()
@@ -41,10 +41,10 @@ public class AdminModule : BaseModule
 
         return new ComponentBuilder()
             .WithSelectMenu(guildConfigMenu)
-            .WithButton(new ButtonBuilder(_translationService.GetString("button-close"), "admin.config.close", ButtonStyle.Primary));
+            .WithButton(new ButtonBuilder(_translationService.GetString("button-close"), "guild.config.close", ButtonStyle.Primary));
     }
 
-    [ComponentInteraction("admin.config.close", ignoreGroupNames: true)]
+    [ComponentInteraction("guild.config.close", ignoreGroupNames: true)]
     public async Task CloseGuildConfigAsync()
     {
         await DeferAsync();
@@ -80,7 +80,7 @@ public class AdminModule : BaseModule
         if (!GuildId.HasValue)
         {
             Logger.Information($"User {Caller.Id} tried to run {nameof(AdminGuildConfigAsync)} from within a DM.");
-            await RespondOrFollowupAsync(_translationService.GetString("error-guild-missing"));
+            await RespondOrFollowupAsync(_translationService.GetString("error-guild-missing"), ephemeral: true);
             return;
         }
 
@@ -89,7 +89,7 @@ public class AdminModule : BaseModule
         if (guild == null)
         {
             Logger.Error($"Guild ID {GuildId.Value} could not be loaded from the GuildRepository.");
-            await RespondOrFollowupAsync(_translationService.GetString("error-guild-load"));
+            await RespondOrFollowupAsync(_translationService.GetString("error-guild-load"), ephemeral: true);
             return;
         }
 
@@ -100,7 +100,7 @@ public class AdminModule : BaseModule
                     .WithCustomId("guild.config.save.modrole")
                     .WithMinValues(1)
                     .WithMaxValues(5);
-                _ = await configSetting.AddOptionsFromGuildRoles(Context.Client, GuildId.Value, guild.ModeratorRoles, Logger);
+                _ = await configSetting.GetSelectMenuBuilderAsync(Context.Client, GuildId.Value, guild.ModeratorRoles, Logger);
                 message = _translationService.GetAttrString("guild-config", "modrole");
                 break;
             default:
@@ -124,12 +124,12 @@ public class AdminModule : BaseModule
     [ComponentInteraction("guild.config.save.modrole", ignoreGroupNames: true)]
     public async Task SaveGuildModroleAsync(string[] selections)
     {
-        GuildHC guild = _guildRepository.GetGuild(GuildId.Value, true)!;
+        GuildHC guild = _guildRepository.GetGuild(GuildId!.Value, true)!;
 
         if (guild == null)
         {
             Logger.Error($"Guild ID {GuildId.Value} could not be loaded from the GuildRepository.");
-            await RespondOrFollowupAsync(_translationService.GetString("error-guild-load"));
+            await RespondOrFollowupAsync(_translationService.GetString("error-guild-load"), ephemeral: true);
             return;
         }
 
