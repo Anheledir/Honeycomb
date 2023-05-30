@@ -1,4 +1,6 @@
-﻿using Serilog.Events;
+﻿using Discord.WebSocket;
+using Serilog.Core;
+using Serilog.Events;
 
 namespace BaseBotService.Utilities.Extensions;
 
@@ -88,6 +90,31 @@ public static class DiscordExtensions
         }
         return builder;
     }
+
+    public static async Task<SelectMenuBuilder> AddOptionsFromGuildRoles(this SelectMenuBuilder builder,
+                                                             DiscordSocketClient client, ulong guildId,
+                                                             List<ulong> currentValues, ILogger logger)
+    {
+        // Get the guild from the client.
+        var guild = client.GetGuild(guildId);
+        if (guild == null)
+        {
+            logger.Error($"Guild with ID {guildId} not found.");
+            return builder;
+        }
+
+        // Add all roles in the guild as options, except the @everyone role.
+        foreach (SocketRole? role in guild.Roles.Where(role => !role.IsEveryone && !string.IsNullOrEmpty(role.Name)))
+        {
+            var option = new SelectMenuOptionBuilder()
+                .WithLabel(string.IsNullOrEmpty(role.Mention) ? role.Name : role.Mention)
+                .WithValue(role.Id.ToString())
+                .WithDefault(currentValues.Contains(role.Id));
+            _ = builder.AddOption(option);
+        }
+        return builder;
+    }
+
 
     /// <summary>
     /// This extension method makes it easier to modify specific text inputs in a modal after it is created.
