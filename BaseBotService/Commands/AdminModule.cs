@@ -9,8 +9,18 @@ namespace BaseBotService.Commands;
 [Group("admin", "Administration of the bot for the current server.")]
 [EnabledInDm(false)]
 [RequireUserPermission(GuildPermission.Administrator)]
-public class AdminModule(ITranslationService TranslationService, IGuildRepository GuildRepository) : BaseModule
+public class AdminModule : BaseModule
 {
+    private readonly IGuildRepository _guildRepository;
+    private readonly ITranslationService _translationService;
+
+    public AdminModule(ILogger logger, ITranslationService TranslationService, IGuildRepository GuildRepository)
+    {
+        _guildRepository = GuildRepository;
+        _translationService = TranslationService;
+        Logger = logger.ForContext<AdminModule>();
+    }
+
     [SlashCommand("modrole", "Set the moderator role for the current guild.")]
     [RequireUserPermission(GuildPermission.Administrator)]
     public async Task SetModeratorRoleAsync(
@@ -20,15 +30,17 @@ public class AdminModule(ITranslationService TranslationService, IGuildRepositor
     {
         if (!GuildId.HasValue)
         {
-            await RespondOrFollowupAsync(TranslationService.GetString("error-guild-missing"));
+            Logger.Information($"User {Caller.Id} tried to run {nameof(SetModeratorRoleAsync)} from within a DM.");
+            await RespondOrFollowupAsync(_translationService.GetString("error-guild-missing"));
             return;
         }
 
-        GuildHC guild = GuildRepository.GetGuild(GuildId.Value, true)!;
+        GuildHC guild = _guildRepository.GetGuild(GuildId.Value, true)!;
 
         if (guild == null)
         {
-            await RespondOrFollowupAsync(TranslationService.GetString("error-guild-load"));
+            Logger.Error($"Guild ID {GuildId.Value} could not be loaded from the GuildRepository.");
+            await RespondOrFollowupAsync(_translationService.GetString("error-guild-load"));
             return;
         }
 
@@ -36,8 +48,8 @@ public class AdminModule(ITranslationService TranslationService, IGuildRepositor
         guild.ModeratorRoles.Clear();
         guild.ModeratorRoles.Add(modRole.Id);
 
-        GuildRepository.UpdateGuild(guild);
+        _guildRepository.UpdateGuild(guild);
 
-        await RespondOrFollowupAsync(TranslationService.GetAttrString("modrole", "success", TranslationHelper.Arguments("role", modRole.Mention)));
+        await RespondOrFollowupAsync(_translationService.GetAttrString("modrole", "success", TranslationHelper.Arguments("role", modRole.Mention)));
     }
 }

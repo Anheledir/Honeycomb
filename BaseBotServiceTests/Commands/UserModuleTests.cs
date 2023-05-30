@@ -10,10 +10,11 @@ namespace BaseBotService.Tests.Commands;
 [TestFixture]
 public class UserModuleTests
 {
-    private ITranslationService _translationService;
-    private IEngagementService _engagementService;
-    private IMemberRepository _memberRepository;
-    private UserModule _userModule;
+    private ITranslationService _translationService = null!;
+    private IEngagementService _engagementService = null!;
+    private IMemberRepository _memberRepository = null!;
+    private ILogger _logger = null!;
+    private UserModule _userModule = null!;
     private readonly Faker _faker = new();
 
     [SetUp]
@@ -22,8 +23,9 @@ public class UserModuleTests
         _translationService = Substitute.For<ITranslationService>();
         _engagementService = Substitute.For<IEngagementService>();
         _memberRepository = Substitute.For<IMemberRepository>();
+        _logger = Substitute.For<ILogger>();
 
-        _userModule = new UserModule(_translationService, _engagementService, _memberRepository);
+        _userModule = new UserModule(_logger, _translationService, _engagementService, _memberRepository);
     }
 
     [Test]
