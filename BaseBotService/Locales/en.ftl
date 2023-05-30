@@ -92,14 +92,6 @@ guild-config-saved = Your guild settings have been saved.
 guild-config = Please select the setting you want to change.
     .modrole = Select up to five (5) roles that are allowed to use the moderation commands.
 
-modrole = Moderator Roles
-    .description = The roles that are allowed to use the moderation commands.
-    .button = Set Moderator Roles
-    .emoji = :hammer:
-    .error = You need to mention a role or provide a role ID.
-    .success = The moderator roles have been set to { $role }.
-    .reset = The moderator roles have been reset.
-
 
 
 ####################################
