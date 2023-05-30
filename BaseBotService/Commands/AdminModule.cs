@@ -98,10 +98,18 @@ public class AdminModule : BaseModule
             case GuildConfigs.Modroles:
                 configSetting.WithPlaceholder(_translationService.GetAttrString("guild-config", "modrole"))
                     .WithCustomId("guild.config.save.modrole")
-                    .WithMinValues(1)
+                    .WithMinValues(0)
                     .WithMaxValues(5);
                 _ = await configSetting.GetSelectMenuBuilderAsync(Context.Client, GuildId.Value, guild.ModeratorRoles, Logger);
                 message = _translationService.GetAttrString("guild-config", "modrole");
+                break;
+            case GuildConfigs.Artistroles:
+                configSetting.WithPlaceholder(_translationService.GetAttrString("guild-config", "artistrole"))
+                    .WithCustomId("guild.config.save.artistrole")
+                    .WithMinValues(0)
+                    .WithMaxValues(5);
+                _ = await configSetting.GetSelectMenuBuilderAsync(Context.Client, GuildId.Value, guild.ArtistRoles, Logger);
+                message = _translationService.GetAttrString("guild-config", "artistrole");
                 break;
             default:
                 Logger.Error($"User {Context.User.Id} selected unhandled enum {selection}.");
@@ -135,6 +143,25 @@ public class AdminModule : BaseModule
 
         guild.ModeratorRoles.Clear();
         guild.ModeratorRoles.AddRange(selections.Select(x => ulong.Parse(x)));
+        _guildRepository.UpdateGuild(guild);
+
+        await DeferAsync();
+    }
+
+    [ComponentInteraction("guild.config.save.artistrole", ignoreGroupNames: true)]
+    public async Task SaveGuildArtistroleAsync(string[] selections)
+    {
+        GuildHC guild = _guildRepository.GetGuild(GuildId!.Value, true)!;
+
+        if (guild == null)
+        {
+            Logger.Error($"Guild ID {GuildId.Value} could not be loaded from the GuildRepository.");
+            await RespondOrFollowupAsync(_translationService.GetString("error-guild-load"), ephemeral: true);
+            return;
+        }
+
+        guild.ArtistRoles.Clear();
+        guild.ArtistRoles.AddRange(selections.Select(x => ulong.Parse(x)));
         _guildRepository.UpdateGuild(guild);
 
         await DeferAsync();
