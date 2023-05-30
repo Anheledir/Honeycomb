@@ -88,13 +88,17 @@ invite = Invite me to your server!
 ## Admin Module
 ####################################
 
-modrole = Moderator Role
-    .description = The role that is allowed to use the moderation commands.
-    .button = Set Moderator Role
+guild-config-saved = Your guild settings have been saved.
+guild-config = Please select the setting you want to change.
+    .modrole = { modrole }
+
+modrole = Moderator Roles
+    .description = The roles that are allowed to use the moderation commands.
+    .button = Set Moderator Roles
     .emoji = :hammer:
     .error = You need to mention a role or provide a role ID.
-    .success = The moderator role has been set to { $role }.
-    .reset = The moderator role has been reset.
+    .success = The moderator roles have been set to { $role }.
+    .reset = The moderator roles have been reset.
 
 
 
@@ -258,6 +262,9 @@ userconfig-languages = Languages
 userconfig-gender-identity = Gender Identity
 userconfig-timezone = Timezone
 userconfig-birthday = Birthday
+
+# Guild configurations
+guildconfig-modroles = Moderator Roles
 
 
 
