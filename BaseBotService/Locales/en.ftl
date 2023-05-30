@@ -91,6 +91,7 @@ invite = Invite me to your server!
 guild-config-saved = Your guild settings have been saved.
 guild-config = Please select the setting you want to change.
     .modrole = Select up to five (5) roles that are allowed to use the moderation commands.
+    .artistroles = Select up to five (5) roles that are allowed to use the artist commands.
 
 
 
@@ -257,6 +258,7 @@ userconfig-birthday = Birthday
 
 # Guild configurations
 guildconfig-modroles = Moderator Roles
+guildconfig-artistroles = Artist Roles
 
 
 

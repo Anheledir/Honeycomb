@@ -4,6 +4,8 @@ internal static class UnicodeEmojiHelper
     // Misc emoji
     internal const string robotFace = "\U0001F916";
     internal const string satelliteAntenna = "\U0001F4E1";
+    internal const string paintPalette = "\U0001F3A8";
+    internal const string shield = "\U0001F6E1";
 
     // Filled square emoji
     internal const string greenSquare = "\U0001F7E9";

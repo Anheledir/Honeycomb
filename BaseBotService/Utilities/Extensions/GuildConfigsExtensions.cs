@@ -12,7 +12,8 @@ public static class GuildConfigsExtensions
         // Add discord emoji based on the config
         return configs switch
         {
-            GuildConfigs.Modroles => ":shield: " + translationService.GetString(id),
+            GuildConfigs.Modroles => string.Concat(UnicodeEmojiHelper.shield, " ", translationService.GetString(id)),
+            GuildConfigs.Artistroles => string.Concat(UnicodeEmojiHelper.paintPalette, " ", translationService.GetString(id)),
             _ => translationService.GetString(id),
         };
     }
