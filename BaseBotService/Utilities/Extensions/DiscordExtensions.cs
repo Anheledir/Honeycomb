@@ -23,6 +23,13 @@ public static class DiscordExtensions
         };
     }
 
+    /// <summary>
+    /// Adds an <see cref="EmbedFieldBuilder"/> to an <see cref="EmbedBuilder"/> only if a condition is met.
+    /// </summary>
+    /// <param name="builder">The target <see cref="EmbedBuilder"/>.</param>
+    /// <param name="condition">The condition controlling whether the field should be added.</param>
+    /// <param name="item">The <see cref="EmbedFieldBuilder"/> to add.</param>
+    /// <returns>The updated <see cref="EmbedBuilder"/>.</returns>
     public static EmbedBuilder WithFieldIf(this EmbedBuilder builder, bool condition, EmbedFieldBuilder item)
     {
         if (condition)
@@ -32,6 +39,19 @@ public static class DiscordExtensions
         return builder;
     }
 
+    /// <summary>
+    /// Adds options to a select menu using values from an enumeration.
+    /// </summary>
+    /// <typeparam name="T">The type of the enumeration.</typeparam>
+    /// <param name="builder">The <see cref="SelectMenuBuilder"/> to add options to.</param>
+    /// <param name="currentValue">The current value of the selection. Used to set the default option for the menu.</param>
+    /// <param name="getLabel">A function that takes an enumeration value and returns the label for the corresponding option.</param>
+    /// <returns>The <see cref="SelectMenuBuilder"/> with the added options.</returns>
+    /// <remarks>
+    /// This method supports both regular and flags enumerations.
+    /// In the case of a flags enumeration, an option will be set as the default if the current value includes the value of the option.
+    /// For regular enumerations, the option with the value equal to the current value will be set as the default.
+    /// </remarks>
     public static SelectMenuBuilder AddOptionsFromEnum<T>(
         this SelectMenuBuilder builder,
         int currentValue,
