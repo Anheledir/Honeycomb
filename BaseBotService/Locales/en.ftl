@@ -90,7 +90,7 @@ invite = Invite me to your server!
 
 guild-config-saved = Your guild settings have been saved.
 guild-config = Please select the setting you want to change.
-    .modrole = { modrole }
+    .modrole = Select up to five (5) roles that are allowed to use the moderation commands.
 
 modrole = Moderator Roles
     .description = The roles that are allowed to use the moderation commands.

@@ -7,7 +7,7 @@ public static class GuildConfigsExtensions
 {
     public static string GetGuildSettingsName(this GuildConfigs configs, ITranslationService translationService)
     {
-        string id = $"userconfig-{configs.ToString().ToLowerKebabCase()}";
+        string id = $"guildconfig-{configs.ToString().ToLowerKebabCase()}";
 
         // Add discord emoji based on the config
         return configs switch
