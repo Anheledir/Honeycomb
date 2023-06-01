@@ -1,6 +1,5 @@
 ﻿using BaseBotService.Commands.Enums;
 using BaseBotService.Core.Base;
-using BaseBotService.Core.Interfaces;
 using BaseBotService.Data.Interfaces;
 using BaseBotService.Data.Models;
 using BaseBotService.Utilities.Extensions;
@@ -15,33 +14,31 @@ namespace BaseBotService.Commands;
 public class AdminModule : BaseModule
 {
     private readonly IGuildRepository _guildRepository;
-    private readonly ITranslationService _translationService;
 
-    public AdminModule(ILogger logger, ITranslationService TranslationService, IGuildRepository GuildRepository)
+    public AdminModule(ILogger logger, IGuildRepository GuildRepository)
     {
         _guildRepository = GuildRepository;
-        _translationService = TranslationService;
         Logger = logger.ForContext<AdminModule>();
     }
 
     [SlashCommand("guild", "Change the settings for the current guild.")]
     public async Task ConfigGuildAsync()
     {
-        await RespondOrFollowupAsync(_translationService.GetString("guild-config"), components: ShowGuildConfigMenu().Build(), ephemeral: true);
+        await RespondOrFollowupAsync(TranslationService.GetString("guild-config"), components: ShowGuildConfigMenu().Build(), ephemeral: true);
     }
 
     private ComponentBuilder ShowGuildConfigMenu()
     {
         var guildConfigMenu = new SelectMenuBuilder()
-            .WithPlaceholder(_translationService.GetString("guild-config"))
+            .WithPlaceholder(TranslationService.GetString("guild-config"))
             .WithCustomId("admin.guild.config")
             .WithMinValues(1)
             .WithMaxValues(1)
-            .AddOptionsFromEnum<GuildConfigs>(-1, e => e.GetGuildSettingsName(_translationService));
+            .AddOptionsFromEnum<GuildConfigs>(-1, e => e.GetGuildSettingsName(TranslationService));
 
         return new ComponentBuilder()
             .WithSelectMenu(guildConfigMenu)
-            .WithButton(new ButtonBuilder(_translationService.GetString("button-close"), "guild.config.close", ButtonStyle.Primary));
+            .WithButton(new ButtonBuilder(TranslationService.GetString("button-close"), "guild.config.close", ButtonStyle.Primary));
     }
 
     [ComponentInteraction("guild.config.close", ignoreGroupNames: true)]
@@ -51,7 +48,7 @@ public class AdminModule : BaseModule
         SocketMessageComponent component = (SocketMessageComponent)Context.Interaction;
         await component.ModifyOriginalResponseAsync(x =>
         {
-            x.Content = _translationService.GetString("guild-config-saved");
+            x.Content = TranslationService.GetString("guild-config-saved");
             x.Components = null;
         });
         await Task.Delay(TimeSpan.FromSeconds(3)).ContinueWith(_ => component.DeleteOriginalResponseAsync());
@@ -64,7 +61,7 @@ public class AdminModule : BaseModule
         SocketMessageComponent component = (SocketMessageComponent)Context.Interaction;
         await component.ModifyOriginalResponseAsync(x =>
         {
-            x.Content = _translationService.GetString("guild-config");
+            x.Content = TranslationService.GetString("guild-config");
             x.Components = ShowGuildConfigMenu().Build();
         });
     }
@@ -80,7 +77,7 @@ public class AdminModule : BaseModule
         if (!GuildId.HasValue)
         {
             Logger.Information($"User {Caller.Id} tried to run {nameof(AdminGuildConfigAsync)} from within a DM.");
-            await RespondOrFollowupAsync(_translationService.GetString("error-guild-missing"), ephemeral: true);
+            await RespondOrFollowupAsync(TranslationService.GetString("error-guild-missing"), ephemeral: true);
             return;
         }
 
@@ -89,27 +86,27 @@ public class AdminModule : BaseModule
         if (guild == null)
         {
             Logger.Error($"Guild ID {GuildId.Value} could not be loaded from the GuildRepository.");
-            await RespondOrFollowupAsync(_translationService.GetString("error-guild-load"), ephemeral: true);
+            await RespondOrFollowupAsync(TranslationService.GetString("error-guild-load"), ephemeral: true);
             return;
         }
 
         switch (selection)
         {
             case GuildConfigs.Modroles:
-                configSetting.WithPlaceholder(_translationService.GetAttrString("guild-config", "modrole"))
+                configSetting.WithPlaceholder(TranslationService.GetAttrString("guild-config", "modrole"))
                     .WithCustomId("guild.config.save.modrole")
                     .WithMinValues(0)
                     .WithMaxValues(5);
                 _ = await configSetting.GetSelectMenuBuilderAsync(Context.Client, GuildId.Value, guild.ModeratorRoles, Logger);
-                message = _translationService.GetAttrString("guild-config", "modrole");
+                message = TranslationService.GetAttrString("guild-config", "modrole");
                 break;
             case GuildConfigs.Artistroles:
-                configSetting.WithPlaceholder(_translationService.GetAttrString("guild-config", "artistrole"))
+                configSetting.WithPlaceholder(TranslationService.GetAttrString("guild-config", "artistrole"))
                     .WithCustomId("guild.config.save.artistrole")
                     .WithMinValues(0)
                     .WithMaxValues(5);
                 _ = await configSetting.GetSelectMenuBuilderAsync(Context.Client, GuildId.Value, guild.ArtistRoles, Logger);
-                message = _translationService.GetAttrString("guild-config", "artistrole");
+                message = TranslationService.GetAttrString("guild-config", "artistrole");
                 break;
             default:
                 Logger.Error($"User {Context.User.Id} selected unhandled enum {selection}.");
@@ -120,7 +117,7 @@ public class AdminModule : BaseModule
 
         ComponentBuilder components = new ComponentBuilder()
             .WithSelectMenu(configSetting)
-            .WithButton(new ButtonBuilder(_translationService.GetString("button-back"), "guild.config.main", ButtonStyle.Primary));
+            .WithButton(new ButtonBuilder(TranslationService.GetString("button-back"), "guild.config.main", ButtonStyle.Primary));
 
         await ModifyOriginalResponseAsync(x =>
         {
@@ -137,7 +134,7 @@ public class AdminModule : BaseModule
         if (guild == null)
         {
             Logger.Error($"Guild ID {GuildId.Value} could not be loaded from the GuildRepository.");
-            await RespondOrFollowupAsync(_translationService.GetString("error-guild-load"), ephemeral: true);
+            await RespondOrFollowupAsync(TranslationService.GetString("error-guild-load"), ephemeral: true);
             return;
         }
 
@@ -156,7 +153,7 @@ public class AdminModule : BaseModule
         if (guild == null)
         {
             Logger.Error($"Guild ID {GuildId.Value} could not be loaded from the GuildRepository.");
-            await RespondOrFollowupAsync(_translationService.GetString("error-guild-load"), ephemeral: true);
+            await RespondOrFollowupAsync(TranslationService.GetString("error-guild-load"), ephemeral: true);
             return;
         }
 
