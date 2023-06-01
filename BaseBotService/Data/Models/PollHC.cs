@@ -1,4 +1,5 @@
 ﻿using BaseBotService.Core.Base;
+using LiteDB;
 
 namespace BaseBotService.Data.Models;
 /// <summary>
@@ -6,6 +7,16 @@ namespace BaseBotService.Data.Models;
 /// </summary>
 public class PollHC : ModelBase
 {
+    /// <summary>
+    /// A record representing a specific option for a poll in the system.
+    /// </summary>
+    public record PollOptions(ushort Id, string Emoji, string Text, ushort Order);
+
+    /// <summary>
+    /// A record representing a single vote in the system.
+    /// </summary>
+    public record PollVotes(ulong VoterId, ushort OptionId, DateTime VotedAt);
+
     /// <summary>
     /// The internal ID of the poll.
     /// </summary>
@@ -61,7 +72,14 @@ public class PollHC : ModelBase
     /// The votes received from each voter.
     /// </summary>
     public List<PollVotes> Votes { get; set; } = new List<PollVotes>();
-}
 
-public record PollOptions(short Id, string Emoji, string Text);
-public record PollVotes(ulong VoterId, short OptionId, DateTime VotedAt);
+    public static ILiteCollection<PollHC> GetServiceRegistration(IServiceProvider services)
+    {
+        ILiteCollection<PollHC> collection = GetServiceRegistration<PollHC>(services);
+        _ = collection.EnsureIndex(x => x.PollId, unique: true);
+        _ = collection.EnsureIndex(x => x.GuildId, unique: false);
+        _ = collection.EnsureIndex(x => new { x.GuildId, x.IsClosed }, unique: false);
+        _ = collection.EnsureIndex(x => new { x.GuildId, x.EndDate }, unique: false);
+        return collection;
+    }
+}

@@ -13,8 +13,8 @@ public class PollRepository : IPollRepository
     public PollHC? GetPoll(ulong pollId, bool create = false)
     {
         PollHC? result = _polls
-            .Include(o => o.Options)
-            .Include(v => v.Votes)
+            //.Include(o => o.Options)
+            //.Include(v => v.Votes)
             .FindOne(p => p.PollId == pollId);
         if (create && result == null)
         {

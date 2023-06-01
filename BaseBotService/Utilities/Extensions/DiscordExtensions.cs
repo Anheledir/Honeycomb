@@ -60,6 +60,8 @@ public static class DiscordExtensions
         Func<T, string> getLabel
     ) where T : Enum
     {
+        // TODO: Add check if there are more than 25 enum values and create a pagination list
+
         bool isFlagsEnum = typeof(T).GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0;
 
         foreach (T value in Enum.GetValues(typeof(T)).Cast<T>())
@@ -94,6 +96,8 @@ public static class DiscordExtensions
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
     public static async Task<SelectMenuBuilder> GetSelectMenuBuilderAsync(this SelectMenuBuilder builder, DiscordSocketClient client, ulong guildId, List<ulong> currentValues, ILogger logger)
     {
+        // TODO: Add check if there are more than 25 roles in the guild and create a pagination list
+
         // Get the guild from the client.
         var guild = client.GetGuild(guildId);
         if (guild == null)

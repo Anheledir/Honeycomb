@@ -73,6 +73,7 @@ public static class ServiceFactory
             .AddScoped<IGuildMemberRepository, GuildMemberRepository>()
             .AddScoped<IMemberRepository, MemberRepository>()
             .AddScoped(typeof(IAchievementRepository<>), typeof(AchievementRepository<>))
+            .AddScoped<IPollRepository, PollRepository>()
 
         // data achievement models
             .AddScoped(AchievementBase.GetServiceRegistration)
@@ -83,6 +84,7 @@ public static class ServiceFactory
             .AddScoped(GuildHC.GetServiceRegistration)
             .AddScoped(MemberHC.GetServiceRegistration)
             .AddScoped(GuildMemberHC.GetServiceRegistration)
+            .AddScoped(PollHC.GetServiceRegistration)
             .AddScoped(AchievementBase.GetServiceRegistration)
 
         // data migrations

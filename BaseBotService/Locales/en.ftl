@@ -28,6 +28,7 @@ not-available = n/a
 
 # Interaction Buttons
 button-close = Close
+button-abort = Cancel
 button-back = Go back
 button-invite = Invite me!
 button-website = Visit website
@@ -92,6 +93,34 @@ guild-config-saved = Your guild settings have been saved.
 guild-config = Please select the setting you want to change.
     .modrole = Select up to five (5) roles that are allowed to use the moderation commands.
     .artistroles = Select up to five (5) roles that are allowed to use the artist commands.
+
+
+
+####################################
+## Polls Module
+####################################
+
+polls = Server-Polls
+    .create = Create a new poll
+    .create-msg-processing = Creating a new poll ...
+    .create-poll-title = The title of your poll
+    .create-poll-description = The description of your poll
+    .create-poll-roles = Select the roles that are allowed to vote
+    .create-poll-public-results = Show the results to everyone
+    .create-poll-voters-hidden = Hide the voters
+    .create-poll-end = { $duration ->
+    [0] 1 hour
+    [1] 2 hours
+    [2] 4 hours
+    [3] 8 hours
+    [4] 12 hours
+    [5] 24 hours
+    [6] until midnight
+    [7] 2 days (48 hours)
+    [8] 3 days (72 hours)
+    [9] 1 week (7 days)
+   *[other] manual (until it is closed)
+}
 
 
 
@@ -280,3 +309,9 @@ error-guild-missing = This command can only be used in a server.
 
 # Error message when the guild could not be loaded or created in the database
 error-guild-load = Unable to load the server. Please try again later.
+
+# Error message when the user tried to create a new poll in a non-text channel
+error-poll-create-invalid-channel = You can only create polls in text channels.
+
+# Error message when the user tried to create a new poll in a channel where he doesn't doesn't have the required permissions
+error-poll-create-no-permissions = You don't have the required permissions to create polls in this channel.
