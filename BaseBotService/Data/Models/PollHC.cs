@@ -25,13 +25,9 @@ public class PollHC : ModelBase
     /// </remarks>
     public ulong PollId { get; set; }
     /// <summary>
-    /// The start date of the poll.
+    /// The ID of the channel where this poll was created.
     /// </summary>
-    public DateTime StartDate { get; set; }
-    /// <summary>
-    /// The end date of the poll.
-    /// </summary>
-    public DateTime EndDate { get; set; }
+    public ulong ChannelId { get; set; }
     /// <summary>
     /// The ID of the guild where this poll was created.
     /// </summary>
@@ -40,6 +36,14 @@ public class PollHC : ModelBase
     /// The ID of the creator of the poll.
     /// </summary>
     public ulong CreatorId { get; set; }
+    /// <summary>
+    /// The start date of the poll.
+    /// </summary>
+    public DateTime StartDate { get; set; }
+    /// <summary>
+    /// The end date of the poll.
+    /// </summary>
+    public DateTime EndDate { get; set; }
     /// <summary>
     /// The title of the poll.
     /// </summary>

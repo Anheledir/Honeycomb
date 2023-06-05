@@ -315,3 +315,9 @@ error-poll-create-invalid-channel = You can only create polls in text channels.
 
 # Error message when the user tried to create a new poll in a channel where he doesn't doesn't have the required permissions
 error-poll-create-no-permissions = You don't have the required permissions to create polls in this channel.
+
+# Error message when the poll-id couldn't be found in the database
+error-poll-create-invalid-poll = Unable to find the poll. Please try again.
+
+# Error message when the message that corresponds to the poll-id couldn't be found
+error-poll-invalid-message = Unable to find the discord message the poll should be shown in. Was it accidentally deleted by someone?
