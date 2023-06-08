@@ -7,6 +7,8 @@ namespace BaseBotService.Data.Models;
 /// </summary>
 public class PollHC : ModelBase
 {
+    // TODO: Move the records as classes to their own files, as LiteDB doesn't support records yet.
+
     /// <summary>
     /// A record representing a specific option for a poll in the system.
     /// </summary>

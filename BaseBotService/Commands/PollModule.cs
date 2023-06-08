@@ -229,6 +229,8 @@ public class PollModule : BaseModule
                 .Append(UnicodeEmojiHelper.greenSquare.Repeat(voteSquares))
                 .Append(UnicodeEmojiHelper.whiteSquare.Repeat(votesMaxSteps - voteSquares))
                 .AppendFormat(" ({0})", optionVotes);
+
+            //TODO option.Emoji is not visible within the embed
             pollEmbed.AddField($"{option.Emoji} {option.Text}", voteBar.ToString(), false);
         }
     }
