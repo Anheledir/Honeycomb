@@ -216,14 +216,19 @@ public class PollModule : BaseModule
         foreach (var option in poll.Options)
         {
             int optionVotes = poll.Votes.Count(v => v.OptionId == option.Id);
-            double votePercentage = (double)optionVotes / totalVotes;
-            int voteSquares = (int)Math.Round(votePercentage * votesMaxSteps);
+            double votePercentage = totalVotes <= 0 ? 0 : (double)optionVotes / totalVotes;
+
+            int voteSquares = 0;
+            if (votePercentage > 0)
+            {
+                voteSquares = (int)Math.Round(votePercentage * votesMaxSteps);
+            }
 
             var voteBar = new StringBuilder()
                 .Append(UnicodeEmojiHelper.greenSquare.Repeat(voteSquares))
                 .Append(UnicodeEmojiHelper.whiteSquare.Repeat(votesMaxSteps - voteSquares))
                 .AppendFormat(" ({0})", optionVotes);
-            pollEmbed.AddField($"{option.Emoji} {option.Text}", voteBar, false);
+            pollEmbed.AddField($"{option.Emoji} {option.Text}", voteBar.ToString(), false);
         }
     }
 
