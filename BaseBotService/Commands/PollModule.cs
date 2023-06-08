@@ -79,7 +79,7 @@ public class PollModule : BaseModule
         await RespondOrFollowupAsync("Please finish setting up your poll...", embed: GetPollEmbed(pollData, true).Build(), components: GetCreatePollButtons(pollMessage.Id).Build(), ephemeral: true);
     }
 
-    [ComponentInteraction("polls.create.toggle.results:*", ignoreGroupNames: true, TreatAsRegex = true)]
+    [ComponentInteraction("polls.create.toggle.results:*", ignoreGroupNames: true)]
     public async Task CreateNewPollToggleResults(string pollId)
     {
         Logger.Debug($"Toggle results for poll {pollId}");
@@ -92,7 +92,7 @@ public class PollModule : BaseModule
         _ = await ModifyOriginalResponseAsync(msg => msg.Embed = GetPollEmbed(newPoll, true).Build());
     }
 
-    [ComponentInteraction("polls.create.toggle.voters:*", ignoreGroupNames: true, TreatAsRegex = true)]
+    [ComponentInteraction("polls.create.toggle.voters:*", ignoreGroupNames: true)]
     public async Task CreateNewPollToggleVoters(string pollId)
     {
         Logger.Debug($"Toggle voters for poll {pollId}");
@@ -105,7 +105,7 @@ public class PollModule : BaseModule
         _ = await ModifyOriginalResponseAsync(msg => msg.Embed = GetPollEmbed(newPoll, true).Build());
     }
 
-    [ComponentInteraction("polls.create.finish:*", ignoreGroupNames: true, TreatAsRegex = true)]
+    [ComponentInteraction("polls.create.finish:*", ignoreGroupNames: true)]
     public async Task CreateNewPollFinish(string pollId)
     {
         Logger.Debug($"Finish poll {pollId}");
@@ -121,7 +121,7 @@ public class PollModule : BaseModule
         await DeleteOriginalResponseAsync();
     }
 
-    [ComponentInteraction("polls.create.cancel:*", ignoreGroupNames: true, TreatAsRegex = true)]
+    [ComponentInteraction("polls.create.cancel:*", ignoreGroupNames: true)]
     public async Task CreateNewPollCancel(string pollId)
     {
         Logger.Debug($"Cancel poll {pollId}");
@@ -136,7 +136,7 @@ public class PollModule : BaseModule
         await ModifyOriginalResponseAsync(msg => msg.Content = "Poll creation was aborted.");
     }
 
-    [ComponentInteraction("polls.create.option.add:*", ignoreGroupNames: true, TreatAsRegex = true)]
+    [ComponentInteraction("polls.create.option.add:*", ignoreGroupNames: true)]
     public async Task CreateNewPollAddOption(string pollId)
     {
         Logger.Debug($"Add new option to poll {pollId}");
@@ -148,7 +148,7 @@ public class PollModule : BaseModule
         await RespondWithModalAsync(modal.Build());
     }
 
-    [ModalInteraction("polls.create.option.adding:*", ignoreGroupNames: true, TreatAsRegex = true)]
+    [ModalInteraction("polls.create.option.adding:*", ignoreGroupNames: true)]
     public async Task CreateNewPollOptionSave(string pollId, PollsCreateOptionModal data)
     {
         Logger.Debug($"Save new option to poll {pollId}");
