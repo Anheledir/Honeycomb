@@ -161,7 +161,8 @@ public class PollModule : BaseModule
         if (newPoll == null) return;
 
         int newId = newPoll.Options.OrderByDescending(o => o.Id).FirstOrDefault()?.Order ?? 0 + 1;
-        newPoll.Options.Add(new PollHC.PollOptions($"{newPoll.Id}.{newId}", data.OptionEmoji ?? ":question:", data.OptionName!, newId));
+        Logger.Debug($"New option {newPoll.PollId}.{newId}");
+        newPoll.Options.Add(new PollHC.PollOptions($"{newPoll.PollId}.{newId}", data.OptionEmoji ?? UnicodeEmojiHelper.CircleFromNumber(newId), data.OptionName!, newId));
         _pollRepository.UpdatePoll(newPoll);
 
         _ = await ModifyOriginalResponseAsync(msg => msg.Embed = GetPollEmbed(newPoll, true).Build());
@@ -240,9 +241,12 @@ public class PollModule : BaseModule
 
         foreach (var option in poll.Options)
         {
-            Emoji emoji;
-            if (!Emoji.TryParse(option.Emoji, out emoji)) emoji = Emoji.Parse(option);
-            result.WithButton(label: option.Text, customId: $"polls.vote.{pollId},{option.Id}", style: ButtonStyle.Primary, emote: );
+            if (!Emoji.TryParse(option.Emoji, out Emoji emoji))
+            {
+                emoji = Emoji.Parse(UnicodeEmojiHelper.CircleFromNumber(option.Order));
+            }
+            result.WithButton(label: option.Text, customId: $"polls.vote.{pollId},{option.Id}", style: ButtonStyle.Primary, emote: emoji);
+            Logger.Debug($"Voting button for poll {pollId}: 'polls.vote.{pollId},{option.Id}'");
         }
         return result;
     }

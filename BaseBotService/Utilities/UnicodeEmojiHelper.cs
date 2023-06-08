@@ -40,4 +40,10 @@ internal static class UnicodeEmojiHelper
     internal const string blackCircle = "\u26AB";
     internal const string whiteCircle = "\u26AA";
 
+    internal static string CircleFromNumber(int num)
+    {
+        string[] circles = new string[] { redCircle, greenCircle, blueCircle, yellowCircle, purpleCircle, orangeCircle, brownCircle, blackCircle, whiteCircle };
+        int index = num % circles.Length;
+        return circles[index];
+    }
 }
