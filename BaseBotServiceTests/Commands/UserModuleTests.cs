@@ -1,6 +1,5 @@
 ﻿using BaseBotService.Commands;
 using BaseBotService.Commands.Interfaces;
-using BaseBotService.Core.Interfaces;
 using BaseBotService.Data.Interfaces;
 using Discord;
 using Serilog;
@@ -10,7 +9,6 @@ namespace BaseBotService.Tests.Commands;
 [TestFixture]
 public class UserModuleTests
 {
-    private ITranslationService _translationService = null!;
     private IEngagementService _engagementService = null!;
     private IMemberRepository _memberRepository = null!;
     private ILogger _logger = null!;
@@ -20,12 +18,11 @@ public class UserModuleTests
     [SetUp]
     public void SetUp()
     {
-        _translationService = Substitute.For<ITranslationService>();
         _engagementService = Substitute.For<IEngagementService>();
         _memberRepository = Substitute.For<IMemberRepository>();
         _logger = Substitute.For<ILogger>();
 
-        _userModule = new UserModule(_logger, _translationService, _engagementService, _memberRepository);
+        _userModule = new UserModule(_logger, _engagementService, _memberRepository);
     }
 
     [Test]

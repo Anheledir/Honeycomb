@@ -2,9 +2,11 @@
 using BaseBotService.Core.Base;
 using BaseBotService.Data.Interfaces;
 using BaseBotService.Data.Models;
+using BaseBotService.Utilities;
 using BaseBotService.Utilities.Extensions;
 using Discord.Rest;
 using Discord.WebSocket;
+using System.Text;
 
 namespace BaseBotService.Commands;
 
@@ -68,45 +70,50 @@ public class PollModule : BaseModule
             Description = data.Description,
             StartDate = DateTime.UtcNow,
             EndDate = DateTime.UtcNow.AddDays(1),
+            AreResultsPublic = true,
+            AreVotersHidden = false,
             IsClosed = false
         };
         _pollRepository.AddPoll(pollData);
 
-        await RespondOrFollowupAsync("Please finish setting up your poll...", embed: GetCreatePollEmbed(pollData).Build(), components: GetCreatePollButtons(pollMessage.Id).Build(), ephemeral: true);
+        await RespondOrFollowupAsync("Please finish setting up your poll...", embed: GetPollEmbed(pollData, true).Build(), components: GetCreatePollButtons(pollMessage.Id).Build(), ephemeral: true);
     }
 
-    [ComponentInteraction("polls.create.toggle.results:*", ignoreGroupNames: true)]
+    [ComponentInteraction("polls.create.toggle.results:*", ignoreGroupNames: true, TreatAsRegex = true)]
     public async Task CreateNewPollToggleResults(string pollId)
     {
+        Logger.Debug($"Toggle results for poll {pollId}");
         PollHC? newPoll = await GetPollData(pollId);
         if (newPoll == null) return;
 
         newPoll.AreResultsPublic = !newPoll.AreResultsPublic;
         _pollRepository.UpdatePoll(newPoll);
 
-        _ = await ModifyOriginalResponseAsync(msg => msg.Embed = GetCreatePollEmbed(newPoll).Build());
+        _ = await ModifyOriginalResponseAsync(msg => msg.Embed = GetPollEmbed(newPoll, true).Build());
     }
 
-    [ComponentInteraction("polls.create.toggle.voters:*", ignoreGroupNames: true)]
+    [ComponentInteraction("polls.create.toggle.voters:*", ignoreGroupNames: true, TreatAsRegex = true)]
     public async Task CreateNewPollToggleVoters(string pollId)
     {
+        Logger.Debug($"Toggle voters for poll {pollId}");
         PollHC? newPoll = await GetPollData(pollId);
         if (newPoll == null) return;
 
         newPoll.AreVotersHidden = !newPoll.AreVotersHidden;
         _pollRepository.UpdatePoll(newPoll);
 
-        _ = await ModifyOriginalResponseAsync(msg => msg.Embed = GetCreatePollEmbed(newPoll).Build());
+        _ = await ModifyOriginalResponseAsync(msg => msg.Embed = GetPollEmbed(newPoll, true).Build());
     }
 
-    [ComponentInteraction("polls.create.finish:*")]
+    [ComponentInteraction("polls.create.finish:*", ignoreGroupNames: true, TreatAsRegex = true)]
     public async Task CreateNewPollFinish(string pollId)
     {
+        Logger.Debug($"Finish poll {pollId}");
         PollHC? newPoll = await GetPollData(pollId);
         if (newPoll == null) return;
 
         var message = await GetPollMessage(newPoll);
-        var pollEmbed = GetCreatePollEmbed(newPoll);
+        var pollEmbed = GetPollEmbed(newPoll, false);
         pollEmbed.Url = message.GetJumpUrl();
 
         await message.ModifyAsync(msg => msg.Embed = pollEmbed.Build());
@@ -114,9 +121,10 @@ public class PollModule : BaseModule
         await DeleteOriginalResponseAsync();
     }
 
-    [ComponentInteraction("polls.create.cancel:*")]
+    [ComponentInteraction("polls.create.cancel:*", ignoreGroupNames: true, TreatAsRegex = true)]
     public async Task CreateNewPollCancel(string pollId)
     {
+        Logger.Debug($"Cancel poll {pollId}");
         PollHC? newPoll = await GetPollData(pollId);
         if (newPoll == null) return;
 
@@ -126,6 +134,32 @@ public class PollModule : BaseModule
         await message.DeleteAsync();
 
         await ModifyOriginalResponseAsync(msg => msg.Content = "Poll creation was aborted.");
+    }
+
+    [ComponentInteraction("polls.create.option.add:*", ignoreGroupNames: true, TreatAsRegex = true)]
+    public async Task CreateNewPollAddOption(string pollId)
+    {
+        Logger.Debug($"Add new option to poll {pollId}");
+        var modal = new ModalBuilder()
+            .WithCustomId($"polls.create.option.adding:{pollId}")
+            .WithTitle(TranslationService.GetAttrString("polls", "create-poll-option-adding"))
+            .AddTextInput(TranslationService.GetAttrString("polls", "create-poll-option-text"), "text", TextInputStyle.Short, minLength: 3, required: true)
+            .AddTextInput(TranslationService.GetAttrString("polls", "create-poll-option-emoji"), "emoji", TextInputStyle.Short, required: false, placeholder: ":one:");
+        await RespondWithModalAsync(modal.Build());
+    }
+
+    [ModalInteraction("polls.create.option.adding:*", ignoreGroupNames: true, TreatAsRegex = true)]
+    public async Task CreateNewPollOptionSave(string pollId, PollsCreateOptionModal data)
+    {
+        Logger.Debug($"Save new option to poll {pollId}");
+        PollHC? newPoll = await GetPollData(pollId);
+        if (newPoll == null) return;
+
+        int newId = newPoll.Options.OrderByDescending(o => o.Id).First().Order + 1;
+        newPoll.Options.Add(new PollHC.PollOptions($"{newPoll.Id}.{newId}", data.OptionEmoji ?? ":question:", data.OptionName!, newId));
+        _pollRepository.UpdatePoll(newPoll);
+
+        _ = await ModifyOriginalResponseAsync(msg => msg.Embed = GetPollEmbed(newPoll, true).Build());
     }
 
     private async Task<PollHC?> GetPollData(string pollId)
@@ -141,21 +175,55 @@ public class PollModule : BaseModule
 
     private ComponentBuilder GetCreatePollButtons(ulong pollId) => new ComponentBuilder()
         .WithButton("Add Option", $"polls.create.option.add:{pollId}", ButtonStyle.Primary)
-        .WithButton("Delete Option", $"polls.create.option.delete:{pollId}", ButtonStyle.Primary)
+        .WithButton("Delete Option", $"polls.create.option.delete:{pollId}", ButtonStyle.Primary, disabled: true)
         .WithButton("Toggle Public Results", $"polls.create.toggle.results:{pollId}", ButtonStyle.Secondary)
         .WithButton("Toggle Show Voters", $"polls.create.toggle.voters:{pollId}", ButtonStyle.Secondary)
-        .WithButton("Change Duration", $"polls.create.duration:{pollId}", ButtonStyle.Secondary)
+        .WithButton("Change Duration", $"polls.create.duration:{pollId}", ButtonStyle.Secondary, disabled: true)
         .WithButton("Finish", $"polls.create.finish:{pollId}", ButtonStyle.Success)
         .WithButton("Cancel", $"polls.create.cancel:{pollId}", ButtonStyle.Danger);
 
-    private EmbedBuilder GetCreatePollEmbed(PollHC poll) =>
-        new EmbedBuilder()
+    private EmbedBuilder GetPollEmbed(PollHC poll, bool isPreview = false)
+    {
+        string votesHidden = poll.AreVotersHidden
+            ? "users will not see when someone votes"
+            : "voting will create a public notification";
+        string footer = isPreview
+            ? $"Preview of the poll, {votesHidden}"
+            : $"Poll created by {Context.Guild.GetUser(poll.CreatorId).Username}, open until {poll.EndDate.ToDiscordTimestamp(TranslationService)}";
+        var result = new EmbedBuilder()
             .WithTitle(poll.Title)
             .WithDescription(poll.Description)
-            // TODO: Add options with current votes
-            .WithColor(Color.Blue)
-            .WithFooter($"Poll created by {Context.Guild.GetUser(poll.CreatorId).Username}, open until {poll.EndDate.ToDiscordTimestamp(TranslationService)}")
+            .WithColor(isPreview ? Color.Red : Color.Green)
+            .WithFooter(footer)
             .WithTimestamp(poll.StartDate);
+        if (poll.AreResultsPublic)
+        {
+            GetPollResults(ref result, poll);
+        }
+        return result;
+    }
+
+    private static void GetPollResults(ref EmbedBuilder pollEmbed, PollHC poll)
+    {
+        const int votesMaxSteps = 15;
+        int totalVotes = poll.Votes.Count;
+        int optionVotes = 0;
+        StringBuilder voteBar = new();
+
+        foreach (var option in poll.Options)
+        {
+            optionVotes = poll.Votes.Count(v => v.OptionId == option.Id);
+            double votePercentage = (double)optionVotes / totalVotes;
+            int voteSquares = (int)Math.Round(votePercentage * votesMaxSteps);
+
+            voteBar
+                .Clear()
+                .Append(UnicodeEmojiHelper.greenSquare.Repeat(voteSquares))
+                .Append(UnicodeEmojiHelper.whiteSquare.Repeat(votesMaxSteps - voteSquares))
+                .AppendFormat(" ({0})", optionVotes);
+            pollEmbed.AddField($"{option.Emoji} {option.Text}", voteBar, false);
+        }
+    }
 
     private async Task<IUserMessage?> GetPollMessage(PollHC? newPoll) =>
         await (Context.Guild.GetChannel(newPoll.ChannelId) as SocketTextChannel).GetMessageAsync(newPoll.PollId) as IUserMessage;

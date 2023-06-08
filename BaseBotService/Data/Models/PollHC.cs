@@ -10,12 +10,12 @@ public class PollHC : ModelBase
     /// <summary>
     /// A record representing a specific option for a poll in the system.
     /// </summary>
-    public record PollOptions(ushort Id, string Emoji, string Text, ushort Order);
+    public record PollOptions(string Id, string Emoji, string Text, int Order);
 
     /// <summary>
     /// A record representing a single vote in the system.
     /// </summary>
-    public record PollVotes(ulong VoterId, ushort OptionId, DateTime VotedAt);
+    public record PollVotes(ulong VoterId, string OptionId, DateTime VotedAt);
 
     /// <summary>
     /// The internal ID of the poll.

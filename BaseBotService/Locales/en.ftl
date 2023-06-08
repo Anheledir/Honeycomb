@@ -108,6 +108,9 @@ polls = Server-Polls
     .create-poll-roles = Select the roles that are allowed to vote
     .create-poll-public-results = Show the results to everyone
     .create-poll-voters-hidden = Hide the voters
+    .create-poll-option-adding = Add a new option
+    .create-poll-option-text = The text of the option
+    .create-poll-option-emoji = The emoji of the option
     .create-poll-end = { $duration ->
     [0] 1 hour
     [1] 2 hours
