@@ -28,4 +28,16 @@ internal static class UnicodeEmojiHelper
     internal const string chocolateBar = "\U0001F36B";
     internal const string candy = "\U0001F36C";
     internal const string lollipop = "\U0001F36D";
+
+    // Colored Circles
+    internal const string redCircle = "\U0001F534";
+    internal const string orangeCircle = "\U0001F7E0";
+    internal const string yellowCircle = "\U0001F7E1";
+    internal const string greenCircle = "\U0001F7E2";
+    internal const string blueCircle = "\U0001F535";
+    internal const string purpleCircle = "\U0001F7E3";
+    internal const string brownCircle = "\U0001F7E4";
+    internal const string blackCircle = "\u26AB";
+    internal const string whiteCircle = "\u26AA";
+
 }

@@ -121,7 +121,7 @@ public class PollModule : BaseModule
 
         await message.ModifyAsync(async msg => { msg.Embed = pollEmbed.Build(); msg.Content = string.Empty; msg.Components = (await GetPollVotingButtons(pollId)).Build(); });
         await message.PinAsync();
-        await ModifyOriginalResponseAsync(msg => { msg.Embed = null; msg.Content = "Poll created successfully."; });
+        await ModifyOriginalResponseAsync(msg => { msg.Embed = null; msg.Content = "Poll created successfully."; msg.Components = null; });
     }
 
     [ComponentInteraction("polls.create.cancel:*", ignoreGroupNames: true)]
@@ -137,7 +137,7 @@ public class PollModule : BaseModule
         var message = await GetPollMessage(newPoll);
         await message.DeleteAsync();
 
-        await ModifyOriginalResponseAsync(msg => msg.Content = "Poll creation was aborted.");
+        await ModifyOriginalResponseAsync(msg => { msg.Content = "Poll creation was aborted."; msg.Embed = null; msg.Components = null; });
     }
 
     [ComponentInteraction("polls.create.option.add:*", ignoreGroupNames: true)]
@@ -240,7 +240,9 @@ public class PollModule : BaseModule
 
         foreach (var option in poll.Options)
         {
-            result.WithButton(label: option.Text, customId: $"polls.vote.{pollId},{option.Id}", style: ButtonStyle.Primary, emote: Emoji.Parse(option.Emoji));
+            Emoji emoji;
+            if (!Emoji.TryParse(option.Emoji, out emoji)) emoji = Emoji.Parse(option);
+            result.WithButton(label: option.Text, customId: $"polls.vote.{pollId},{option.Id}", style: ButtonStyle.Primary, emote: );
         }
         return result;
     }
