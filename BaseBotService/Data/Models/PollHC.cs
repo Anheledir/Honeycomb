@@ -7,18 +7,6 @@ namespace BaseBotService.Data.Models;
 /// </summary>
 public class PollHC : ModelBase
 {
-    // TODO: Move the records as classes to their own files, as LiteDB doesn't support records yet.
-
-    /// <summary>
-    /// A record representing a specific option for a poll in the system.
-    /// </summary>
-    public record PollOptions(string Id, string Emoji, string Text, int Order);
-
-    /// <summary>
-    /// A record representing a single vote in the system.
-    /// </summary>
-    public record PollVotes(ulong VoterId, string OptionId, DateTime VotedAt);
-
     /// <summary>
     /// The internal ID of the poll.
     /// </summary>
@@ -73,11 +61,11 @@ public class PollHC : ModelBase
     /// <summary>
     /// The different options for the poll.
     /// </summary>
-    public List<PollOptions> Options { get; set; } = new List<PollOptions>();
+    public List<PollOptionsHC> Options { get; set; } = new List<PollOptionsHC>();
     /// <summary>
     /// The votes received from each voter.
     /// </summary>
-    public List<PollVotes> Votes { get; set; } = new List<PollVotes>();
+    public List<PollVotesHC> Votes { get; set; } = new List<PollVotesHC>();
 
     public static ILiteCollection<PollHC> GetServiceRegistration(IServiceProvider services)
     {

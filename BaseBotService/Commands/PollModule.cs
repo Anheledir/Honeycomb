@@ -160,12 +160,30 @@ public class PollModule : BaseModule
         PollHC? newPoll = await GetPollData(pollId);
         if (newPoll == null) return;
 
-        int newId = newPoll.Options.OrderByDescending(o => o.Id).FirstOrDefault()?.Order ?? 0 + 1;
-        Logger.Debug($"New option {newPoll.PollId}.{newId}");
-        newPoll.Options.Add(new PollHC.PollOptions($"{newPoll.PollId}.{newId}", data.OptionEmoji ?? UnicodeEmojiHelper.CircleFromNumber(newId), data.OptionName!, newId));
-        _pollRepository.UpdatePoll(newPoll);
+        int newOrder = newPoll.Options.OrderByDescending(o => o.Id).FirstOrDefault()?.Order ?? 0 + 1;
+        Logger.Debug($"New option with order {newOrder}");
+        _pollRepository.AddPollOption(newPoll, data.OptionEmoji ?? UnicodeEmojiHelper.CircleFromNumber(newOrder), data.OptionName!, newOrder);
 
         _ = await ModifyOriginalResponseAsync(msg => msg.Embed = GetPollEmbed(newPoll, true).Build());
+    }
+
+    [ComponentInteraction("polls.vote:*,*")]
+    public async Task VoteForPoll(string pollId, string optionId)
+    {
+        Logger.Debug($"User {Caller.Id} voted in {Context.Guild.Id} for {pollId} with {optionId}");
+        await DeferAsync();
+        PollHC? pollData = await GetPollData(pollId);
+        if (pollData == null) return;
+
+        if (pollData.IsClosed || pollData.EndDate < DateTime.UtcNow)
+        {
+            _ = await ModifyOriginalResponseAsync(msg => msg.Content = TranslationService.GetString("error-poll-vote-closed"));
+            return;
+        }
+
+        _pollRepository.AddPollVote(pollData, optionId, Caller.Id);
+
+        _ = await ModifyOriginalResponseAsync(msg => msg.Embed = GetPollEmbed(pollData, false).Build());
     }
 
     private async Task<PollHC?> GetPollData(string pollId)
@@ -247,8 +265,8 @@ public class PollModule : BaseModule
             {
                 emoji = Emoji.Parse(UnicodeEmojiHelper.CircleFromNumber(option.Order));
             }
-            result.WithButton(label: option.Text, customId: $"polls.vote.{pollId},{option.Id}", style: ButtonStyle.Primary, emote: emoji);
-            Logger.Debug($"Voting button for poll {pollId}: 'polls.vote.{pollId},{option.Id}'");
+            result.WithButton(label: option.Text, customId: $"polls.vote:{pollId},{option.Id}", style: ButtonStyle.Primary, emote: emoji);
+            Logger.Debug($"Voting button for poll {pollId}: 'polls.vote:{pollId},{option.Id}'");
         }
         return result;
     }

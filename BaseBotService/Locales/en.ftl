@@ -324,3 +324,6 @@ error-poll-create-invalid-poll = Unable to find the poll. Please try again.
 
 # Error message when the message that corresponds to the poll-id couldn't be found
 error-poll-invalid-message = Unable to find the discord message the poll should be shown in. Was it accidentally deleted by someone?
+
+# Error message when the user tried to vote on a poll that is already closed
+error-poll-vote-closed = This poll is closed and can't be voted on anymore.

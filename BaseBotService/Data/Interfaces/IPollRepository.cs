@@ -1,4 +1,5 @@
 ﻿using BaseBotService.Data.Models;
+using LiteDB;
 
 namespace BaseBotService.Data.Interfaces;
 /// <summary>
@@ -33,4 +34,22 @@ public interface IPollRepository
     /// <param name="poll">The poll to be updated.</param>
     /// <returns>True if the poll was updated successfully, false otherwise.</returns>
     bool UpdatePoll(PollHC poll);
+
+    /// <summary>
+    /// Adds a poll option to the repository.
+    /// </summary>
+    /// <param name="poll">The poll the option belongs to.</param>
+    /// <param name="emoji">The emoji associated with the option.</param>
+    /// <param name="name">The name of the option.</param>
+    /// <param name="order">The order the option should be displayed in the poll.</param>
+    /// <returns>The ObjectId of the added option.</returns>
+    ObjectId AddPollOption(PollHC poll, string emoji, string name, int order = 0);
+
+    /// <summary>
+    /// Adds a vote to the poll.
+    /// </summary>
+    /// <param name="poll">The poll to add vote to.</param>
+    /// <param name="option">The poll option to vote for.</param>
+    /// <param name="voterId">The ID of the voter.</param>
+    ObjectId AddPollVote(PollHC poll, string option, ulong voterId);
 }

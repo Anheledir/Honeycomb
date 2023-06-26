@@ -13,5 +13,13 @@ public class CollectionMapper
         _ = mapper.Entity<MemberHC>()
             .DbRef(a => a.Achievements, nameof(AchievementBase));
         _ = mapper.Entity<AchievementBase>();
+        _ = mapper.Entity<PollHC>()
+            .DbRef(p => p.Options, nameof(PollOptionsHC))
+            .DbRef(p => p.Votes, nameof(PollVotesHC));
+        _ = mapper.Entity<PollOptionsHC>()
+            .DbRef(o => o.PollId, nameof(PollHC));
+        _ = mapper.Entity<PollVotesHC>()
+            .DbRef(v => v.OptionId, nameof(PollOptionsHC))
+            .DbRef(v => v.PollId, nameof(PollHC));
     }
 }

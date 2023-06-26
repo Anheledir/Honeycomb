@@ -85,6 +85,8 @@ public static class ServiceFactory
             .AddScoped(MemberHC.GetServiceRegistration)
             .AddScoped(GuildMemberHC.GetServiceRegistration)
             .AddScoped(PollHC.GetServiceRegistration)
+            .AddScoped(PollOptionsHC.GetServiceRegistration)
+            .AddScoped(PollVotesHC.GetServiceRegistration)
             .AddScoped(AchievementBase.GetServiceRegistration)
 
         // data migrations
