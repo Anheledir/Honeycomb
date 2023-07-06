@@ -51,5 +51,5 @@ public interface IPollRepository
     /// <param name="poll">The poll to add vote to.</param>
     /// <param name="option">The poll option to vote for.</param>
     /// <param name="voterId">The ID of the voter.</param>
-    ObjectId AddPollVote(PollHC poll, string option, ulong voterId);
+    ObjectId AddPollVote(PollHC poll, string optionId, ulong voterId);
 }

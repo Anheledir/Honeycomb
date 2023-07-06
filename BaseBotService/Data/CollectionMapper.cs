@@ -16,10 +16,7 @@ public class CollectionMapper
         _ = mapper.Entity<PollHC>()
             .DbRef(p => p.Options, nameof(PollOptionsHC))
             .DbRef(p => p.Votes, nameof(PollVotesHC));
-        _ = mapper.Entity<PollOptionsHC>()
-            .DbRef(o => o.PollId, nameof(PollHC));
-        _ = mapper.Entity<PollVotesHC>()
-            .DbRef(v => v.OptionId, nameof(PollOptionsHC))
-            .DbRef(v => v.PollId, nameof(PollHC));
+        _ = mapper.Entity<PollOptionsHC>();
+        _ = mapper.Entity<PollVotesHC>();
     }
 }

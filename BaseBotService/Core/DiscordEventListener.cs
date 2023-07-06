@@ -4,47 +4,33 @@ using System.Reflection;
 
 namespace BaseBotService.Core;
 
-public class DiscordEventListener
+public class DiscordEventListener(
+    ILogger logger,
+    DiscordSocketClient client,
+    IServiceProvider services,
+    InteractionService handler,
+    IMediator mediator)
 {
-    private readonly ILogger _logger;
-    private readonly DiscordSocketClient _client;
-    private readonly IServiceProvider _services;
-    private readonly InteractionService _handler;
-    private readonly IMediator _mediator;
-    private readonly CancellationToken _cancellationToken;
-
-    public DiscordEventListener(
-        ILogger logger,
-        DiscordSocketClient client,
-        IServiceProvider services,
-        InteractionService handler,
-        IMediator mediator)
-    {
-        _logger = logger.ForContext<DiscordEventListener>();
-        _client = client;
-        _services = services;
-        _handler = handler;
-        _mediator = mediator;
-        _cancellationToken = new CancellationTokenSource().Token;
-    }
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Minor Code Smell", "S3604:Member initializer values should not be redundant", Justification = "False-positive.")]
+    private readonly CancellationToken _cancellationToken = new CancellationTokenSource().Token;
 
     public async Task StartAsync()
     {
-        _logger.Information("Starting Discord event listener.");
+        logger.Information("Starting Discord event listener.");
 
-        _client.MessageReceived += (socketMessage) => _mediator.Publish(new MessageReceivedNotification(socketMessage), _cancellationToken);
-        _client.Log += (msg) => _mediator.Publish(new LogNotification(msg), _cancellationToken);
-        _client.ReactionAdded += (cache, channel, reaction) => _mediator.Publish(new ReactionAddedNotification(cache, channel, reaction), _cancellationToken);
-        _client.Ready += () => _mediator.Publish(new ClientReadyNotification(), _cancellationToken);
-        _client.Disconnected += (ex) => _mediator.Publish(new ClientDisconnectedNotification(ex), _cancellationToken);
-        _client.InteractionCreated += (interaction) => _mediator.Publish(new InteractionCreatedNotification(interaction), _cancellationToken);
-        _client.JoinedGuild += (guild) => _mediator.Publish(new JoinedGuildNotification(guild), _cancellationToken);
-        _client.LeftGuild += (guild) => _mediator.Publish(new LeftGuildNotification(guild), _cancellationToken);
-        _client.UserJoined += (user) => _mediator.Publish(new UserJoinedNotification(user), _cancellationToken);
-        _handler.Log += (msg) => _mediator.Publish(new LogNotification(msg), _cancellationToken);
+        client.MessageReceived += (socketMessage) => mediator.Publish(new MessageReceivedNotification(socketMessage), _cancellationToken);
+        client.Log += (msg) => mediator.Publish(new LogNotification(msg), _cancellationToken);
+        client.ReactionAdded += (cache, channel, reaction) => mediator.Publish(new ReactionAddedNotification(cache, channel, reaction), _cancellationToken);
+        client.Ready += () => mediator.Publish(new ClientReadyNotification(), _cancellationToken);
+        client.Disconnected += (ex) => mediator.Publish(new ClientDisconnectedNotification(ex), _cancellationToken);
+        client.InteractionCreated += (interaction) => mediator.Publish(new InteractionCreatedNotification(interaction), _cancellationToken);
+        client.JoinedGuild += (guild) => mediator.Publish(new JoinedGuildNotification(guild), _cancellationToken);
+        client.LeftGuild += (guild) => mediator.Publish(new LeftGuildNotification(guild), _cancellationToken);
+        client.UserJoined += (user) => mediator.Publish(new UserJoinedNotification(user), _cancellationToken);
+        handler.Log += (msg) => mediator.Publish(new LogNotification(msg), _cancellationToken);
 
-        _ = await _handler.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
-        _logger.Information($"Found {_handler.Modules.Count} modules.");
+        _ = await handler.AddModulesAsync(Assembly.GetEntryAssembly(), services);
+        logger.Information($"Found {handler.Modules.Count} modules.");
 
         await Task.CompletedTask;
     }

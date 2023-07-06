@@ -32,7 +32,6 @@ public class PollOptionsHC : ModelBase
     {
         ILiteCollection<PollOptionsHC> collection = GetServiceRegistration<PollOptionsHC>(services);
         _ = collection.EnsureIndex(x => x.PollId, unique: false);
-        _ = collection.EnsureIndex(x => new { x.Id, x.PollId }, unique: true);
         return collection;
     }
 }

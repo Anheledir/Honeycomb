@@ -40,7 +40,7 @@ public class PollModule : BaseModule
         }
 
         // Check if the bot has permissions to send messages in the channel
-        ChannelPermissions usrPermissions = (Caller as IGuildUser).GetPermissions(channel as IGuildChannel);
+        ChannelPermissions usrPermissions = ((IGuildUser)Caller).GetPermissions(channel as IGuildChannel);
         if (!usrPermissions.SendMessages)
         {
             Logger.Information($"Cannot create a new poll, as the calling user does not have permissions to create messages in {channel.Id} on {GuildId}.");
@@ -119,8 +119,8 @@ public class PollModule : BaseModule
         var pollEmbed = GetPollEmbed(newPoll, false);
         pollEmbed.Url = message.GetJumpUrl();
 
-        await message.ModifyAsync(async msg => { msg.Embed = pollEmbed.Build(); msg.Content = string.Empty; msg.Components = (await GetPollVotingButtons(pollId)).Build(); });
-        await message.PinAsync();
+        await message!.ModifyAsync(async msg => { msg.Embed = pollEmbed.Build(); msg.Content = string.Empty; msg.Components = (await GetPollVotingButtons(pollId)).Build(); });
+        await message!.PinAsync();
         await ModifyOriginalResponseAsync(msg => { msg.Embed = null; msg.Content = "Poll created successfully."; msg.Components = null; });
     }
 
@@ -135,7 +135,7 @@ public class PollModule : BaseModule
         _pollRepository.DeletePoll(newPoll.PollId);
 
         var message = await GetPollMessage(newPoll);
-        await message.DeleteAsync();
+        await message!.DeleteAsync();
 
         await ModifyOriginalResponseAsync(msg => { msg.Content = "Poll creation was aborted."; msg.Embed = null; msg.Components = null; });
     }
@@ -148,7 +148,7 @@ public class PollModule : BaseModule
             .WithCustomId($"polls.create.option.adding:{pollId}")
             .WithTitle(TranslationService.GetAttrString("polls", "create-poll-option-adding"))
             .AddTextInput(TranslationService.GetAttrString("polls", "create-poll-option-text"), "text", TextInputStyle.Short, minLength: 3, required: true)
-            .AddTextInput(TranslationService.GetAttrString("polls", "create-poll-option-emoji"), "emoji", TextInputStyle.Short, required: false, placeholder: ":one:");
+            .AddTextInput(TranslationService.GetAttrString("polls", "create-poll-option-emoji"), "emoji", TextInputStyle.Short, placeholder: "this is ignored for now", required: false);
         await RespondWithModalAsync(modal.Build());
     }
 
@@ -160,14 +160,14 @@ public class PollModule : BaseModule
         PollHC? newPoll = await GetPollData(pollId);
         if (newPoll == null) return;
 
-        int newOrder = newPoll.Options.OrderByDescending(o => o.Id).FirstOrDefault()?.Order ?? 0 + 1;
+        int newOrder = (newPoll.Options.OrderByDescending(o => o.Order).FirstOrDefault()?.Order ?? 0) + 1;
         Logger.Debug($"New option with order {newOrder}");
-        _pollRepository.AddPollOption(newPoll, data.OptionEmoji ?? UnicodeEmojiHelper.CircleFromNumber(newOrder), data.OptionName!, newOrder);
+        _pollRepository.AddPollOption(newPoll, UnicodeEmojiHelper.CircleFromNumber(newOrder), data.OptionName!, newOrder);
 
         _ = await ModifyOriginalResponseAsync(msg => msg.Embed = GetPollEmbed(newPoll, true).Build());
     }
 
-    [ComponentInteraction("polls.vote:*,*")]
+    [ComponentInteraction("polls.vote:*,*", ignoreGroupNames: true)]
     public async Task VoteForPoll(string pollId, string optionId)
     {
         Logger.Debug($"User {Caller.Id} voted in {Context.Guild.Id} for {pollId} with {optionId}");
@@ -197,7 +197,7 @@ public class PollModule : BaseModule
         return newPoll;
     }
 
-    private ComponentBuilder GetCreatePollButtons(ulong pollId) => new ComponentBuilder()
+    private static ComponentBuilder GetCreatePollButtons(ulong pollId) => new ComponentBuilder()
         .WithButton("Add Option", $"polls.create.option.add:{pollId}", ButtonStyle.Primary)
         .WithButton("Delete Option", $"polls.create.option.delete:{pollId}", ButtonStyle.Primary, disabled: true)
         .WithButton("Toggle Public Results", $"polls.create.toggle.results:{pollId}", ButtonStyle.Secondary)
@@ -248,7 +248,6 @@ public class PollModule : BaseModule
                 .Append(UnicodeEmojiHelper.whiteSquare.Repeat(votesMaxSteps - voteSquares))
                 .AppendFormat(" ({0})", optionVotes);
 
-            //TODO option.Emoji is not visible within the embed
             pollEmbed.AddField($"{option.Emoji} {option.Text}", voteBar.ToString(), false);
         }
     }
@@ -272,5 +271,5 @@ public class PollModule : BaseModule
     }
 
     private async Task<IUserMessage?> GetPollMessage(PollHC? newPoll) =>
-        await (Context.Guild.GetChannel(newPoll.ChannelId) as SocketTextChannel).GetMessageAsync(newPoll.PollId) as IUserMessage;
+        await ((SocketTextChannel)Context.Guild.GetChannel(newPoll!.ChannelId)).GetMessageAsync(newPoll.PollId) as IUserMessage;
 }

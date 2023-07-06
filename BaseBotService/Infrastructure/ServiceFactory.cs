@@ -13,7 +13,6 @@ using BaseBotService.Utilities;
 using BaseBotService.Utilities.Extensions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using System.Reflection;
 
 namespace BaseBotService.Infrastructure;
@@ -32,7 +31,7 @@ public static class ServiceFactory
         InteractionServiceConfig serviceConfig = new()
         {
             DefaultRunMode = RunMode.Async,
-            InteractionCustomIdDelimiters = new[] { '.' },
+            InteractionCustomIdDelimiters = new[] { ';' },
             EnableAutocompleteHandlers = true,
             AutoServiceScopes = true
         };
@@ -53,6 +52,8 @@ public static class ServiceFactory
         // command modules
             .AddScoped<UserModule>()
             .AddScoped<BotModule>()
+            .AddScoped<AdminModule>()
+            .AddScoped<PollModule>()
 
         // utilities
             .AddSingleton<ITranslationService>(_ => new TranslationService(TranslationFactory.CreateMessageContexts()))

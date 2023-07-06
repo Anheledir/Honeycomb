@@ -37,7 +37,7 @@ public class PollVotesHC : ModelBase
         _ = collection.EnsureIndex(x => x.PollId, unique: false);
         _ = collection.EnsureIndex(x => x.OptionId, unique: false);
         _ = collection.EnsureIndex(x => new { x.PollId, x.OptionId }, unique: false);
-        _ = collection.EnsureIndex(x => new { x.VoterId, x.PollId}, unique: false);
+        _ = collection.EnsureIndex(x => new { x.VoterId, x.PollId }, unique: false);
         return collection;
     }
 }
