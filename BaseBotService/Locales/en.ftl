@@ -107,10 +107,13 @@ polls = Server-Polls
     .create-poll-description = The description of your poll
     .create-poll-roles = Select the roles that are allowed to vote
     .create-poll-public-results = Show the results to everyone
+    .create-poll-public-results-desc = voting will create a public notification
     .create-poll-voters-hidden = Hide the voters
+    .create-poll-voters-hidden-desc = users will not see when someone votes
     .create-poll-option-adding = Add a new option
     .create-poll-option-text = The text of the option
     .create-poll-option-emoji = The emoji of the option
+    .create-poll-footer = Preview of the poll, {$votesHidden}, open until
     .create-poll-end = { $duration ->
     [0] 1 hour
     [1] 2 hours
@@ -124,6 +127,15 @@ polls = Server-Polls
     [9] 1 week (7 days)
    *[other] manual (until it is closed)
 }
+    .footer = Poll created by {$user} | ending
+    .create-button-add-option = Add Option
+    .create-button-remove-option = Remove Option
+    .create-button-toggle-public-results = Toggle Public Results
+    .create-button-toggle-voters-hidden = Toggle Voters Hidden
+    .create-button-change-duration = Change Duration
+    .create-button-finish = Finish
+    .create-button-cancel = Cancel
+poll-voted = {$user} has voted in "{$poll}" - what about you? The poll will end {$duration}.
 
 
 

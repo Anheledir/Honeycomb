@@ -3,6 +3,7 @@ using BaseBotService.Core.Base;
 using BaseBotService.Data.Interfaces;
 using BaseBotService.Data.Models;
 using BaseBotService.Utilities;
+using BaseBotService.Utilities.Enums;
 using BaseBotService.Utilities.Extensions;
 using Discord.Rest;
 using Discord.WebSocket;
@@ -148,7 +149,7 @@ public class PollModule : BaseModule
             .WithCustomId($"polls.create.option.adding:{pollId}")
             .WithTitle(TranslationService.GetAttrString("polls", "create-poll-option-adding"))
             .AddTextInput(TranslationService.GetAttrString("polls", "create-poll-option-text"), "text", TextInputStyle.Short, minLength: 3, required: true)
-            .AddTextInput(TranslationService.GetAttrString("polls", "create-poll-option-emoji"), "emoji", TextInputStyle.Short, placeholder: "this is ignored for now", required: false);
+            .AddTextInput(TranslationService.GetAttrString("polls", "create-poll-option-emoji"), "emoji", TextInputStyle.Short, placeholder: ":one: or leave empty for now", required: false);
         await RespondWithModalAsync(modal.Build());
     }
 
@@ -184,6 +185,15 @@ public class PollModule : BaseModule
         _pollRepository.AddPollVote(pollData, optionId, Caller.Id);
 
         _ = await ModifyOriginalResponseAsync(msg => msg.Embed = GetPollEmbed(pollData, false).Build());
+
+        if (!pollData.AreVotersHidden) {
+            Dictionary<string, object> messageArguments = TranslationHelper.Arguments(
+                "user", Caller.Mention,
+                "poll", pollData.Title!,
+                "duration", pollData.EndDate.ToDiscordTimestamp(TranslationService, DiscordTimestampFormat.RelativeTime));
+            string votingMessage = TranslationService.GetString("poll-voted", messageArguments);
+            await Context.Channel.SendMessageAsync(votingMessage, allowedMentions: AllowedMentions.None, messageReference: new MessageReference(pollData.PollId));
+        }
     }
 
     private async Task<PollHC?> GetPollData(string pollId)
@@ -197,23 +207,23 @@ public class PollModule : BaseModule
         return newPoll;
     }
 
-    private static ComponentBuilder GetCreatePollButtons(ulong pollId) => new ComponentBuilder()
-        .WithButton("Add Option", $"polls.create.option.add:{pollId}", ButtonStyle.Primary)
-        .WithButton("Delete Option", $"polls.create.option.delete:{pollId}", ButtonStyle.Primary, disabled: true)
-        .WithButton("Toggle Public Results", $"polls.create.toggle.results:{pollId}", ButtonStyle.Secondary)
-        .WithButton("Toggle Show Voters", $"polls.create.toggle.voters:{pollId}", ButtonStyle.Secondary)
-        .WithButton("Change Duration", $"polls.create.duration:{pollId}", ButtonStyle.Secondary, disabled: true)
-        .WithButton("Finish", $"polls.create.finish:{pollId}", ButtonStyle.Success)
-        .WithButton("Cancel", $"polls.create.cancel:{pollId}", ButtonStyle.Danger);
+    private ComponentBuilder GetCreatePollButtons(ulong pollId) => new ComponentBuilder()
+        .WithButton(TranslationService.GetAttrString("polls", "create-button-add-option"), $"polls.create.option.add:{pollId}", ButtonStyle.Primary)
+        .WithButton(TranslationService.GetAttrString("polls", "create-button-remove-option"), $"polls.create.option.delete:{pollId}", ButtonStyle.Primary, disabled: true)
+        .WithButton(TranslationService.GetAttrString("polls", "create-button-toggle-public-results"), $"polls.create.toggle.results:{pollId}", ButtonStyle.Secondary)
+        .WithButton(TranslationService.GetAttrString("polls", "create-button-toggle-voters-hidden"), $"polls.create.toggle.voters:{pollId}", ButtonStyle.Secondary)
+        .WithButton(TranslationService.GetAttrString("polls", "create-button-change-duration"), $"polls.create.duration:{pollId}", ButtonStyle.Secondary, disabled: true)
+        .WithButton(TranslationService.GetAttrString("polls", "create-button-finish"), $"polls.create.finish:{pollId}", ButtonStyle.Success)
+        .WithButton(TranslationService.GetAttrString("polls", "create-button-cancel"), $"polls.create.cancel:{pollId}", ButtonStyle.Danger);
 
     private EmbedBuilder GetPollEmbed(PollHC poll, bool isPreview = false)
     {
         string votesHidden = poll.AreVotersHidden
-            ? "users will not see when someone votes"
-            : "voting will create a public notification";
+            ? TranslationService.GetAttrString("polls", "create-poll-voters-hidden-desc")
+            : TranslationService.GetAttrString("polls", "create-poll-public-results-desc");
         string footer = isPreview
-            ? $"Preview of the poll, {votesHidden}, open until:"
-            : $"Poll created by {Context.Guild.GetUser(poll.CreatorId).Username}, open until:";
+            ? TranslationService.GetAttrString("polls", "create-poll-footer", TranslationHelper.Arguments("votesHidden", votesHidden))
+            : TranslationService.GetAttrString("polls", "footer", TranslationHelper.Arguments("user", Context.Guild.GetUser(poll.CreatorId).Username));
         var result = new EmbedBuilder()
             .WithTitle(poll.Title)
             .WithDescription(poll.Description)
