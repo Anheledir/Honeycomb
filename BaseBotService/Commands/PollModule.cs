@@ -3,6 +3,7 @@ using BaseBotService.Core.Base;
 using BaseBotService.Data.Interfaces;
 using BaseBotService.Data.Models;
 using BaseBotService.Utilities;
+using BaseBotService.Utilities.Attributes;
 using BaseBotService.Utilities.Enums;
 using BaseBotService.Utilities.Extensions;
 using Discord.Rest;
@@ -19,13 +20,16 @@ namespace BaseBotService.Commands;
 public class PollModule : BaseModule
 {
     private readonly IPollRepository _pollRepository;
+    private readonly IGuildRepository _guildRepository;
 
-    public PollModule(ILogger logger, IPollRepository pollRepository)
+    public PollModule(ILogger logger, IPollRepository pollRepository, IGuildRepository guildRepository)
     {
         Logger = logger.ForContext<PollModule>();
         _pollRepository = pollRepository;
+        _guildRepository = guildRepository;
     }
 
+    [ModeratorsOnly(Logger, _guildRepository)]
     [SlashCommand("create", "Create a new poll in this server.")]
     public async Task CreatePoll()
     {
