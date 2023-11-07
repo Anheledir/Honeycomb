@@ -39,5 +39,5 @@ jobs:
               - type: 'build'
                 nouns: ['build','rebuild','ci']
                 labels: ['build']
-          maintain-labels-not-matched: false
+          maintain-labels-not-matched: true
           apply-changes: true
