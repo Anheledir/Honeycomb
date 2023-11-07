@@ -44,6 +44,12 @@ public class EasterEventServiceTests
         _faker = new Faker();
     }
 
+    [TearDown]
+    public void Cleanup()
+    {
+        _client.Dispose();
+    }
+
     [Test]
     public void IsEasterPeriod_WhenEasterSunday_ReturnsTrue()
     {

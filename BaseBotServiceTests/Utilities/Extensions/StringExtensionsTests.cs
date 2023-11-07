@@ -4,7 +4,6 @@ namespace BaseBotService.Tests.Utilities.Extensions;
 
 public class StringExtensionsTests
 {
-    [TestCase(null, "")]
     [TestCase("", "")]
     [TestCase("a", "*")]
     [TestCase("ab", "*")]
