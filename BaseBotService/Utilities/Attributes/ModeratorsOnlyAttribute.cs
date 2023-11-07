@@ -1,17 +1,21 @@
 ﻿using BaseBotService.Data.Interfaces;
 using BaseBotService.Data.Models;
 using Discord.WebSocket;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BaseBotService.Utilities.Attributes;
 
 /// <summary>
 /// A custom attribute for checking whether a context's user has a moderator role.
 /// </summary>
-internal class ModeratorsOnlyAttribute(ILogger Logger, IGuildRepository GuildRepository) : PreconditionAttribute
+internal class ModeratorsOnlyAttribute : PreconditionAttribute
 {
     /// <inheritdoc/>
     public override Task<PreconditionResult> CheckRequirementsAsync(IInteractionContext context, ICommandInfo commandInfo, IServiceProvider services)
     {
+        ILogger Logger = Program.ServiceProvider.GetRequiredService<ILogger>();
+        IGuildRepository GuildRepository = Program.ServiceProvider.GetRequiredService<IGuildRepository>();
+
         if (context.Interaction is not IComponentInteraction componentContext)
         {
             return Task.FromResult(PreconditionResult.FromError("Context unrecognized as component context."));

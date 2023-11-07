@@ -20,16 +20,14 @@ namespace BaseBotService.Commands;
 public class PollModule : BaseModule
 {
     private readonly IPollRepository _pollRepository;
-    private readonly IGuildRepository _guildRepository;
 
-    public PollModule(ILogger logger, IPollRepository pollRepository, IGuildRepository guildRepository)
+    public PollModule(ILogger logger, IPollRepository pollRepository)
     {
         Logger = logger.ForContext<PollModule>();
         _pollRepository = pollRepository;
-        _guildRepository = guildRepository;
     }
 
-    [ModeratorsOnly(Logger, _guildRepository)]
+    [ModeratorsOnly]
     [SlashCommand("create", "Create a new poll in this server.")]
     public async Task CreatePoll()
     {
