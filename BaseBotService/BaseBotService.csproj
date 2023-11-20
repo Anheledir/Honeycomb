@@ -34,7 +34,7 @@
       <EmbeddedResource Include="Locales\fr.ftl" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Discord.Net" Version="3.12.0" />
+        <PackageReference Include="Discord.Net" Version="3.13.0" />
         <PackageReference Include="Fluent.Net" Version="1.0.60" />
         <PackageReference Include="GitVersion.MsBuild" Version="5.12.0">
             <PrivateAssets>all</PrivateAssets>
