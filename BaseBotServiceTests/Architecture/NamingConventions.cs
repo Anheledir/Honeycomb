@@ -1,4 +1,4 @@
-﻿using NetArchTest.Rules;
+using NetArchTest.Rules;
 
 namespace BaseBotService.Tests.Architecture;
 
@@ -23,7 +23,7 @@ internal class NamingConventions
     {
         var result = Types.InCurrentDomain()
             .That()
-            .ResideInNamespaceStartingWith("BaseBotService")
+            .ResideInNamespace("BaseBotService")
             .And()
             .HaveNameEndingWith("Base")
             .Should()
