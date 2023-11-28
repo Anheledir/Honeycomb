@@ -1,0 +1,27 @@
+maintenance:
+  - '**/*.csproj'
+  - '**/*.sln'
+
+core:
+  - 'BaseBotService/Core/**/*'
+
+infrastructure:
+  - '**/Dockerfile'
+  - 'tools/**/*'
+  - .editorconfig
+  - .gitattributes
+  - .gitignore
+  - .dockerignore
+  - Honeycomb.lutconfig
+  - .github/**/*
+
+enhancement:
+  - 'BaseBotService/**/*.cs'
+
+documentation:
+  - '**/*.md'
+  - LICENSE
+  - docs/**/*
+
+testing:
+  - BaseBotServiceTests/**/*

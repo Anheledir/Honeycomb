@@ -1,43 +1,29 @@
-name: Identifying PR Labels
+name: Auto Labeler and Reviewer Assignment
 
-on:
-  pull_request:
-    branches: [main]
-    types:
-      [opened, reopened, labeled, unlabeled]
+on: [pull_request_target]
 
 jobs:
-  assign-labels:
+  label-and-review:
     runs-on: ubuntu-latest
-    name: Assign labels in pull request
-    if: github.event.pull_request.merged == false
     steps:
-      - uses: actions/checkout@v4
-      - name: Execute assign labels
-        id: action-assign-labels
-        uses: mauroalderete/action-assign-labels@v1
-        with:
-          pull-request-number: ${{ github.event.pull_request.number }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          conventional-commits: |
-            conventional-commits:
-              - type: 'fix'
-                nouns: ['FIX', 'Fix', 'fix', 'FIXED', 'Fixed', 'fixed']
-                labels: ['bug']
-              - type: 'refactor'
-                nouns: ['clean', 'cleanup', 'refactor', 'smell', 'ref', 'typo', 'chore', 'chor']
-                labels: ['maintenance']
-              - type: 'feature'
-                nouns: ['FEATURE', 'Feature', 'feature', 'FEAT', 'Feat', 'feat']
-                labels: ['enhancement']
-              - type: 'breaking_change'
-                nouns: ['BREAKING CHANGE', 'BREAKING', 'MAJOR']
-                labels: ['breaking change']
-              - type: 'documentation'
-                nouns: ['doc','docu','document','documentation']
-                labels: ['documentation']
-              - type: 'build'
-                nouns: ['build','rebuild','ci']
-                labels: ['build']
-          maintain-labels-not-matched: true
-          apply-changes: true
+    - uses: actions/checkout@v2
+
+    - name: Run Labeler
+      id: labeler
+      uses: actions/labeler@v3
+      with:
+        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+        configuration-path: .github/labeler.yml
+
+    - name: Add Reviewer for Core or Infrastructure Labels
+      if: contains(steps.labeler.outputs.all-labels, 'core') || contains(steps.labeler.outputs.all-labels, 'infrastructure')
+      uses: actions/github-script@v5
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: |
+          github.rest.pulls.requestReviewers({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: context.issue.number,
+            reviewers: ['Anheledir']
+          })
