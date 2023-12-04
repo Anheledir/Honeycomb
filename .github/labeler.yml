@@ -1,27 +1,29 @@
 maintenance:
-  - '**/*.csproj'
-  - '**/*.sln'
+  - any:
+    - changed-files:
+      - any-glob-to-any-file: ['**/*.csproj', '**/*.sln']
 
 core:
-  - 'BaseBotService/Core/**/*'
+  - any:
+    - changed-files:
+      - any-glob-to-any-file: ['BaseBotService/Core/**/*']
 
 infrastructure:
-  - '**/Dockerfile'
-  - 'tools/**/*'
-  - .editorconfig
-  - .gitattributes
-  - .gitignore
-  - .dockerignore
-  - Honeycomb.lutconfig
-  - .github/**/*
+  - any:
+    - changed-files:
+      - any-glob-to-any-file: ['**/Dockerfile', 'tools/**/*', '.editorconfig', '.gitattributes', '.gitignore', '.dockerignore', 'Honeycomb.lutconfig', '.github/**/*']
 
 enhancement:
-  - 'BaseBotService/**/*.cs'
+  - any:
+    - changed-files:
+      - any-glob-to-any-file: ['BaseBotService/**/*.cs']
 
 documentation:
-  - '**/*.md'
-  - LICENSE
-  - docs/**/*
+  - any:
+    - changed-files:
+      - any-glob-to-any-file: ['**/*.md', 'LICENSE', 'docs/**/*']
 
 testing:
-  - BaseBotServiceTests/**/*
+  - any:
+    - changed-files:
+      - any-glob-to-any-file: ['BaseBotServiceTests/**/*']
