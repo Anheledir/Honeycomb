@@ -30,7 +30,7 @@
         <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-        <PackageReference Include="NetArchTest.eNhancedEdition" Version="1.4.0" />
+        <PackageReference Include="NetArchTest.eNhancedEdition" Version="1.4.1" />
         <PackageReference Include="NSubstitute" Version="5.1.0" />
         <PackageReference Include="NSubstitute.Analyzers.CSharp" Version="1.0.16">
             <PrivateAssets>all</PrivateAssets>
