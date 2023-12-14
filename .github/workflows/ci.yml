@@ -20,7 +20,7 @@ jobs:
         run: dotnet build --configuration Debug
       - name: Run tests with dotnet
         run: dotnet test --logger "trx;logfilename=testResults.trx"
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: success() || failure()  # run this step even if previous step failed
         with:
            name: test-results
