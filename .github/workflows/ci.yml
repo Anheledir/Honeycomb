@@ -1,29 +1,43 @@
 name: 'CI and Tests'
+
 on:
-   push:
-     branches: [ "main" ]
-   pull_request:
+  push:
+    branches: [ "main" ]
+  pull_request:
 
 jobs:
-   build-test:
-     runs-on: ubuntu-latest
-     steps:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # avoid shallow clone to calculate semVer
+
+      - name: Install GitVersion
+        run: |
+          dotnet tool install --global GitVersion.Tool
+          export PATH="$PATH:~/.dotnet/tools"
+
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '7.x'
+          dotnet-version: '8.x'
           include-prerelease: true
+
+      - name: Determine version using GitVersion
+        run: gitversion /output buildserver /config /home/runner/.nuget/packages/gitversion.msbuild/6.0.0/tools/GitVersion.yml
+
       - name: Build with dotnet
         run: dotnet build --configuration Debug
+
       - name: Run tests with dotnet
         run: dotnet test --logger "trx;logfilename=testResults.trx"
+
       - uses: actions/upload-artifact@v4
         if: success() || failure()  # run this step even if previous step failed
         with:
-           name: test-results
-           path: ./**/*.trx
+          name: test-results
+          path: ./**/*.trx
+
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
