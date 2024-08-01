@@ -1,56 +1,49 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-
-        <IsPackable>false</IsPackable>
-        <IsTestProject>true</IsTestProject>
-        <RootNamespace>BaseBotService.Tests</RootNamespace>
-    </PropertyGroup>
-
-    <ItemGroup>
-      <None Remove="Resources\de.ftl" />
-      <None Remove="Resources\en.ftl" />
-      <None Remove="Resources\es.ftl" />
-      <None Remove="Resources\fr.ftl" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <EmbeddedResource Include="Resources\de.ftl" />
-      <EmbeddedResource Include="Resources\en.ftl" />
-      <EmbeddedResource Include="Resources\fr.ftl" />
-      <EmbeddedResource Include="Resources\es.ftl" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="Bogus" Version="35.6.0" />
-        <PackageReference Include="FluentAssertions" Version="6.12.0" />
-        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
-        <PackageReference Include="NetArchTest.eNhancedEdition" Version="1.4.3" />
-        <PackageReference Include="NSubstitute" Version="5.1.0" />
-        <PackageReference Include="NSubstitute.Analyzers.CSharp" Version="1.0.17">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="NUnit" Version="4.1.0" />
-        <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
-        <PackageReference Include="NUnit.Analyzers" Version="4.2.0">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="coverlet.collector" Version="6.0.2">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="Shouldly" Version="4.2.1" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\BaseBotService\BaseBotService.csproj" />
-    </ItemGroup>
-
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>BaseBotService.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Resources\de.ftl" />
+    <None Remove="Resources\en.ftl" />
+    <None Remove="Resources\es.ftl" />
+    <None Remove="Resources\fr.ftl" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\de.ftl" />
+    <EmbeddedResource Include="Resources\en.ftl" />
+    <EmbeddedResource Include="Resources\fr.ftl" />
+    <EmbeddedResource Include="Resources\es.ftl" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Bogus" Version="35.6.0" />
+    <PackageReference Include="FluentAssertions" Version="6.12.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
+    <PackageReference Include="NetArchTest.eNhancedEdition" Version="1.4.3" />
+    <PackageReference Include="NSubstitute" Version="5.1.0" />
+    <PackageReference Include="NSubstitute.Analyzers.CSharp" Version="1.0.17">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="NUnit" Version="4.1.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+    <PackageReference Include="NUnit.Analyzers" Version="4.2.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.collector" Version="6.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Shouldly" Version="4.2.1" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BaseBotService\BaseBotService.csproj" />
+  </ItemGroup>
 </Project>

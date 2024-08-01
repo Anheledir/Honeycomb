@@ -30,12 +30,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHub", "GitHub", "{02CCDF
 	ProjectSection(SolutionItems) = preProject
 		.github\dependabot.yml = .github\dependabot.yml
 		.github\FUNDING.yml = .github\FUNDING.yml
+		.github\labeler.yml = .github\labeler.yml
 		.github\PULL_REQUEST_TEMPLATE.md = .github\PULL_REQUEST_TEMPLATE.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{713C1FD3-9167-4568-A278-093B480B643D}"
 	ProjectSection(SolutionItems) = preProject
-		.github\workflows\Changelog.yml = .github\workflows\Changelog.yml
 		.github\workflows\ci.yml = .github\workflows\ci.yml
 		.github\workflows\codeql.yml = .github\workflows\codeql.yml
 		.github\workflows\main_projecthoneycomb.yml = .github\workflows\main_projecthoneycomb.yml
