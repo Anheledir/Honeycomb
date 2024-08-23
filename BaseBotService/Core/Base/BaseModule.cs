@@ -1,4 +1,6 @@
-﻿using BaseBotService.Core.Interfaces;
+﻿// Ignore Spelling: Followup
+
+using BaseBotService.Core.Interfaces;
 using BaseBotService.Utilities;
 using BaseBotService.Utilities.Attributes;
 using Discord.WebSocket;

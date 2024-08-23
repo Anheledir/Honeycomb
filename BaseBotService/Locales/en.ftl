@@ -85,6 +85,15 @@ invite = Invite me to your server!
 
 
 ####################################
+## Administrator Module
+####################################
+
+moderator-roles = The role '{ $role }' was configured as a moderator role by an Administrator.
+    .none = No moderator roles have been configured yet.
+    .set = The role '{ $role }' has been configured as a moderator role.
+
+
+####################################
 ## User Module
 ####################################
 
