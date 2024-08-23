@@ -1,4 +1,4 @@
-﻿using BaseBotService.Commands;
+using BaseBotService.Commands;
 using BaseBotService.Commands.Interfaces;
 using BaseBotService.Core.Interfaces;
 using BaseBotService.Data.Interfaces;
@@ -179,5 +179,4 @@ public class UserModuleTests
         // Assert
         result.ShouldBe(0, 1.0);
     }
-
 }
