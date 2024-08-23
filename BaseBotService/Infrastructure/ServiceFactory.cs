@@ -13,7 +13,6 @@ using BaseBotService.Utilities;
 using BaseBotService.Utilities.Extensions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using System.Reflection;
 
 namespace BaseBotService.Infrastructure;
@@ -62,6 +61,7 @@ public static class ServiceFactory
             .AddSingleton<RateLimiter>()
             .AddScoped<IEngagementService, EngagementService>()
             .AddScoped<IEasterEventService, EasterEventService>()
+            .AddScoped<IPermissionService, PermissionService>()
 
         // data services
             .AddSingleton<IPersistenceService, PersistenceService>()

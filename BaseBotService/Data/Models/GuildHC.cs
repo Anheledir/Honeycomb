@@ -13,6 +13,7 @@ public class GuildHC : ModelBase
     public List<ulong> ModeratorRoles { get; set; }
     public List<ulong> ArtistRoles { get; set; }
     public List<GuildMemberHC> Members { get; set; } = new();
+    public ulong InternalNotificationChannel { get; set; } = 0;
 
     public GuildHC()
     {
