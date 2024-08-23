@@ -16,20 +16,14 @@ namespace BaseBotService.Infrastructure;
 
 public static class ServiceFactory
 {
-    public static IServiceProvider CreateServiceProvider()
+    public static void ConfigureServices(IServiceCollection services)
     {
-        // Configure services
-        IServiceCollection services = new ServiceCollection();
-
         // Core services
         ConfigureCoreServices(services);
         ConfigureDiscordServices(services);
         ConfigureCommandModules(services);
         ConfigureUtilities(services);
         ConfigureRepositories(services);
-
-        // Build and return the service provider
-        return services.BuildServiceProvider();
     }
 
     private static void ConfigureCoreServices(IServiceCollection services)
@@ -51,7 +45,7 @@ public static class ServiceFactory
         DiscordSocketConfig socketConfig = new()
         {
             LogGatewayIntentWarnings = false,
-            GatewayIntents = GatewayIntents.AllUnprivileged,
+            GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.GuildMembers,
             AlwaysDownloadUsers = true,
         };
 

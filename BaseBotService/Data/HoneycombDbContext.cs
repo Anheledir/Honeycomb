@@ -1,34 +1,32 @@
 ﻿using BaseBotService.Core.Base;
 using BaseBotService.Core.Interfaces;
 using BaseBotService.Data.Models;
+using BaseBotService.Infrastructure.Achievements;
 using Microsoft.EntityFrameworkCore;
 
 namespace BaseBotService.Data;
 
 public class HoneycombDbContext : DbContext
 {
-    private readonly string _connectionString;
+    private readonly IEnvironmentService _environmentService;
+
+    public HoneycombDbContext(DbContextOptions<HoneycombDbContext> options, IEnvironmentService environmentService)
+        : base(options)
+    {
+        _environmentService = environmentService;
+    }
 
     public DbSet<MemberHC> Members { get; set; }
     public DbSet<GuildHC> Guilds { get; set; }
     public DbSet<GuildMemberHC> GuildMembers { get; set; }
     public DbSet<AchievementBase> Achievements { get; set; }
 
-    public HoneycombDbContext(IEnvironmentService environment)
-    {
-        _connectionString = environment.ConnectionString;
-    }
-
-    // Constructor for testing, using in-memory database or other options
-    public HoneycombDbContext(DbContextOptions<HoneycombDbContext> options) : base(options)
-    {
-    }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        if (!optionsBuilder.IsConfigured && !string.IsNullOrEmpty(_connectionString))
+        if (!optionsBuilder.IsConfigured)
         {
-            optionsBuilder.UseSqlite(_connectionString);
+            optionsBuilder.UseSqlite(_environmentService.ConnectionString);
         }
     }
 
@@ -76,6 +74,11 @@ public class HoneycombDbContext : DbContext
             .HasIndex(a => a.SourceIdentifier);
 
         modelBuilder.Entity<AchievementBase>()
+            .HasDiscriminator<string>("AchievementType")
+            //.HasValue<EasterEventAchievement>("AnotherEvent")
+            .HasValue<EasterEventAchievement>("EasterEvent");
+
+        modelBuilder.Entity<AchievementBase>()
             .HasOne<MemberHC>()
             .WithMany()
             .HasForeignKey(a => a.MemberId);
@@ -84,6 +87,5 @@ public class HoneycombDbContext : DbContext
             .HasOne<GuildHC>()
             .WithMany()
             .HasForeignKey(a => a.GuildId);
-
     }
 }

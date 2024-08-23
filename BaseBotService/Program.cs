@@ -45,11 +45,12 @@ public static class Program
 
     private static IHostBuilder CreateHostBuilder(string[] args) =>
         Host.CreateDefaultBuilder(args)
-            .ConfigureServices((_, services) =>
+            .ConfigureServices((context, services) =>
             {
-                // Register all services, including hosted services
-                services.AddSingleton(LoggerFactory.CreateLogger())
-                        .AddHostedService<HealthCheckService>()
-                        .AddSingleton(ServiceFactory.CreateServiceProvider());
+                // Register all services from ServiceFactory
+                ServiceFactory.ConfigureServices(services);
+
+                // Add additional services, including hosted services
+                services.AddHostedService<HealthCheckService>();
             });
 }
