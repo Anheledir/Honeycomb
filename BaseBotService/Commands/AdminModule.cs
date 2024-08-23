@@ -2,10 +2,11 @@
 
 using BaseBotService.Core.Base;
 using BaseBotService.Core.Interfaces;
-using BaseBotService.Infrastructure.Services;
 using BaseBotService.Utilities;
 using Discord.Commands;
 using Discord.WebSocket;
+using GroupAttribute = Discord.Interactions.GroupAttribute;
+using RequireUserPermissionAttribute = Discord.Commands.RequireUserPermissionAttribute;
 
 namespace BaseBotService.Commands;
 
@@ -13,27 +14,29 @@ namespace BaseBotService.Commands;
 [CommandContextType(InteractionContextType.Guild)]
 public class AdminModule : BaseModule
 {
-    public AdminModule(ILogger logger)
+    private readonly ILogger _logger;
+    private readonly IPermissionService _permissionService;
+
+    public AdminModule(ILogger logger, IPermissionService permissionService)
     {
-        Logger = logger.ForContext<AdminModule>();
+        _logger = logger.ForContext<AdminModule>();
+        _permissionService = permissionService;
     }
 
-    [Command("SetModerator", "Set the moderator role for the current server.")]
+    [Command("SetModerator", Summary = "Set the moderator role for the current server.")]
     [RequireUserPermission(GuildPermission.Administrator)]
     public async Task SetModeratorRole(SocketRole role)
     {
-        PermissionService permissionService = services.GetRequiredService<IPermissionService>();
-        permissionService.SetModeratorRole(Context.Guild, role);
+        _permissionService.SetModeratorRole(Context.Guild, role);
         await RespondOrFollowupAsync(text: TranslationService.GetString("moderator-roles.set", TranslationHelper.Arguments("role", role.Name)));
     }
 
     public async Task GetModeratorRole()
     {
-        PermissionService persmissionService = services.GetRequiredService<IPermissionService>();
-        SocketRole role = persmissionService.GetModeratorRole(Context.Guild);
+        SocketRole role = _permissionService.GetModeratorRole(Context.Guild);
         if (role is null)
         {
-            await RespondOrFollowupAsync(text: TranslationService.GetString("moderator-roles.none");
+            await RespondOrFollowupAsync(text: TranslationService.GetString("moderator-roles.none"));
         }
         else
         {

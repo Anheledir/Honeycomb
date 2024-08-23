@@ -14,8 +14,9 @@ public static class ServiceCollectionExtensions
         // Register each implementing type with the DI container
         foreach (var type in implementingTypes)
         {
-            var serviceDescriptor = new ServiceDescriptor(typeof(TInterface), type, lifetime);
-            services.Add(serviceDescriptor);
+            services.Add(new ServiceDescriptor(type, type, lifetime)); // Register as itself
+            services.Add(new ServiceDescriptor(typeof(TInterface), type, lifetime)); // Register as TInterface
+            Console.WriteLine($"Registered {type.Name} as {typeof(TInterface).Name} with lifetime {lifetime}.");
         }
 
         return services;

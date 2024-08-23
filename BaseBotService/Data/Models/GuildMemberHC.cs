@@ -2,6 +2,7 @@
 using LiteDB;
 
 namespace BaseBotService.Data.Models;
+
 public class GuildMemberHC : ModelBase
 {
     public ulong GuildId { get; set; }
@@ -10,12 +11,13 @@ public class GuildMemberHC : ModelBase
     public uint ActivityPoints { get; set; }
     public DateTime LastActivityPoint { get; set; }
 
-    public static ILiteCollection<GuildMemberHC> GetServiceRegistration(IServiceProvider services)
+    // Override the EnsureIndexes method to set up indexes on the collection
+    protected override void EnsureIndexes<T>(ILiteCollection<T> collection)
     {
-        ILiteCollection<GuildMemberHC> collection = GetServiceRegistration<GuildMemberHC>(services);
-        _ = collection.EnsureIndex(x => x.GuildId, unique: false);
-        _ = collection.EnsureIndex(x => x.MemberId, unique: false);
-        _ = collection.EnsureIndex(x => new { x.GuildId, x.MemberId }, unique: true);
-        return collection;
+        var guildMemberCollection = collection as ILiteCollection<GuildMemberHC>;
+
+        guildMemberCollection?.EnsureIndex(x => x.GuildId, unique: false);
+        guildMemberCollection?.EnsureIndex(x => x.MemberId, unique: false);
+        guildMemberCollection?.EnsureIndex(x => new { x.GuildId, x.MemberId }, unique: true);
     }
 }

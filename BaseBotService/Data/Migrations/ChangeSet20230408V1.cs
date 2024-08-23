@@ -1,21 +1,29 @@
-﻿using BaseBotService.Data.Interfaces;
+﻿using BaseBotService.Core.Base;
+using BaseBotService.Data.Extensions;
+using BaseBotService.Data.Interfaces;
 using BaseBotService.Data.Models;
 using LiteDB;
-using BaseBotService.Core.Base;
 
 namespace BaseBotService.Data.Migrations;
+
 public class ChangeSet20230408V1 : IMigrationChangeset
 {
     private readonly ILogger _logger;
-    private readonly ILiteCollection<MemberHC> _memberHC;
-    private readonly ILiteCollection<GuildHC> _guildHC;
-    private readonly ILiteCollection<GuildMemberHC> _guildMemberHC;
+    private readonly Lazy<ILiteCollection<MemberHC>> _memberHC;
+    private readonly Lazy<ILiteCollection<GuildHC>> _guildHC;
+    private readonly Lazy<ILiteCollection<GuildMemberHC>> _guildMemberHC;
 
     public int Version => 0;
 
-    public ChangeSet20230408V1(ILogger logger, ILiteCollection<MemberHC> memberHC, ILiteCollection<GuildHC> guildHC, ILiteCollection<GuildMemberHC> guildMemberHC)
+    public ChangeSet20230408V1(
+        ILogger logger,
+        Lazy<ILiteCollection<MemberHC>> memberHC,
+        Lazy<ILiteCollection<GuildHC>> guildHC,
+        Lazy<ILiteCollection<GuildMemberHC>> guildMemberHC)
     {
-        _logger = logger.ForContext<ChangeSet20230408V1>();
+        _logger = logger;
+        _logger.Debug("ChangeSet20230408V1 constructor called.");
+
         _memberHC = memberHC;
         _guildHC = guildHC;
         _guildMemberHC = guildMemberHC;
@@ -31,28 +39,23 @@ public class ChangeSet20230408V1 : IMigrationChangeset
 
         try
         {
-            _logger.Debug("Initializing the modified MemberHC property 'Achievements'.");
-            foreach (MemberHC? member in _memberHC.FindAll().ToList())
-            {
-                if (member == null) continue;
+            _logger.Debug("Starting migration changeset for version 0.");
 
-                member.Achievements = new List<AchievementBase>();
-            }
+            // Now access the dependencies when they are actually needed
+            var memberCollection = _memberHC.Value;
+            var guildCollection = _guildHC.Value;
+            var guildMemberCollection = _guildMemberHC.Value;
 
-            _logger.Debug("Populating the new GuildHC collection with default entries for all Guilds in 'GuildMemberHC'.");
-            foreach (ulong guildId in _guildMemberHC.FindAll().Select(gm => gm.GuildId).Distinct().ToList())
-            {
-                _ = _guildHC.Insert(new GuildHC() { GuildId = guildId, Members = new List<GuildMemberHC>() });
-            }
+            // Step 1: Initialize the modified MemberHC property 'Achievements'.
+            InitializeMemberAchievements(memberCollection);
 
-            _logger.Debug("Populating the new GuildHC property 'GuildMembers'.");
-            foreach (GuildHC? guild in _guildHC.FindAll().ToList())
-            {
-                if (guild == null) continue;
+            // Step 2: Populate the new GuildHC collection with default entries for all Guilds in 'GuildMemberHC'.
+            PopulateGuildHCCollection(guildCollection, guildMemberCollection);
 
-                guild.Members = _guildMemberHC.Find(d => d.GuildId == guild.GuildId).ToList();
-                _guildHC.Update(guild);
-            }
+            // Step 3: Populate the new GuildHC property 'GuildMembers'.
+            PopulateGuildMembers(guildCollection, guildMemberCollection);
+
+            _logger.Information("Migration changeset for version 0 applied successfully.");
             return true;
         }
         catch (Exception ex)
@@ -61,4 +64,76 @@ public class ChangeSet20230408V1 : IMigrationChangeset
             return false;
         }
     }
+
+    private void InitializeMemberAchievements(ILiteCollection<MemberHC> memberCollection)
+    {
+        _logger.Debug("Initializing the modified MemberHC property 'Achievements'.");
+        int memberCount = 0;
+
+        var members = memberCollection.FindAll().ToList();
+        _logger.Debug($"Retrieved {members.Count} members.");
+
+        foreach (var batch in members.Batch(100))
+        {
+            _logger.Debug("Processing a new batch of members.");
+            foreach (var member in batch)
+            {
+                if (member == null) continue;
+
+                member.Achievements = new List<AchievementBase>();
+                memberCount++;
+            }
+            _logger.Debug($"Processed batch of 100 members. Total processed: {memberCount}");
+        }
+
+        _logger.Debug($"Total members processed: {memberCount}.");
+    }
+
+    private void PopulateGuildHCCollection(ILiteCollection<GuildHC> guildCollection, ILiteCollection<GuildMemberHC> guildMemberCollection)
+    {
+        _logger.Debug("Populating the new GuildHC collection with default entries for all Guilds in 'GuildMemberHC'.");
+        int guildCount = 0;
+
+        var guildIds = guildMemberCollection.FindAll().Select(gm => gm.GuildId).Distinct().ToList();
+        _logger.Debug($"Retrieved {guildIds.Count} distinct guild IDs.");
+
+        foreach (var batch in guildIds.Batch(100))
+        {
+            _logger.Debug("Processing a new batch of guild IDs.");
+            foreach (var guildId in batch)
+            {
+                _ = guildCollection.Insert(new GuildHC() { GuildId = guildId, Members = new List<GuildMemberHC>() });
+                guildCount++;
+            }
+            _logger.Debug($"Inserted batch of 100 guilds into GuildHC. Total inserted: {guildCount}");
+        }
+
+        _logger.Debug($"Total guilds inserted: {guildCount}.");
+    }
+
+    private void PopulateGuildMembers(ILiteCollection<GuildHC> guildCollection, ILiteCollection<GuildMemberHC> guildMemberCollection)
+    {
+        _logger.Debug("Populating the new GuildHC property 'GuildMembers'.");
+        int guildMemberCount = 0;
+
+        var guilds = guildCollection.FindAll().ToList();
+        _logger.Debug($"Retrieved {guilds.Count} guilds from GuildHC.");
+
+        foreach (var batch in guilds.Batch(100))
+        {
+            _logger.Debug("Processing a new batch of guilds.");
+            foreach (var guild in batch)
+            {
+                if (guild == null) continue;
+
+                guild.Members = guildMemberCollection.Find(d => d.GuildId == guild.GuildId).ToList();
+                guildCollection.Update(guild);
+                guildMemberCount++;
+            }
+            _logger.Debug($"Updated batch of 100 guilds with their members. Total updated: {guildMemberCount}");
+        }
+
+        _logger.Debug($"Total guilds updated: {guildMemberCount}.");
+    }
 }
+

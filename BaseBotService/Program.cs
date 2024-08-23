@@ -23,13 +23,16 @@ public static class Program
         DiscordSocketClient client = ServiceProvider.GetRequiredService<DiscordSocketClient>();
         IEnvironmentService environment = ServiceProvider.GetRequiredService<IEnvironmentService>();
 
-        await client.LoginAsync(TokenType.Bot, environment.DiscordBotToken);
-        await client.StartAsync();
+        if (!string.IsNullOrWhiteSpace(environment.DiscordBotToken))
+        {
+            await client.LoginAsync(TokenType.Bot, environment.DiscordBotToken, true);
+            await client.StartAsync();
+        }
 
         // Host the health check service
         IHost host = Host.CreateDefaultBuilder()
-            .ConfigureServices(services => services.AddHostedService<HealthCheckService>())
-            .Build();
+                .ConfigureServices(services => services.AddHostedService<HealthCheckService>())
+                .Build();
 
         await host.RunAsync(ServiceProvider.GetRequiredService<CancellationTokenSource>().Token);
     }

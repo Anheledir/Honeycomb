@@ -8,7 +8,7 @@ namespace BaseBotService.Commands;
 [CommandContextType(InteractionContextType.Guild, InteractionContextType.PrivateChannel, InteractionContextType.BotDm)]
 public class BotModule : BaseModule
 {
-    public BotModule(ILogger logger)
+    public BotModule(ILogger logger, IServiceProvider services)
     {
         Logger = logger.ForContext<BotModule>();
     }

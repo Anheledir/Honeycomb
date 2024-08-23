@@ -1,6 +1,7 @@
 ﻿using LiteDB;
 
 namespace BaseBotService.Core.Base;
+
 public abstract class AchievementBase : ModelBase
 {
     protected Dictionary<string, object>? EventAttributes;
@@ -19,14 +20,14 @@ public abstract class AchievementBase : ModelBase
     public static string Identifier => "00000000-0000-0000-0000-000000000000";
     public static string TranslationKey => "achievement";
 
-    public static ILiteCollection<AchievementBase> GetServiceRegistration(IServiceProvider services)
+    // Override the EnsureIndexes method to set up indexes on the collection
+    protected override void EnsureIndexes<T>(ILiteCollection<T> collection)
     {
-        ILiteCollection<AchievementBase> collection = GetServiceRegistration<AchievementBase>(services);
-        _ = collection.EnsureIndex(x => x.MemberId);
-        _ = collection.EnsureIndex(x => x.GuildId);
-        _ = collection.EnsureIndex(x => new { x.GuildId, x.MemberId });
-        _ = collection.EnsureIndex(x => x.SourceIdentifier);
+        var achievementCollection = collection as ILiteCollection<AchievementBase>;
 
-        return collection;
+        achievementCollection?.EnsureIndex(x => x.MemberId);
+        achievementCollection?.EnsureIndex(x => x.GuildId);
+        achievementCollection?.EnsureIndex(x => new { x.GuildId, x.MemberId });
+        achievementCollection?.EnsureIndex(x => x.SourceIdentifier);
     }
 }

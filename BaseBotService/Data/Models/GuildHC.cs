@@ -3,6 +3,7 @@ using BaseBotService.Data.Enums;
 using LiteDB;
 
 namespace BaseBotService.Data.Models;
+
 public class GuildHC : ModelBase
 {
     public ulong GuildId { get; set; }
@@ -15,6 +16,7 @@ public class GuildHC : ModelBase
     public List<GuildMemberHC> Members { get; set; } = new();
     public ulong InternalNotificationChannel { get; set; } = 0;
 
+    // Constructor to initialize default values
     public GuildHC()
     {
         Settings = GuildSettings.EnableActivityPoints
@@ -27,10 +29,10 @@ public class GuildHC : ModelBase
         ActivityPointsAverageActiveHours = 4;
     }
 
-    public static ILiteCollection<GuildHC> GetServiceRegistration(IServiceProvider services)
+    // Override the EnsureIndexes method to set up the GuildId index
+    protected override void EnsureIndexes<T>(ILiteCollection<T> collection)
     {
-        ILiteCollection<GuildHC> collection = GetServiceRegistration<GuildHC>(services);
-        _ = collection.EnsureIndex(x => x.GuildId, unique: true);
-        return collection;
+        var guildCollection = collection as ILiteCollection<GuildHC>;
+        guildCollection?.EnsureIndex(x => x.GuildId, unique: true);
     }
 }

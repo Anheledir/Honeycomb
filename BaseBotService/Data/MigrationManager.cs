@@ -2,86 +2,108 @@
 using LiteDB;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace BaseBotService.Data;
-public class MigrationManager
+namespace BaseBotService.Data
 {
-    private readonly int _targetDatabaseVersion;
-    private readonly ILogger _logger;
-    private readonly IServiceProvider _service = Program.ServiceProvider;
-
-    public MigrationManager()
+    public class MigrationManager
     {
-        _logger = _service.GetRequiredService<ILogger>().ForContext<MigrationManager>();
-        _targetDatabaseVersion = 1;
-    }
+        private readonly int _targetDatabaseVersion;
+        private readonly ILogger _logger;
+        private readonly IServiceProvider _serviceProvider;
 
-    public bool AreMigrationsAvailable(ILiteDatabase database) => database != null && database.UserVersion < _targetDatabaseVersion;
-
-    public bool ApplyMigrations(ILiteDatabase database)
-    {
-        bool success = true;
-        database.BeginTrans();
-
-        while (success && database.UserVersion < _targetDatabaseVersion)
+        public MigrationManager(IServiceProvider serviceProvider)
         {
-            success = ApplyChanges(database);
+            _serviceProvider = serviceProvider;
+            _logger = _serviceProvider.GetRequiredService<ILogger>().ForContext<MigrationManager>();
+            _targetDatabaseVersion = 1;
         }
 
-        if (success)
+        public bool AreMigrationsAvailable(ILiteDatabase database) => database != null && database.UserVersion < _targetDatabaseVersion;
+
+        public bool ApplyMigrations(ILiteDatabase database)
         {
-            database.Commit();
-            database.Checkpoint();
-        }
-        else
-        {
-            database.Rollback();
-        }
-        return success;
-    }
+            bool success = true;
+            _logger.Information($"Starting database migration to version {_targetDatabaseVersion}.");
 
-    private bool ApplyChanges(ILiteDatabase db)
-    {
-        int version = db.UserVersion;
-        _logger.Information($"Looking for database migrations for version {version}");
-
-        try
-        {
-            // Get all registered IMigrationChangeset instances
-            var migrationChangesets = _service.GetServices<IMigrationChangeset>();
-
-            // Find the first Changeset with the matching version
-            var matchingChangeset = migrationChangesets.FirstOrDefault(changeset => changeset.Version == version);
-
-            if (matchingChangeset != null)
+            lock (database) // Ensure single-threaded access
             {
-                _logger.Information($"Applying database migrations for version {version}");
-                if (!matchingChangeset.ApplyChangeset(db, version))
+                try
                 {
-                    throw new InvalidOperationException();
+                    database.BeginTrans();
+
+                    while (success && database.UserVersion < _targetDatabaseVersion)
+                    {
+                        success = ApplyChanges(database);
+                    }
+
+                    if (success)
+                    {
+                        database.Commit();
+                        database.Checkpoint();
+                        _logger.Information("Database migration completed successfully.");
+                    }
+                    else
+                    {
+                        database.Rollback();
+                        _logger.Error("Database migration failed, rolled back to previous state.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.Fatal(ex, "Unexpected error during database migration. Rolling back.");
+                    database.Rollback();
+                    success = false;
                 }
             }
-            else
-            {
-                _logger.Debug($"No database migrations found for version {version}");
-            }
+
+            return success;
+        }
+
+        public bool ApplyChanges(ILiteDatabase db)
+        {
+            int version = db.UserVersion;
+            _logger.Information($"Looking for database migrations for version {version}");
 
             try
             {
-                db.Commit();
-                db.UserVersion++;
-                _logger.Information($"New database version is {db.UserVersion}, committing changes.");
-                db.Commit();
+                var migrationChangesets = _serviceProvider.GetServices<IMigrationChangeset>().ToList();
+                _logger.Debug($"Total migration changesets registered: {migrationChangesets.Count}");
+
+                if (!migrationChangesets.Any())
+                {
+                    _logger.Error("No migration changesets found. Ensure that migrations are registered properly.");
+                    return false;
+                }
+
+                var matchingChangeset = migrationChangesets.FirstOrDefault(changeset => changeset.Version == version);
+
+                if (matchingChangeset != null)
+                {
+                    _logger.Information($"Applying database migrations for version {version} using changeset '{matchingChangeset.GetType().Name}'.");
+
+                    bool result = matchingChangeset.ApplyChangeset(db, version);
+
+                    if (!result)
+                    {
+                        _logger.Error($"Migration changeset for version {version} failed to apply.");
+                        return false;
+                    }
+
+                    db.UserVersion++;
+                    _logger.Information($"Database successfully migrated to version {db.UserVersion}.");
+                }
+                else
+                {
+                    _logger.Warning($"No migration changeset found for version {version}. Skipping migration.");
+                    db.UserVersion = _targetDatabaseVersion;
+                }
+
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.Fatal(ex, $"An exception occurred while applying migration for version {version}.");
                 return false;
             }
-        }
-        catch (Exception ex)
-        {
-            _logger.Fatal(ex, $"The database migration for version {version} failed, doing rollback!");
-            return false;
         }
     }
 }

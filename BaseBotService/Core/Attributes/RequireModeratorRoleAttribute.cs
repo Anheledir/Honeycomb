@@ -1,4 +1,4 @@
-﻿using BaseBotService.Infrastructure.Services;
+﻿using BaseBotService.Core.Interfaces;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,7 +11,7 @@ public class RequireModeratorRoleAttribute : PreconditionAttribute
 {
     public override async Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
     {
-        PermissionService permissionService = services.GetRequiredService<IPermissionService>();
+        IPermissionService permissionService = services.GetRequiredService<IPermissionService>();
         SocketGuildUser? user = context.User as SocketGuildUser;
 
         return await permissionService.CanUserExecuteModeratorCommandAsync(user)

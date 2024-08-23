@@ -75,18 +75,17 @@ public static class ServiceFactory
             .AddScoped(typeof(IAchievementRepository<>), typeof(AchievementRepository<>))
 
         // data achievement models
-            .AddScoped(AchievementBase.GetServiceRegistration)
+            .AddScoped(AchievementBase.GetServiceRegistration<AchievementBase>)
             .AddScoped<AchievementBase, EasterEventAchievement>()
             .AddScoped<EasterEventAchievement>()
 
         // data models
-            .AddScoped(GuildHC.GetServiceRegistration)
-            .AddScoped(MemberHC.GetServiceRegistration)
-            .AddScoped(GuildMemberHC.GetServiceRegistration)
-            .AddScoped(AchievementBase.GetServiceRegistration)
+            .AddScoped(GuildHC.GetServiceRegistration<GuildHC>)
+            .AddScoped(MemberHC.GetServiceRegistration<MemberHC>)
+            .AddScoped(GuildMemberHC.GetServiceRegistration<GuildMemberHC>)
 
         // data migrations
-            .AddAllImplementationsOf<IMigrationChangeset>(typeof(IMigrationChangeset).Assembly, ServiceLifetime.Transient);
+            .AddAllImplementationsOf<IMigrationChangeset>(typeof(IMigrationChangeset).Assembly, ServiceLifetime.Scoped);
 
         return services.BuildServiceProvider();
     }
