@@ -1,23 +1,26 @@
-﻿using BaseBotService.Core.Base;
-using LiteDB;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BaseBotService.Data.Models;
 
-public class GuildMemberHC : ModelBase
+public class GuildMemberHC
 {
+    [Key]
+    public int Id { get; set; } // Primary key for EF Core
+
+    // Foreign key properties
     public ulong GuildId { get; set; }
     public ulong MemberId { get; set; }
+
+    // Guild-specific properties
     public DateTime LastActive { get; set; }
     public uint ActivityPoints { get; set; }
     public DateTime LastActivityPoint { get; set; }
 
-    // Override the EnsureIndexes method to set up indexes on the collection
-    protected override void EnsureIndexes<T>(ILiteCollection<T> collection)
-    {
-        var guildMemberCollection = collection as ILiteCollection<GuildMemberHC>;
+    // Navigation properties
+    [ForeignKey(nameof(GuildId))]
+    public GuildHC Guild { get; set; } = default!;
 
-        guildMemberCollection?.EnsureIndex(x => x.GuildId, unique: false);
-        guildMemberCollection?.EnsureIndex(x => x.MemberId, unique: false);
-        guildMemberCollection?.EnsureIndex(x => new { x.GuildId, x.MemberId }, unique: true);
-    }
+    [ForeignKey(nameof(MemberId))]
+    public MemberHC Member { get; set; } = default!;
 }

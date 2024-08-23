@@ -1,35 +1,48 @@
-﻿using BaseBotService.Data.Interfaces;
-using BaseBotService.Data.Models;
+﻿using BaseBotService.Data;
+using BaseBotService.Data.Interfaces;
 using BaseBotService.Data.Repositories;
-using LiteDB;
+using Microsoft.EntityFrameworkCore;
 
 namespace BaseBotService.Tests.Data.Repositories;
 
 [TestFixture]
 public class GuildRepositoryTests
 {
-    private ILiteCollection<GuildHC> _guilds;
+    private DbContextOptions<HoneycombDbContext> _dbContextOptions;
+    private HoneycombDbContext _dbContext;
     private IGuildRepository _repository;
     private readonly Faker _faker = new();
 
     [SetUp]
     public void SetUp()
     {
-        LiteDatabase db = FakeDataHelper.GetTestDatabase();
-        _guilds = db.GetCollection<GuildHC>();
+        _dbContextOptions = new DbContextOptionsBuilder<HoneycombDbContext>()
+            .UseSqlite("DataSource=:memory:")
+            .Options;
 
-        _repository = new GuildRepository(_guilds);
+        _dbContext = new HoneycombDbContext(_dbContextOptions);
+        _dbContext.Database.OpenConnection();
+        _dbContext.Database.EnsureCreated();
+
+        _repository = new GuildRepository(_dbContext);
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        _dbContext.Dispose();
     }
 
     [Test]
-    public void GetGuild_WhenGuildExists_ReturnsGuild()
+    public async Task GetGuild_WhenGuildExists_ReturnsGuild()
     {
         // Arrange
         var guild = FakeDataHelper.GuildFaker.Generate();
-        _guilds.Insert(guild);
+        _dbContext.Guilds.Add(guild);
+        await _dbContext.SaveChangesAsync();
 
         // Act
-        var result = _repository.GetGuild(guild.GuildId);
+        var result = await _repository.GetGuildAsync(guild.GuildId);
 
         // Assert
         result.ShouldNotBeNull();
@@ -37,26 +50,26 @@ public class GuildRepositoryTests
     }
 
     [Test]
-    public void GetGuild_WhenGuildDoesNotExistAndTouchIsFalse_ReturnsNull()
+    public async Task GetGuild_WhenGuildDoesNotExistAndTouchIsFalse_ReturnsNull()
     {
         // Arrange
-        ulong guildId = new Faker().Random.ULong();
+        ulong guildId = _faker.Random.ULong();
 
         // Act
-        var result = _repository.GetGuild(guildId);
+        var result = await _repository.GetGuildAsync(guildId);
 
         // Assert
         result.ShouldBeNull();
     }
 
     [Test]
-    public void GetGuild_WhenGuildDoesNotExistAndTouchIsTrue_ReturnsGuild()
+    public async Task GetGuild_WhenGuildDoesNotExistAndTouchIsTrue_ReturnsGuild()
     {
         // Arrange
-        ulong guildId = new Faker().Random.ULong();
+        ulong guildId = _faker.Random.ULong();
 
         // Act
-        var result = _repository.GetGuild(guildId, create: true);
+        var result = await _repository.GetGuildAsync(guildId, create: true);
 
         // Assert
         result.ShouldNotBeNull();
@@ -64,27 +77,27 @@ public class GuildRepositoryTests
     }
 
     [Test]
-    public void AddGuild_AddsGuildToCollection()
+    public async Task AddGuild_AddsGuildToCollection()
     {
         // Arrange
         var newGuild = FakeDataHelper.GuildFaker.Generate();
 
         // Act
-        _repository.AddGuild(newGuild);
+        await _repository.AddGuildAsync(newGuild);
 
         // Assert
-        var result = _guilds.FindOne(g => g.GuildId == newGuild.GuildId);
+        var result = await _dbContext.Guilds.FirstOrDefaultAsync(g => g.GuildId == newGuild.GuildId);
         result.ShouldNotBeNull();
         result.Should().BeEquivalentTo(newGuild, o => o.Excluding(g => g.Members));
     }
 
     [Test]
-    public void UpdateGuild_UpdatesGuildInCollection()
+    public async Task UpdateGuild_UpdatesGuildInCollection()
     {
         // Arrange
         var existingGuild = FakeDataHelper.GuildFaker.Generate();
-
-        _guilds.Insert(existingGuild);
+        _dbContext.Guilds.Add(existingGuild);
+        await _dbContext.SaveChangesAsync();
 
         existingGuild.ActivityPointsAverageActiveHours += 2;
         existingGuild.ActivityPointsName = _faker.Commerce.ProductName();
@@ -93,39 +106,40 @@ public class GuildRepositoryTests
         existingGuild.ModeratorRoles = FakeDataHelper.GenerateRandomUlongList();
 
         // Act
-        var result = _repository.UpdateGuild(existingGuild);
+        var result = await _repository.UpdateGuildAsync(existingGuild);
 
         // Assert
         result.ShouldBeTrue();
-        var updatedGuild = _guilds.FindOne(g => g.GuildId == existingGuild.GuildId);
+        var updatedGuild = await _dbContext.Guilds.FirstOrDefaultAsync(g => g.GuildId == existingGuild.GuildId);
         updatedGuild.ShouldNotBeNull();
         updatedGuild.Should().BeEquivalentTo(existingGuild, o => o.Excluding(g => g.Members));
     }
 
     [Test]
-    public void DeleteGuild_WhenGuildExists_DeletesGuildFromCollection()
+    public async Task DeleteGuild_WhenGuildExists_DeletesGuildFromCollection()
     {
         // Arrange
         var existingGuild = FakeDataHelper.GuildFaker.Generate();
-        _guilds.Insert(existingGuild);
+        _dbContext.Guilds.Add(existingGuild);
+        await _dbContext.SaveChangesAsync();
 
         // Act
-        var result = _repository.DeleteGuild(existingGuild.GuildId);
+        var result = await _repository.DeleteGuildAsync(existingGuild.GuildId);
 
         // Assert
         result.ShouldBeTrue();
-        var deletedGuild = _guilds.FindOne(g => g.GuildId == existingGuild.GuildId);
+        var deletedGuild = await _dbContext.Guilds.FirstOrDefaultAsync(g => g.GuildId == existingGuild.GuildId);
         deletedGuild.ShouldBeNull();
     }
 
     [Test]
-    public void DeleteGuild_WhenGuildDoesNotExist_ReturnsFalse()
+    public async Task DeleteGuild_WhenGuildDoesNotExist_ReturnsFalse()
     {
         // Arrange
-        ulong guildId = new Faker().Random.ULong();
+        ulong guildId = _faker.Random.ULong();
 
         // Act
-        var result = _repository.DeleteGuild(guildId);
+        var result = await _repository.DeleteGuildAsync(guildId);
 
         // Assert
         result.ShouldBeFalse();

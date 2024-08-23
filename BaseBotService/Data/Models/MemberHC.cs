@@ -1,13 +1,15 @@
 ﻿using BaseBotService.Commands.Enums;
 using BaseBotService.Core.Base;
 using BaseBotService.Data.Interfaces;
-using LiteDB;
+using System.ComponentModel.DataAnnotations;
 
 namespace BaseBotService.Data.Models;
 
-public class MemberHC : ModelBase
+public class MemberHC
 {
+    [Key]
     public ulong MemberId { get; set; }
+
     public DateTime? Birthday { get; set; }
     public Countries Country { get; set; } = Countries.Unknown;
     public Languages Languages { get; set; } = Languages.Other;
@@ -15,15 +17,9 @@ public class MemberHC : ModelBase
     public List<AchievementBase> Achievements { get; set; } = new();
     public GenderIdentity GenderIdentity { get; set; } = GenderIdentity.Unknown;
 
-    // Additional methods for specia modules
-    public List<T> GetAchievements<T>(IAchievementRepository<T> repository) where T : AchievementBase
-       => repository.GetByUserId(MemberId).FindAll(a => a.SourceIdentifier == repository.Identifier).ToList();
-
-
-    // Ensure that the MemberId field is indexed
-    protected override void EnsureIndexes<T>(ILiteCollection<T> collection)
+    public async Task<List<T>> GetAchievementsAsync<T>(IAchievementRepository<T> repository) where T : AchievementBase
     {
-        var memberCollection = collection as ILiteCollection<MemberHC>;
-        memberCollection?.EnsureIndex(x => x.MemberId, unique: true);
+        var achievements = await repository.GetByUserIdAsync(MemberId);
+        return achievements.Where(a => a.SourceIdentifier == repository.Identifier).ToList();
     }
 }

@@ -1,38 +1,54 @@
 ﻿using BaseBotService.Data.Interfaces;
 using BaseBotService.Data.Models;
-using LiteDB;
+using Microsoft.EntityFrameworkCore;
 
 namespace BaseBotService.Data.Repositories;
 
 public class MemberRepository : IMemberRepository
 {
-    private readonly ILiteCollection<MemberHC> _members;
+    private readonly HoneycombDbContext _context;
 
-    public MemberRepository(ILiteCollection<MemberHC> members) => _members = members;
-
-    public MemberHC? GetUser(ulong userId, bool create = false)
+    public MemberRepository(HoneycombDbContext context)
     {
-        MemberHC? result = _members
-            .Include(a => a.Achievements)
-            .FindOne(a => a.MemberId == userId);
-        if (create && result == null)
-        {
-            _members.Insert(new MemberHC { MemberId = userId });
-            result = _members.FindOne(a => a.MemberId == userId);
-        }
-        return result;
+        _context = context;
     }
 
-    public void AddUser(MemberHC user) => _members.Insert(user);
-
-    public bool UpdateUser(MemberHC user) => _members.Update(user);
-
-    public bool DeleteUser(ulong userId)
+    public async Task<MemberHC?> GetUserAsync(ulong userId, bool create = false)
     {
-        var user = GetUser(userId);
+        var user = await _context.Members
+                                 .Include(m => m.Achievements)
+                                 .FirstOrDefaultAsync(m => m.MemberId == userId);
+        if (create && user == null)
+        {
+            user = new MemberHC { MemberId = userId };
+            _context.Members.Add(user);
+            await _context.SaveChangesAsync();
+            user = await _context.Members
+                                 .Include(m => m.Achievements)
+                                 .FirstOrDefaultAsync(m => m.MemberId == userId);
+        }
+        return user;
+    }
+
+    public async Task AddUserAsync(MemberHC user)
+    {
+        _context.Members.Add(user);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<bool> UpdateUserAsync(MemberHC user)
+    {
+        _context.Members.Update(user);
+        return await _context.SaveChangesAsync() > 0;
+    }
+
+    public async Task<bool> DeleteUserAsync(ulong userId)
+    {
+        var user = await GetUserAsync(userId);
         if (user != null)
         {
-            return _members.Delete(user.Id);
+            _context.Members.Remove(user);
+            return await _context.SaveChangesAsync() > 0;
         }
         return false;
     }

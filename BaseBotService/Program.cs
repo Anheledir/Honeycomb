@@ -10,30 +10,46 @@ namespace BaseBotService;
 
 public static class Program
 {
-    public static IServiceProvider ServiceProvider { get; internal set; } = ServiceFactory.CreateServiceProvider();
-
-    private static void Main() => RunAsync().GetAwaiter().GetResult();
-
-    private static async Task RunAsync()
+    public static async Task Main(string[] args)
     {
-        DiscordEventListener listener = ServiceProvider.GetRequiredService<DiscordEventListener>();
-        await listener.StartAsync();
+        using IHost host = CreateHostBuilder(args).Build();
 
-        // Connect to Discord API
-        DiscordSocketClient client = ServiceProvider.GetRequiredService<DiscordSocketClient>();
-        IEnvironmentService environment = ServiceProvider.GetRequiredService<IEnvironmentService>();
+        IServiceProvider serviceProvider = host.Services;
 
-        if (!string.IsNullOrWhiteSpace(environment.DiscordBotToken))
+        try
         {
-            await client.LoginAsync(TokenType.Bot, environment.DiscordBotToken, true);
-            await client.StartAsync();
+            // Start Discord event listener
+            DiscordEventListener listener = serviceProvider.GetRequiredService<DiscordEventListener>();
+            await listener.StartAsync();
+
+            // Connect to Discord
+            DiscordSocketClient client = serviceProvider.GetRequiredService<DiscordSocketClient>();
+            IEnvironmentService environment = serviceProvider.GetRequiredService<IEnvironmentService>();
+
+            if (!string.IsNullOrWhiteSpace(environment.DiscordBotToken))
+            {
+                await client.LoginAsync(TokenType.Bot, environment.DiscordBotToken, true);
+                await client.StartAsync();
+            }
+
+            // Run the host
+            await host.RunAsync();
         }
-
-        // Host the health check service
-        IHost host = Host.CreateDefaultBuilder()
-                .ConfigureServices(services => services.AddHostedService<HealthCheckService>())
-                .Build();
-
-        await host.RunAsync(ServiceProvider.GetRequiredService<CancellationTokenSource>().Token);
+        catch (Exception ex)
+        {
+            var logger = serviceProvider.GetRequiredService<ILogger>();
+            logger.Error(ex, "An unhandled exception occurred during the application execution.");
+            throw;
+        }
     }
+
+    private static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
+            .ConfigureServices((_, services) =>
+            {
+                // Register all services, including hosted services
+                services.AddSingleton(LoggerFactory.CreateLogger())
+                        .AddHostedService<HealthCheckService>()
+                        .AddSingleton(ServiceFactory.CreateServiceProvider());
+            });
 }

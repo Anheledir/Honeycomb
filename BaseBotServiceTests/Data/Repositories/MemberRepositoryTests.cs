@@ -1,139 +1,150 @@
-﻿using BaseBotService.Data.Interfaces;
-using BaseBotService.Data.Models;
+﻿using BaseBotService.Data;
+using BaseBotService.Data.Interfaces;
 using BaseBotService.Data.Repositories;
-using LiteDB;
+using Microsoft.EntityFrameworkCore;
 
 namespace BaseBotService.Tests.Data.Repositories;
 
 [TestFixture]
 public class MemberRepositoryTests
 {
-    private ILiteCollection<MemberHC> _members;
+    private DbContextOptions<HoneycombDbContext> _dbContextOptions;
+    private HoneycombDbContext _dbContext;
     private IMemberRepository _repository;
     private readonly Faker _faker = new();
 
     [SetUp]
     public void SetUp()
     {
-        LiteDatabase db = FakeDataHelper.GetTestDatabase();
-        _members = db.GetCollection<MemberHC>();
+        _dbContextOptions = new DbContextOptionsBuilder<HoneycombDbContext>()
+            .UseSqlite("DataSource=:memory:")
+            .Options;
 
-        _repository = new MemberRepository(_members);
+        _dbContext = new HoneycombDbContext(_dbContextOptions);
+        _dbContext.Database.OpenConnection();
+        _dbContext.Database.EnsureCreated();
+
+        _repository = new MemberRepository(_dbContext);
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        _dbContext.Dispose();  // Properly dispose of the DbContext to prevent memory leaks
     }
 
     [Test]
-    public void GetUser_WhenUserExists_ShouldReturnCorrectUser()
+    public async Task GetUser_WhenUserExists_ShouldReturnCorrectUser()
     {
         // Arrange
         var member = FakeDataHelper.MemberFaker.Generate();
-        _members.Insert(member);
+        _dbContext.Members.Add(member);
+        await _dbContext.SaveChangesAsync();
 
         // Act
-        var result = _repository.GetUser(member.MemberId, false);
+        var result = await _repository.GetUserAsync(member.MemberId, false);
 
         // Assert
-        result.Should().NotBeNull();
+        result.ShouldNotBeNull();
         result.Should().BeEquivalentTo(member, options => options
-        .Excluding(u => u.Achievements)
-        // allow rounding errors on comparing times
-        .Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromMilliseconds(1)))
-        .WhenTypeIs<DateTime>());
+            .Excluding(u => u.Achievements)
+            .Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromMilliseconds(1)))
+            .WhenTypeIs<DateTime>());
     }
 
     [Test]
-    public void GetUser_WhenUserDoesNotExistAndTouchIsFalse_ShouldReturnNull()
+    public async Task GetUser_WhenUserDoesNotExistAndTouchIsFalse_ShouldReturnNull()
     {
         // Arrange
         ulong nonExistentUserId = _faker.Random.ULong();
 
         // Act
-        var result = _repository.GetUser(nonExistentUserId, false);
+        var result = await _repository.GetUserAsync(nonExistentUserId, false);
 
         // Assert
-        result.Should().BeNull();
+        result.ShouldBeNull();
     }
 
     [Test]
-    public void GetUser_WhenUserDoesNotExistAndTouchIsTrue_ShouldCreateAndReturnNewUser()
+    public async Task GetUser_WhenUserDoesNotExistAndTouchIsTrue_ShouldCreateAndReturnNewUser()
     {
         // Arrange
         ulong nonExistentUserId = _faker.Random.ULong();
 
         // Act
-        var result = _repository.GetUser(nonExistentUserId, true);
+        var result = await _repository.GetUserAsync(nonExistentUserId, true);
 
         // Assert
-        result.Should().NotBeNull();
+        result.ShouldNotBeNull();
         result?.MemberId.Should().Be(nonExistentUserId);
 
-        var createdUser = _members.FindOne(a => a.MemberId == nonExistentUserId);
-        createdUser.Should().NotBeNull();
+        var createdUser = await _dbContext.Members.FindAsync(nonExistentUserId);
+        createdUser.ShouldNotBeNull();
         createdUser.Should().BeEquivalentTo(result, options => options
-        .Excluding(u => u!.Achievements)
-        // allow rounding errors on comparing times
-        .Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromMilliseconds(1)))
-        .WhenTypeIs<DateTime>());
+            .Excluding(u => u.Achievements)
+            .Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromMilliseconds(1)))
+            .WhenTypeIs<DateTime>());
     }
 
     [Test]
-    public void AddUser_ShouldAddNewUser()
+    public async Task AddUser_ShouldAddNewUser()
     {
         // Arrange
         var newUser = FakeDataHelper.MemberFaker.Generate();
 
         // Act
-        _repository.AddUser(newUser);
+        await _repository.AddUserAsync(newUser);
 
         // Assert
-        var result = _members.FindOne(u => u.MemberId == newUser.MemberId);
+        var result = await _dbContext.Members.FirstOrDefaultAsync(u => u.MemberId == newUser.MemberId);
         result.ShouldNotBeNull();
         result.Should().BeEquivalentTo(newUser, options => options
-        .Excluding(u => u.Achievements)
-        // allow rounding errors on comparing times
-        .Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromMilliseconds(1)))
-        .WhenTypeIs<DateTime>());
+            .Excluding(u => u.Achievements)
+            .Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromMilliseconds(1)))
+            .WhenTypeIs<DateTime>());
     }
 
     [Test]
-    public void UpdateUser_ShouldUpdateExistingUser()
+    public async Task UpdateUser_ShouldUpdateExistingUser()
     {
         // Arrange
         var existingUser = FakeDataHelper.MemberFaker.Generate();
-        _members.Insert(existingUser);
+        _dbContext.Members.Add(existingUser);
+        await _dbContext.SaveChangesAsync();
 
         existingUser.Timezone += 60;
         existingUser.Country++;
         existingUser.Languages++;
         existingUser.GenderIdentity++;
-        existingUser.Birthday = existingUser.Birthday! + TimeSpan.FromDays(1);
+        existingUser.Birthday = existingUser.Birthday?.AddDays(1);
 
         // Act
-        var updateResult = _repository.UpdateUser(existingUser);
+        var updateResult = await _repository.UpdateUserAsync(existingUser);
 
         // Assert
         updateResult.ShouldBeTrue();
-        var updatedUser = _members.FindOne(u => u.MemberId == existingUser.MemberId);
+        var updatedUser = await _dbContext.Members.FirstOrDefaultAsync(u => u.MemberId == existingUser.MemberId);
         updatedUser.ShouldNotBeNull();
         updatedUser.Should().BeEquivalentTo(existingUser, options => options
-        .Excluding(u => u.Achievements)
-        // allow rounding errors on comparing times
-        .Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromMilliseconds(1)))
-        .WhenTypeIs<DateTime>());
+            .Excluding(u => u.Achievements)
+            .Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromMilliseconds(1)))
+            .WhenTypeIs<DateTime>());
     }
 
     [Test]
-    public void DeleteUser_ShouldDeleteExistingUser()
+    public async Task DeleteUser_ShouldDeleteExistingUser()
     {
         // Arrange
         var existingUser = FakeDataHelper.MemberFaker.Generate();
-        _members.Insert(existingUser);
+        _dbContext.Members.Add(existingUser);
+        await _dbContext.SaveChangesAsync();
 
         // Act
-        var deleteResult = _repository.DeleteUser(existingUser.MemberId);
+        var deleteResult = await _repository.DeleteUserAsync(existingUser.MemberId);
 
         // Assert
         deleteResult.ShouldBeTrue();
-        var deletedUser = _members.FindOne(u => u.MemberId == existingUser.MemberId);
+        var deletedUser = await _dbContext.Members.FirstOrDefaultAsync(u => u.MemberId == existingUser.MemberId);
         deletedUser.ShouldBeNull();
     }
 }

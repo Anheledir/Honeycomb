@@ -38,7 +38,27 @@ public class UserModuleTests
         bot.JoinedAt.Returns((DateTimeOffset?)null);
 
         // Act
-        double result = _userModule.GetActivityScore(user, bot);
+        double result = _userModule.GetActivityScoreAsync(user, bot).Result;
+
+        // Assert
+        result.ShouldBe(0);
+    }
+
+    [Test]
+    public void GetActivityScore_ShouldReturnZero_WhenUserJoinedAtIsLaterThanBotJoinedAt()
+    {
+        // Arrange
+        var userJoinedDate = DateTimeOffset.UtcNow.AddDays(-1);
+        var botJoinedDate = DateTimeOffset.UtcNow.AddDays(-5);
+
+        var user = Substitute.For<IGuildUser>();
+        user.JoinedAt.Returns(userJoinedDate);
+
+        var bot = Substitute.For<IGuildUser>();
+        bot.JoinedAt.Returns(botJoinedDate);
+
+        // Act
+        double result = _userModule.GetActivityScoreAsync(user, bot).Result;
 
         // Assert
         result.ShouldBe(0);
@@ -48,7 +68,7 @@ public class UserModuleTests
     [TestCase((uint)125, 100)]
     [TestCase((uint)42, 50)]
     [TestCase((uint)9, 10)]
-    public void GetActivityScore_ShouldCalculateCorrectScore_WhenUserAndBotHaveValidJoinedAtDates(uint points, double score)
+    public void GetActivityScore_ShouldCalculateCorrectScore_WhenUserAndBotHaveValidJoinedAtDates(uint points, double expectedScore)
     {
         // Arrange
         var userJoinedDate = DateTimeOffset.UtcNow.AddDays(-5);
@@ -68,12 +88,96 @@ public class UserModuleTests
         bot.Id.Returns(botId);
 
         _engagementService.MaxPointsPerDay.Returns(100);
-        _engagementService.GetActivityPoints(guildId, userId).Returns(points);
+        _engagementService.GetActivityPointsAsync(guildId, userId).Result.Returns(points);
 
         // Act
-        double result = _userModule.GetActivityScore(user, bot);
+        double result = _userModule.GetActivityScoreAsync(user, bot).Result;
 
         // Assert
-        result.ShouldBe(score, 1.0);
+        result.ShouldBe(expectedScore, 1.0);
     }
+
+    [Test]
+    public void GetActivityScore_ShouldReturnMaxScore_WhenPointsExceedMaxPointsPerDay()
+    {
+        // Arrange
+        var userJoinedDate = DateTimeOffset.UtcNow.AddDays(-5);
+        var botJoinedDate = DateTimeOffset.UtcNow.AddDays(-10);
+        ulong guildId = _faker.Random.ULong();
+        ulong userId = _faker.Random.ULong();
+
+        var user = Substitute.For<IGuildUser>();
+        user.JoinedAt.Returns(userJoinedDate);
+        user.GuildId.Returns(guildId);
+        user.Id.Returns(userId);
+
+        var bot = Substitute.For<IGuildUser>();
+        bot.JoinedAt.Returns(botJoinedDate);
+        bot.GuildId.Returns(guildId);
+
+        _engagementService.MaxPointsPerDay.Returns(100);
+        _engagementService.GetActivityPointsAsync(guildId, userId).Result.Returns((uint)150); // Exceeding MaxPointsPerDay
+
+        // Act
+        double result = _userModule.GetActivityScoreAsync(user, bot).Result;
+
+        // Assert
+        result.ShouldBe(100);
+    }
+
+    [Test]
+    public void GetActivityScore_ShouldHandleSameJoinDatesCorrectly()
+    {
+        // Arrange
+        var joinDate = DateTimeOffset.UtcNow.AddDays(-5);
+        ulong guildId = _faker.Random.ULong();
+        ulong userId = _faker.Random.ULong();
+
+        var user = Substitute.For<IGuildUser>();
+        user.JoinedAt.Returns(joinDate);
+        user.GuildId.Returns(guildId);
+        user.Id.Returns(userId);
+
+        var bot = Substitute.For<IGuildUser>();
+        bot.JoinedAt.Returns(joinDate);
+        bot.GuildId.Returns(guildId);
+
+        _engagementService.MaxPointsPerDay.Returns(100);
+        _engagementService.GetActivityPointsAsync(guildId, userId).Result.Returns((uint)50);
+
+        // Act
+        double result = _userModule.GetActivityScoreAsync(user, bot).Result;
+
+        // Assert
+        result.ShouldBe(50, 1.0);
+    }
+
+    [Test]
+    public void GetActivityScore_ShouldReturnZero_WhenUserJoinedAtExactlyOneDayBeforeBot()
+    {
+        // Arrange
+        var userJoinedDate = DateTimeOffset.UtcNow.AddDays(-5);
+        var botJoinedDate = DateTimeOffset.UtcNow.AddDays(-4);
+        ulong guildId = _faker.Random.ULong();
+        ulong userId = _faker.Random.ULong();
+
+        var user = Substitute.For<IGuildUser>();
+        user.JoinedAt.Returns(userJoinedDate);
+        user.GuildId.Returns(guildId);
+        user.Id.Returns(userId);
+
+        var bot = Substitute.For<IGuildUser>();
+        bot.JoinedAt.Returns(botJoinedDate);
+        bot.GuildId.Returns(guildId);
+
+        _engagementService.MaxPointsPerDay.Returns(100);
+        _engagementService.GetActivityPointsAsync(guildId, userId).Result.Returns((uint)50);
+
+        // Act
+        double result = _userModule.GetActivityScoreAsync(user, bot).Result;
+
+        // Assert
+        result.ShouldBe(0, 1.0);
+    }
+
 }

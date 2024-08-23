@@ -3,35 +3,36 @@
 namespace BaseBotService.Data.Interfaces;
 
 /// <summary>
-/// Represents a repository for managing GuildHC objects.
+/// Interface for the GuildHC repository, providing CRUD operations for GuildHC entities.
 /// </summary>
 public interface IGuildRepository
 {
     /// <summary>
-    /// Retrieves a GuildHC object by its guild ID.
+    /// Asynchronously retrieves a GuildHC entity by its guild ID.
     /// </summary>
-    /// <param name="guildId">The guild ID.</param>
-    /// <param name="create">If true, it will create a new guild and return it in case no user with <paramref name="guildId"/> exists. Default is false.</param>
-    /// <returns>The GuildHC object with the specified guild ID, or null if not found. If <paramref name="create"/> is true will always return an entity.</returns>
-    GuildHC? GetGuild(ulong guildId, bool create = false);
+    /// <param name="guildId">The unique identifier of the guild.</param>
+    /// <param name="create">If true, creates and returns a new GuildHC entity if none exists with the specified <paramref name="guildId"/>. Default is false.</param>
+    /// <returns>A Task that represents the asynchronous operation, with a GuildHC entity if found; otherwise, null. If <paramref name="create"/> is true, always returns an entity.</returns>
+    Task<GuildHC?> GetGuildAsync(ulong guildId, bool create = false);
 
     /// <summary>
-    /// Adds a new GuildHC object to the repository.
+    /// Asynchronously adds a new GuildHC entity to the repository.
     /// </summary>
-    /// <param name="guild">The GuildHC object to add.</param>
-    void AddGuild(GuildHC guild);
+    /// <param name="guild">The GuildHC entity to add.</param>
+    /// <returns>A Task that represents the asynchronous operation.</returns>
+    Task AddGuildAsync(GuildHC guild);
 
     /// <summary>
-    /// Updates an existing GuildHC object in the repository.
+    /// Asynchronously updates an existing GuildHC entity in the repository.
     /// </summary>
-    /// <param name="guild">The GuildHC object to update.</param>
-    /// <returns>True if the update was successful, false otherwise.</returns>
-    bool UpdateGuild(GuildHC guild);
+    /// <param name="guild">The GuildHC entity to update.</param>
+    /// <returns>A Task that represents the asynchronous operation, with a boolean indicating success or failure.</returns>
+    Task<bool> UpdateGuildAsync(GuildHC guild);
 
     /// <summary>
-    /// Deletes a GuildHC object from the repository by its guild ID.
+    /// Asynchronously deletes a GuildHC entity by its guild ID.
     /// </summary>
-    /// <param name="guildId">The guild ID.</param>
-    /// <returns>True if the deletion was successful, false otherwise.</returns>
-    bool DeleteGuild(ulong guildId);
+    /// <param name="guildId">The unique identifier of the guild.</param>
+    /// <returns>A Task that represents the asynchronous operation, with a boolean indicating success or failure.</returns>
+    Task<bool> DeleteGuildAsync(ulong guildId);
 }

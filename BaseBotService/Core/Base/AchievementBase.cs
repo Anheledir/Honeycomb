@@ -1,12 +1,13 @@
-﻿using LiteDB;
+﻿using BaseBotService.Data.Models;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BaseBotService.Core.Base;
 
-public abstract class AchievementBase : ModelBase
+public abstract class AchievementBase
 {
-    protected Dictionary<string, object>? EventAttributes;
-
-    protected bool IsGlobal => GuildId == null;
+    [Key]
+    public int Id { get; set; } // EF Core requires a primary key, so we'll use an Id field.
 
     public ulong MemberId { get; set; }
     public ulong? GuildId { get; set; }
@@ -19,15 +20,14 @@ public abstract class AchievementBase : ModelBase
     public Guid SourceIdentifier { get; set; }
     public static string Identifier => "00000000-0000-0000-0000-000000000000";
     public static string TranslationKey => "achievement";
+    protected Dictionary<string, object>? EventAttr;
 
-    // Override the EnsureIndexes method to set up indexes on the collection
-    protected override void EnsureIndexes<T>(ILiteCollection<T> collection)
-    {
-        var achievementCollection = collection as ILiteCollection<AchievementBase>;
+    protected bool IsGlobal => GuildId == null;
 
-        achievementCollection?.EnsureIndex(x => x.MemberId);
-        achievementCollection?.EnsureIndex(x => x.GuildId);
-        achievementCollection?.EnsureIndex(x => new { x.GuildId, x.MemberId });
-        achievementCollection?.EnsureIndex(x => x.SourceIdentifier);
-    }
+    // Navigation properties
+    [ForeignKey(nameof(MemberId))]
+    public MemberHC Member { get; set; } = null!; // Assuming a member is always present
+
+    [ForeignKey(nameof(GuildId))]
+    public GuildHC? Guild { get; set; } // Nullable because some achievements might be global (not tied to a guild)
 }

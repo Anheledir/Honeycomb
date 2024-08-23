@@ -2,7 +2,7 @@
 using BaseBotService.Data;
 using BaseBotService.Data.Models;
 using BaseBotService.Infrastructure.Achievements;
-using LiteDB;
+using Microsoft.EntityFrameworkCore;
 
 namespace BaseBotService.Tests;
 
@@ -11,19 +11,17 @@ namespace BaseBotService.Tests;
 /// </summary>
 public static class FakeDataHelper
 {
-    public static LiteDatabase GetTestDatabase()
+    public static DbContextOptions<HoneycombDbContext> GetTestDatabaseOptions()
     {
-        var mapper = new BsonMapper();
-        new CollectionMapper().RegisterCollections(ref mapper);
-        return new LiteDatabase(":memory:", mapper);
+        return new DbContextOptionsBuilder<HoneycombDbContext>()
+            .UseSqlite("DataSource=:memory:")
+            .Options;
     }
 
     public static Faker<EasterEventAchievement> EasterEventFaker() => new Faker<EasterEventAchievement>()
-            .RuleFor(a => a.Id, _ => ObjectId.NewObjectId())
             .RuleFor(a => a.CreatedAt, f => f.Date.Past(1));
 
     public static Faker<MemberHC> MemberFaker => new Faker<MemberHC>()
-            .RuleFor(u => u.Id, _ => ObjectId.NewObjectId())
             .RuleFor(u => u.MemberId, f => f.Random.ULong())
             .RuleFor(u => u.Timezone, f => f.Random.Enum<Timezone>())
             .RuleFor(u => u.Country, f => f.Random.Enum<Countries>())
@@ -32,7 +30,6 @@ public static class FakeDataHelper
             .RuleFor(u => u.GenderIdentity, f => f.Random.Enum<GenderIdentity>());
 
     public static Faker<GuildMemberHC> GetGuildMemberFaker(GuildHC guild, MemberHC member) => new Faker<GuildMemberHC>()
-            .RuleFor(u => u.Id, _ => ObjectId.NewObjectId())
             .RuleFor(u => u.ActivityPoints, f => f.Random.UInt())
             .RuleFor(u => u.LastActive, f => f.Date.Recent())
             .RuleFor(u => u.LastActivityPoint, f => f.Date.Recent())
@@ -40,7 +37,6 @@ public static class FakeDataHelper
             .FinishWith((_, u) => u.GuildId = guild.GuildId);
 
     public static Faker<GuildHC> GuildFaker => new Faker<GuildHC>()
-            .RuleFor(g => g.Id, _ => ObjectId.NewObjectId())
             .RuleFor(g => g.GuildId, f => f.Random.ULong())
             .RuleFor(g => g.ActivityPointsAverageActiveHours, f => f.Random.Int(1, 12))
             .RuleFor(g => g.ActivityPointsName, f => f.Commerce.ProductName())
@@ -55,11 +51,6 @@ public static class FakeDataHelper
     /// <param name="min">The minimum number of ulong values to include in the list. Default is 0.</param>
     /// <param name="max">The maximum number of ulong values to include in the list. Default is 4.</param>
     /// <returns>A list of random ulong values with a length between the specified min and max bounds.</returns>
-    /// <example>
-    /// <code>
-    /// List<ulong> randomUlongList = GenerateRandomUlongList(2, 6);
-    /// </code>
-    /// </example>
     public static List<ulong> GenerateRandomUlongList(int min = 0, int max = 4)
     {
         var faker = new Faker();
@@ -80,11 +71,6 @@ public static class FakeDataHelper
     /// Generates a random emoji character from a predefined set of emoji code points.
     /// </summary>
     /// <returns>A random emoji character as a string.</returns>
-    /// <example>
-    /// <code>
-    /// string randomEmoji = RandomEmoji();
-    /// </code>
-    /// </example>
     public static string RandomEmoji()
     {
         var random = new Randomizer();
