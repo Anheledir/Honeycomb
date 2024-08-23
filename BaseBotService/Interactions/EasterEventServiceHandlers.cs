@@ -1,4 +1,5 @@
-﻿using BaseBotService.Core.Interfaces;
+﻿using BaseBotService.Core;
+using BaseBotService.Core.Interfaces;
 using BaseBotService.Core.Messages;
 
 namespace BaseBotService.Interactions;
@@ -6,7 +7,7 @@ namespace BaseBotService.Interactions;
 /// <summary>
 /// Handles Easter event notifications related to messages received and reactions added.
 /// </summary>
-public class EasterEventServiceHandlers : INotificationHandler<MessageReceivedNotification>, INotificationHandler<ReactionAddedNotification>
+public class EasterEventServiceHandlers : INotificationHandler<MessageReceivedNotification>, INotificationHandler<DiscordEventListener.ReactionAddedNotification>
 {
     private readonly ILogger _logger;
     private readonly IEasterEventService _easterEvent;
@@ -40,9 +41,9 @@ public class EasterEventServiceHandlers : INotificationHandler<MessageReceivedNo
     /// <summary>
     /// Handles the ReactionAddedNotification event and triggers the Easter event service.
     /// </summary>
-    public async Task Handle(ReactionAddedNotification notification, CancellationToken cancellationToken)
+    public async Task Handle(DiscordEventListener.ReactionAddedNotification notification, CancellationToken cancellationToken)
     {
-        _logger.Debug("{Handler} received {Notification}", nameof(EasterEventServiceHandlers), nameof(ReactionAddedNotification));
+        _logger.Debug("{Handler} received {Notification}", nameof(EasterEventServiceHandlers), nameof(DiscordEventListener.ReactionAddedNotification));
 
         try
         {
@@ -50,7 +51,7 @@ public class EasterEventServiceHandlers : INotificationHandler<MessageReceivedNo
         }
         catch (Exception ex)
         {
-            _logger.Error(ex, "Error handling {Notification} in {Handler}", nameof(ReactionAddedNotification), nameof(EasterEventServiceHandlers));
+            _logger.Error(ex, "Error handling {Notification} in {Handler}", nameof(DiscordEventListener.ReactionAddedNotification), nameof(EasterEventServiceHandlers));
         }
     }
 }

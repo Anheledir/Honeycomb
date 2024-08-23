@@ -8,20 +8,44 @@ public class EngagementService : IEngagementService
 {
     private readonly ILogger _logger;
     private readonly TimeSpan _activityPointInterval = TimeSpan.FromSeconds(864); // Approx. 14 minutes and 24 seconds
+    private readonly ILogger _logger1;
     private readonly IGuildMemberRepository _guildMemberRepository;
+    private readonly IGuildRepository _guildRepository;
+    private readonly IMemberRepository _memberRepository;
 
     public int MaxPointsPerDay => 100;
 
-    public EngagementService(ILogger logger, IGuildMemberRepository guildMemberRepository)
+    public EngagementService(ILogger logger, IGuildMemberRepository guildMemberRepository, IGuildRepository guildRepository, IMemberRepository memberRepository)
     {
         _logger = logger.ForContext<EngagementService>();
+        _logger1 = logger;
         _guildMemberRepository = guildMemberRepository;
+        _guildRepository = guildRepository;
+        _memberRepository = memberRepository;
     }
 
     public async Task AddActivityTickAsync(ulong guildId, ulong userId)
     {
         try
         {
+            // Ensure the Guild exists
+            var guild = await _guildRepository.GetGuildAsync(guildId);
+            if (guild == null)
+            {
+                // Add the guild or handle the missing guild case
+                guild = new GuildHC { GuildId = guildId };
+                await _guildRepository.AddGuildAsync(guild);
+            }
+
+            // Ensure the Member exists
+            var member = await _memberRepository.GetUserAsync(userId);
+            if (member == null)
+            {
+                // Add the member or handle the missing member case
+                member = new MemberHC { MemberId = userId };
+                await _memberRepository.AddUserAsync(member);
+            }
+
             GuildMemberHC? usr = await _guildMemberRepository.GetUserAsync(guildId, userId);
             if (usr == null)
             {

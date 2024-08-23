@@ -1,12 +1,10 @@
-﻿using BaseBotService.Core.Enums;
+﻿using BaseBotService.Core;
+using BaseBotService.Core.Enums;
 using BaseBotService.Core.Interfaces;
-using BaseBotService.Core.Messages;
-using BaseBotService.Infrastructure.Achievements;
-using BaseBotService.Infrastructure.Services;
 
 namespace BaseBotService.Infrastructure.Interactions;
 
-public class ClientReadyHandler : INotificationHandler<ClientReadyNotification>
+public class ClientReadyHandler : INotificationHandler<DiscordEventListener.ClientReadyNotification>
 {
     private readonly ILogger _logger;
     private readonly IEnvironmentService _environmentService;
@@ -25,7 +23,7 @@ public class ClientReadyHandler : INotificationHandler<ClientReadyNotification>
         _mediator = mediator;
     }
 
-    public async Task Handle(ClientReadyNotification notification, CancellationToken cancellationToken)
+    public async Task Handle(DiscordEventListener.ClientReadyNotification notification, CancellationToken cancellationToken)
     {
         _logger.Information($"{_assemblyService.Name} v{_assemblyService.Version} ({_environmentService.EnvironmentName}) is connected and ready.");
 
@@ -53,11 +51,6 @@ public class ClientReadyHandler : INotificationHandler<ClientReadyNotification>
                 break;
         }
 
-        await _mediator.Publish(new UpdateActivityNotification
-        {
-            ActivityType = ActivityType.CustomStatus,
-            Status = UserStatus.Online,
-            Description = _translationService.GetString("default-activity")
-        }, cancellationToken);
+        await _mediator.Publish(new DiscordEventListener.UpdateActivityNotification(_translationService.GetString("default-activity"), UserStatus.DoNotDisturb), cancellationToken);
     }
 }

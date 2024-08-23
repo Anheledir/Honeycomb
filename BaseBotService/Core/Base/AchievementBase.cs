@@ -1,6 +1,5 @@
 ﻿using BaseBotService.Data.Models;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BaseBotService.Core.Base;
 
@@ -27,9 +26,7 @@ public abstract class AchievementBase
     protected bool IsGlobal => GuildId == null;
 
     // Navigation properties
-    [ForeignKey(nameof(MemberId))]
     public virtual MemberHC Member { get; set; } = null!; // Assuming a member is always present
 
-    [ForeignKey(nameof(GuildId))]
     public virtual GuildHC? Guild { get; set; } // Nullable because some achievements might be global (not tied to a guild)
 }

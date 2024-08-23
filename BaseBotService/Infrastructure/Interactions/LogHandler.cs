@@ -1,9 +1,9 @@
-﻿using BaseBotService.Core.Messages;
+﻿using BaseBotService.Core;
 using BaseBotService.Utilities.Extensions;
 
 namespace BaseBotService.Infrastructure.Interactions;
 
-public class LogHandler : INotificationHandler<LogNotification>
+public class LogHandler : INotificationHandler<DiscordEventListener.LogNotification>
 {
     private readonly ILogger _logger;
 
@@ -12,7 +12,7 @@ public class LogHandler : INotificationHandler<LogNotification>
         _logger = logger.ForContext<LogHandler>();
     }
 
-    public Task Handle(LogNotification arg, CancellationToken cancellationToken)
+    public Task Handle(DiscordEventListener.LogNotification arg, CancellationToken cancellationToken)
     {
         _logger.Write(
             level: arg.LogMessage.GetSerilogSeverity(),

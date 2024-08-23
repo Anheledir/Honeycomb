@@ -1,4 +1,5 @@
 ﻿using BaseBotService.Commands.Interfaces;
+using BaseBotService.Core;
 using BaseBotService.Core.Interfaces;
 using BaseBotService.Core.Messages;
 using BaseBotService.Data.Interfaces;
@@ -71,13 +72,11 @@ public class EasterEventService : IEasterEventService
     {
         if (arg.Message.Author.IsBot || arg.Message.Author.IsWebhook || !IsEasterPeriod()) return;
 
-        await _mediator.Publish(new UpdateActivityNotification
-        {
-            ActivityType = ActivityType.CustomStatus,
-            Status = UserStatus.Online,
-            Emote = new Emoji(_translationService.GetAttrString(EasterEventAchievement.TranslationKey, "emoji")),
-            Description = _translationService.GetAttrString(EasterEventAchievement.TranslationKey, "activity")
-        });
+        await _mediator.Publish(new DiscordEventListener.UpdateActivityNotification(
+            _translationService.GetAttrString(EasterEventAchievement.TranslationKey, "activity"),
+            UserStatus.Online,
+            new Emoji(_translationService.GetAttrString(EasterEventAchievement.TranslationKey, "emoji"))
+        ));
 
         var rnd = _random.NextDouble();
         _logger.Debug($"Rolling the dice [{ReactionProbability:P1}]: {rnd} ");
@@ -88,7 +87,7 @@ public class EasterEventService : IEasterEventService
         }
     }
 
-    public async Task HandleReactionAddedAsync(ReactionAddedNotification arg)
+    public async Task HandleReactionAddedAsync(DiscordEventListener.ReactionAddedNotification arg)
     {
         _logger.Debug("HandleReactionAddedAsync: Check 1");
         var channel = await arg.Channel.GetOrDownloadAsync();

@@ -4,5 +4,5 @@ namespace BaseBotService.Core.Interfaces;
 public interface IEasterEventService
 {
     Task HandleMessageReceivedAsync(MessageReceivedNotification arg);
-    Task HandleReactionAddedAsync(ReactionAddedNotification arg);
+    Task HandleReactionAddedAsync(DiscordEventListener.ReactionAddedNotification arg);
 }

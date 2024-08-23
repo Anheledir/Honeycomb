@@ -1,4 +1,5 @@
-﻿using BaseBotService.Data;
+﻿using BaseBotService.Core.Interfaces;
+using BaseBotService.Data;
 using BaseBotService.Data.Interfaces;
 using BaseBotService.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ namespace BaseBotService.Tests.Data.Repositories;
 [TestFixture]
 public class GuildMemberRepositoryTests
 {
+    private IEnvironmentService _mockEnvironmentService;
     private DbContextOptions<HoneycombDbContext> _dbContextOptions;
     private HoneycombDbContext _dbContext;
     private IGuildMemberRepository _repository;
@@ -15,14 +17,25 @@ public class GuildMemberRepositoryTests
     [SetUp]
     public void SetUp()
     {
+        // Create a mock for IEnvironmentService
+        _mockEnvironmentService = Substitute.For<IEnvironmentService>();
+
+        // Set up the ConnectionString property to return a mock connection string
+        _mockEnvironmentService.ConnectionString.Returns("DataSource=:memory:"); // Use an in-memory SQLite database for testing
+
+        // Configure DbContextOptions to use the mock environment service's connection string
         _dbContextOptions = new DbContextOptionsBuilder<HoneycombDbContext>()
-            .UseSqlite("DataSource=:memory:")
+            .UseSqlite(_mockEnvironmentService.ConnectionString)
             .Options;
 
-        _dbContext = new HoneycombDbContext(_dbContextOptions);
+        // Create the DbContext with the mock environment service
+        _dbContext = new HoneycombDbContext(_dbContextOptions, _mockEnvironmentService); // Using IEnvironmentService constructor
+
+        // Ensure the in-memory database is created
         _dbContext.Database.OpenConnection();
         _dbContext.Database.EnsureCreated();
 
+        // Initialize the repository
         _repository = new GuildMemberRepository(_dbContext);
     }
 

@@ -63,13 +63,17 @@ public class HoneycombDbContext : DbContext
             .WithMany() // Assuming a one-to-many relationship (one member can belong to multiple guilds)
             .HasForeignKey(gm => gm.MemberId);
 
+
         // AchievementBase Configuration
         modelBuilder.Entity<AchievementBase>()
             .HasIndex(a => a.MemberId);
+
         modelBuilder.Entity<AchievementBase>()
             .HasIndex(a => a.GuildId);
+
         modelBuilder.Entity<AchievementBase>()
             .HasIndex(a => new { a.GuildId, a.MemberId });
+
         modelBuilder.Entity<AchievementBase>()
             .HasIndex(a => a.SourceIdentifier);
 
@@ -79,13 +83,15 @@ public class HoneycombDbContext : DbContext
             .HasValue<EasterEventAchievement>("EasterEvent");
 
         modelBuilder.Entity<AchievementBase>()
-            .HasOne<MemberHC>()
-            .WithMany()
-            .HasForeignKey(a => a.MemberId);
+            .HasOne(m => m.Member)
+            .WithMany(m => m.Achievements)
+            .HasForeignKey(m => m.MemberId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<AchievementBase>()
-            .HasOne<GuildHC>()
-            .WithMany()
-            .HasForeignKey(a => a.GuildId);
+            .HasOne(g => g.Guild)
+            .WithMany(g => g.Achievements)
+            .HasForeignKey(a => a.GuildId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

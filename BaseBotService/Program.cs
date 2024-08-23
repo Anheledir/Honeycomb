@@ -1,8 +1,10 @@
 ﻿using BaseBotService.Core;
 using BaseBotService.Core.Interfaces;
+using BaseBotService.Data;
 using BaseBotService.Infrastructure;
 using BaseBotService.Infrastructure.Services;
 using Discord.WebSocket;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -15,6 +17,12 @@ public static class Program
         using IHost host = CreateHostBuilder(args).Build();
 
         IServiceProvider serviceProvider = host.Services;
+
+        using (var scope = host.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<HoneycombDbContext>();
+            await dbContext.Database.MigrateAsync();
+        }
 
         try
         {

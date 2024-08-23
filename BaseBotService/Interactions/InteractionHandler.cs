@@ -1,4 +1,4 @@
-﻿using BaseBotService.Core.Messages;
+﻿using BaseBotService.Core;
 using Discord.WebSocket;
 
 namespace BaseBotService.Interactions;
@@ -6,7 +6,7 @@ namespace BaseBotService.Interactions;
 /// <summary>
 /// Handles incoming interactions and executes the corresponding commands.
 /// </summary>
-public class InteractionHandler : INotificationHandler<InteractionCreatedNotification>
+public class InteractionHandler : INotificationHandler<DiscordEventListener.InteractionCreatedNotification>
 {
     private readonly ILogger _logger;
     private readonly DiscordSocketClient _client;
@@ -27,7 +27,7 @@ public class InteractionHandler : INotificationHandler<InteractionCreatedNotific
     /// <summary>
     /// Handles the interaction created notification by executing the corresponding command.
     /// </summary>
-    public async Task Handle(InteractionCreatedNotification arg, CancellationToken cancellationToken)
+    public async Task Handle(DiscordEventListener.InteractionCreatedNotification arg, CancellationToken cancellationToken)
     {
         try
         {

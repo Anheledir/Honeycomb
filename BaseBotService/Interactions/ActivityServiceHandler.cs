@@ -1,4 +1,4 @@
-﻿using BaseBotService.Core.Messages;
+﻿using BaseBotService.Core;
 using Discord.WebSocket;
 
 namespace BaseBotService.Interactions;
@@ -6,7 +6,7 @@ namespace BaseBotService.Interactions;
 /// <summary>
 /// Handles activity update notifications for the Discord bot.
 /// </summary>
-public class ActivityServiceHandler : INotificationHandler<UpdateActivityNotification>
+public class ActivityServiceHandler : INotificationHandler<DiscordEventListener.UpdateActivityNotification>
 {
     private readonly ILogger _logger;
     private readonly DiscordSocketClient _client;
@@ -25,15 +25,15 @@ public class ActivityServiceHandler : INotificationHandler<UpdateActivityNotific
     /// </summary>
     /// <param name="notification">The notification containing activity and status details.</param>
     /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
-    public async Task Handle(UpdateActivityNotification notification, CancellationToken cancellationToken)
+    public async Task Handle(DiscordEventListener.UpdateActivityNotification notification, CancellationToken cancellationToken)
     {
         _logger.Debug("{Handler} received {Notification} with Activity: {Activity}, Status: {Status}",
-            nameof(ActivityServiceHandler), nameof(UpdateActivityNotification), notification.Description, notification.Status);
+            nameof(ActivityServiceHandler), nameof(DiscordEventListener.UpdateActivityNotification), notification.Description, notification.Status);
 
         try
         {
-            await _client.SetActivityAsync(new Game(notification.Description, notification.ActivityType));
             await _client.SetStatusAsync(notification.Status);
+            await _client.SetCustomStatusAsync(notification.Description);
         }
         catch (Exception ex)
         {
