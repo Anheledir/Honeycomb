@@ -21,9 +21,16 @@ jobs:
       with:
         github-token: ${{secrets.GITHUB_TOKEN}}
         script: |
-          github.rest.pulls.requestReviewers({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            pull_number: context.issue.number,
-            reviewers: [context.repo.owner]
-          })
+          const prCreator = context.payload.pull_request.user.login;
+          const owner = context.repo.owner;
+
+          if (prCreator !== owner) {
+            await github.rest.pulls.requestReviewers({
+              owner: owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              reviewers: [owner]
+            });
+          } else {
+            console.log('PR creator is the owner; skipping reviewer assignment.');
+          }
