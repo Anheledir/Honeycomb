@@ -1,10 +1,17 @@
 ﻿using BaseBotService.Commands.Interfaces;
-using BaseBotService.Core.Messages;
+using BaseBotService.Core;
 using BaseBotService.Data.Interfaces;
 using BaseBotService.Data.Models;
 
 namespace BaseBotService.Interactions;
-public class EntityLifecycleHandler : INotificationHandler<JoinedGuildNotification>, INotificationHandler<UserJoinedNotification>, INotificationHandler<LeftGuildNotification>
+
+/// <summary>
+/// Handles lifecycle events related to guilds and users within the guilds.
+/// </summary>
+public class EntityLifecycleHandler :
+    INotificationHandler<DiscordEventListener.BotJoinedGuildNotification>,
+    INotificationHandler<DiscordEventListener.UserJoinedNotification>,
+    INotificationHandler<DiscordEventListener.BotLeftGuildNotification>
 {
     private readonly ILogger _logger;
     private readonly IMemberRepository _memberRepository;
@@ -12,7 +19,15 @@ public class EntityLifecycleHandler : INotificationHandler<JoinedGuildNotificati
     private readonly IGuildMemberRepository _guildMemberRepository;
     private readonly IEngagementService _engagementService;
 
-    public EntityLifecycleHandler(ILogger logger, IMemberRepository memberRepository, IGuildRepository guildRepository, IGuildMemberRepository guildMemberRepository, IEngagementService engagementService)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EntityLifecycleHandler"/> class.
+    /// </summary>
+    public EntityLifecycleHandler(
+        ILogger logger,
+        IMemberRepository memberRepository,
+        IGuildRepository guildRepository,
+        IGuildMemberRepository guildMemberRepository,
+        IEngagementService engagementService)
     {
         _logger = logger.ForContext<EntityLifecycleHandler>();
         _memberRepository = memberRepository;
@@ -21,37 +36,40 @@ public class EntityLifecycleHandler : INotificationHandler<JoinedGuildNotificati
         _engagementService = engagementService;
     }
 
-    public Task Handle(LeftGuildNotification notification, CancellationToken cancellationToken)
+    /// <summary>
+    /// Handles the event when a bot leaves a guild.
+    /// </summary>
+    public async Task Handle(DiscordEventListener.BotLeftGuildNotification notification, CancellationToken cancellationToken)
     {
-        _logger.Debug($"{nameof(EntityLifecycleHandler)} received {nameof(LeftGuildNotification)}");
+        _logger.Debug($"{nameof(EntityLifecycleHandler)} received {nameof(DiscordEventListener.BotLeftGuildNotification)}");
 
-        bool success = _guildRepository.DeleteGuild(notification.Guild.Id);
-        _logger.Information($"Bot left guild {notification.Guild.Id}, deleted GuildHC entity: {success}.");
+        bool guildDeleted = await _guildRepository.DeleteGuildAsync(notification.Guild.Id);
+        _logger.Information($"Bot left guild {notification.Guild.Id}, deleted GuildHC entity: {guildDeleted}.");
 
-        int amount = _guildMemberRepository.DeleteGuild(notification.Guild.Id);
-        _logger.Information($"Bot left guild {notification.Guild.Id}, deleted {amount} GuildMemberHC entities.");
-
-        return Task.CompletedTask;
+        int membersDeleted = await _guildMemberRepository.DeleteGuildAsync(notification.Guild.Id);
+        _logger.Information($"Bot left guild {notification.Guild.Id}, deleted {membersDeleted} GuildMemberHC entities.");
     }
 
-    public Task Handle(UserJoinedNotification notification, CancellationToken cancellationToken)
+    /// <summary>
+    /// Handles the event when a user joins a guild.
+    /// </summary>
+    public async Task Handle(DiscordEventListener.UserJoinedNotification notification, CancellationToken cancellationToken)
     {
-        _logger.Debug($"{nameof(EntityLifecycleHandler)} received {nameof(UserJoinedNotification)}");
+        _logger.Debug($"{nameof(EntityLifecycleHandler)} received {nameof(DiscordEventListener.UserJoinedNotification)}");
 
-        _ = _memberRepository.GetUser(notification.User.Id, true)!;
-        _engagementService.AddActivityTick(notification.User.Guild.Id, notification.User.Id);
+        var member = await _memberRepository.GetUserAsync(notification.User.Id, true);
+        await _engagementService.AddActivityTickAsync(notification.User.Guild.Id, notification.User.Id);
         _logger.Information($"User {notification.User.Id} joined {notification.User.Guild.Id}, created MemberHC (if necessary) and initialized first Activity-Tick.");
-
-        return Task.CompletedTask;
     }
 
-    public Task Handle(JoinedGuildNotification notification, CancellationToken cancellationToken)
+    /// <summary>
+    /// Handles the event when a bot joins a guild.
+    /// </summary>
+    public async Task Handle(DiscordEventListener.BotJoinedGuildNotification notification, CancellationToken cancellationToken)
     {
-        _logger.Debug($"{nameof(EntityLifecycleHandler)} received {nameof(JoinedGuildNotification)}");
+        _logger.Debug($"{nameof(EntityLifecycleHandler)} received {nameof(DiscordEventListener.BotJoinedGuildNotification)}");
 
-        _guildRepository.AddGuild(new GuildHC { GuildId = notification.Guild.Id });
+        await _guildRepository.AddGuildAsync(new GuildHC { GuildId = notification.Guild.Id });
         _logger.Information($"Bot joined {notification.Guild.Id}, created GuildHC.");
-
-        return Task.CompletedTask;
     }
 }

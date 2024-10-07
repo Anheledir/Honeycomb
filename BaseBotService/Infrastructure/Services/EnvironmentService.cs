@@ -31,8 +31,8 @@ public class EnvironmentService : IEnvironmentService
         HealthPort = int.Parse(Environment.GetEnvironmentVariable("HEALTH_PORT") ?? "8080");
         logger.Information($"http-port for health probe set to '{HealthPort}'.");
 
-        ConnectionString = Environment.GetEnvironmentVariable("ConnectionString") ?? "Filename=honeycomb.db;";
-        logger.Information($"LiteDB database connection string: '{ConnectionString}'.");
+        ConnectionString = Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING") ?? "Data Source=honeycomb2.db";
+        logger.Information($"SQLite database connection string: '{ConnectionString}'.");
 
         EnvironmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "unknown";
         logger.Information($"Environment identifier is '{EnvironmentName}'.");

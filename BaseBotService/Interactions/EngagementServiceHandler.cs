@@ -4,12 +4,18 @@ using Discord.WebSocket;
 
 namespace BaseBotService.Interactions;
 
+/// <summary>
+/// Handles message received notifications for engagement tracking and logging.
+/// </summary>
 public class EngagementServiceHandler : INotificationHandler<MessageReceivedNotification>
 {
     private readonly ILogger _logger;
     private readonly IEngagementService _engagementService;
     private readonly DiscordSocketClient _client;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EngagementServiceHandler"/> class.
+    /// </summary>
     public EngagementServiceHandler(ILogger logger, IEngagementService engagementService, DiscordSocketClient client)
     {
         _logger = logger.ForContext<EngagementServiceHandler>();
@@ -17,36 +23,43 @@ public class EngagementServiceHandler : INotificationHandler<MessageReceivedNoti
         _client = client;
     }
 
-    public Task Handle(MessageReceivedNotification arg, CancellationToken cancellationToken)
+    /// <summary>
+    /// Handles the MessageReceivedNotification event to log and track user engagement.
+    /// </summary>
+    public async Task Handle(MessageReceivedNotification arg, CancellationToken cancellationToken)
     {
-        // ignore own messages
-        if (arg.Message.Author.Id == _client.CurrentUser.Id)
+        // Ignore messages sent by the bot itself
+        if (IsSelfMessage(arg.Message))
         {
-            return Task.CompletedTask;
+            return;
         }
 
-        // log DMs from users
+        // Log direct messages (DMs) from users
         if (arg.Message.Channel is IDMChannel && !arg.Message.Author.IsBot)
         {
-            _logger.Debug($"DM from [{arg.Message.Author.Username}#{arg.Message.Author.Discriminator}]: {arg.Message.CleanContent}");
+            _logger.Debug("DM from [{Username}#{Discriminator}]: {Message}", arg.Message.Author.Username, arg.Message.Author.Discriminator, arg.Message.CleanContent);
         }
 
-        // log messages from bots and webhooks
+        // Log messages from bots and webhooks
         if (arg.Message.Author.IsBot || arg.Message.Author.IsWebhook)
         {
-            _logger.Debug($"Message from [{arg.Message.Author.Username}#{arg.Message.Author.Discriminator}]: isBot = {arg.Message.Author.IsBot}, isWebhook = {arg.Message.Author.IsWebhook}");
+            _logger.Debug("Message from [{Username}#{Discriminator}]: isBot = {IsBot}, isWebhook = {IsWebhook}",
+                arg.Message.Author.Username, arg.Message.Author.Discriminator, arg.Message.Author.IsBot, arg.Message.Author.IsWebhook);
         }
 
-        ulong userId = arg.Message.Author.Id;
-        ulong guildId = arg.Message.Channel is IGuildChannel guildChannel ? guildChannel.GuildId : 0;
-        _logger.Debug($"Message in guild {guildId} by user {userId}");
-
-        // only measure activity in guilds
-        if (guildId > 0)
+        // Track user engagement for guild messages
+        if (arg.Message.Channel is IGuildChannel guildChannel)
         {
-            _ = _engagementService.AddActivityTick(guildId, userId);
-        }
+            ulong userId = arg.Message.Author.Id;
+            ulong guildId = guildChannel.GuildId;
 
-        return Task.CompletedTask;
+            _logger.Debug("Message in guild {GuildId} by user {UserId}", guildId, userId);
+            await _engagementService.AddActivityTickAsync(guildId, userId);
+        }
     }
+
+    /// <summary>
+    /// Checks if the message was sent by the bot itself.
+    /// </summary>
+    private bool IsSelfMessage(IMessage message) => message.Author.Id == _client.CurrentUser.Id;
 }

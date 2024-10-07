@@ -1,26 +1,25 @@
 ﻿using BaseBotService.Core.Enums;
 using BaseBotService.Core.Interfaces;
 using Discord.WebSocket;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
 namespace BaseBotService.Infrastructure.Services;
+
 public class HealthCheckService : BackgroundService
 {
     private readonly ILogger _logger;
     private readonly DiscordSocketClient _client;
     private readonly IEnvironmentService _environment;
+    private TcpListener? _listener;
 
-    public HealthCheckService()
+    public HealthCheckService(ILogger logger, DiscordSocketClient client, IEnvironmentService environment)
     {
-        // Not using the regular DI here, as of using the AddHostedService of the IServiceCollection in program.cs
-        // Maybe this can be refactored to use our existing instance of IServiceProvider?
-        _logger = Program.ServiceProvider.GetRequiredService<ILogger>();
-        _client = Program.ServiceProvider.GetRequiredService<DiscordSocketClient>();
-        _environment = Program.ServiceProvider.GetRequiredService<IEnvironmentService>();
+        _logger = logger.ForContext<HealthCheckService>();
+        _client = client;
+        _environment = environment;
     }
 
     public Task<HealthCheckResult> CheckHealthAsync()
@@ -36,26 +35,56 @@ public class HealthCheckService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        TcpListener listener = new(IPAddress.Any, _environment.HealthPort);
-        listener.Start();
-        _logger.Information($"Listening for health-probe on port ::{_environment.HealthPort}.");
-
-        while (!stoppingToken.IsCancellationRequested)
+        try
         {
-            using TcpClient client = await listener.AcceptTcpClientAsync(stoppingToken);
-            _logger.Debug("Client connected");
+            _listener = new TcpListener(IPAddress.Any, _environment.HealthPort);
+            _listener.Start();
+            _logger.Information($"Listening for health-probe on port ::{_environment.HealthPort}.");
 
-            using NetworkStream stream = client.GetStream();
-            string response = await CheckHealthAsync() switch
+            while (!stoppingToken.IsCancellationRequested)
             {
-                HealthCheckResult.Healthy => "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nConnected",
-                HealthCheckResult.Degraded => "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nConnecting",
-                _ => "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/plain\r\n\r\nDisconnected",
-            };
-            byte[] responseBytes = Encoding.UTF8.GetBytes(response);
-            await stream.WriteAsync(responseBytes, stoppingToken);
-            _logger.Debug("Response sent");
+                try
+                {
+                    using TcpClient client = await _listener.AcceptTcpClientAsync(stoppingToken);
+                    _logger.Debug("Client connected");
+
+                    using NetworkStream stream = client.GetStream();
+                    string response = await GenerateHealthResponseAsync(stoppingToken);
+                    byte[] responseBytes = Encoding.UTF8.GetBytes(response);
+                    await stream.WriteAsync(responseBytes, stoppingToken);
+                    _logger.Debug("Response sent");
+                }
+                catch (Exception ex) when (!stoppingToken.IsCancellationRequested)
+                {
+                    _logger.Error(ex, "Error handling health-probe request");
+                }
+            }
         }
-        _logger.Information($"Stopped listener for health-probe on port ::{_environment.HealthPort}");
+        catch (Exception ex)
+        {
+            _logger.Fatal(ex, "Critical failure in health check service");
+        }
+        finally
+        {
+            _listener?.Stop();
+            _logger.Information($"Stopped listener for health-probe on port ::{_environment.HealthPort}");
+        }
+    }
+
+    private async Task<string> GenerateHealthResponseAsync(CancellationToken stoppingToken)
+    {
+        HealthCheckResult result = await CheckHealthAsync();
+        return result switch
+        {
+            HealthCheckResult.Healthy => "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nConnected",
+            HealthCheckResult.Degraded => "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nConnecting",
+            _ => "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/plain\r\n\r\nDisconnected",
+        };
+    }
+
+    public override void Dispose()
+    {
+        _listener?.Stop();
+        base.Dispose();
     }
 }

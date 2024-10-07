@@ -6,18 +6,68 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace BaseBotService.Core.Base;
+
+/// <summary>
+/// Base class for all interaction modules in the bot, providing common functionality such as logging, rate limiting, and response handling.
+/// </summary>
 public abstract class BaseModule : InteractionModuleBase<SocketInteractionContext>
 {
-    // Dependencies can be accessed through Property injection,
-    // public properties with public setters will be set by the service provider
+    #region Properties
+
+    /// <summary>
+    /// Gets or sets the logger instance used for logging in the module.
+    /// </summary>
     public ILogger Logger { get; set; } = null!;
+
+    /// <summary>
+    /// Gets the user who initiated the interaction.
+    /// </summary>
     public SocketUser Caller => Context.Interaction.User;
+
+    /// <summary>
+    /// Gets the bot's user information.
+    /// </summary>
     public SocketSelfUser BotUser => Context.Client.CurrentUser;
+
+    /// <summary>
+    /// Gets or sets the rate limiter for controlling command execution frequency.
+    /// </summary>
     public RateLimiter RateLimiter { get; set; } = null!;
+
+    /// <summary>
+    /// Gets or sets the service for retrieving assembly information.
+    /// </summary>
     public IAssemblyService AssemblyService { get; set; } = null!;
+
+    /// <summary>
+    /// Gets or sets the service for accessing environment-related information.
+    /// </summary>
     public IEnvironmentService EnvironmentService { get; set; } = null!;
+
+    /// <summary>
+    /// Gets or sets the translation service for localizing bot responses.
+    /// </summary>
     public ITranslationService TranslationService { get; set; } = null!;
 
+    #endregion
+
+    #region Response Methods
+
+    /// <summary>
+    /// Sends a response or follow-up message to the user in direct messages (DM).
+    /// If the interaction was initiated in a DM, it responds there; otherwise, it sends a DM to the user.
+    /// </summary>
+    /// <param name="text">The text content of the message.</param>
+    /// <param name="isTTS">Indicates whether the message should be read aloud using text-to-speech.</param>
+    /// <param name="embed">The embed content to include in the message.</param>
+    /// <param name="options">Additional options for the message.</param>
+    /// <param name="allowedMentions">Specifies who can be mentioned in the message.</param>
+    /// <param name="messageReference">References a specific message in the conversation.</param>
+    /// <param name="components">Interactive components (e.g., buttons) to include with the message.</param>
+    /// <param name="stickers">Stickers to include in the message.</param>
+    /// <param name="embeds">An array of embeds to include in the message.</param>
+    /// <param name="flags">Message flags for the interaction.</param>
+    /// <param name="ephemeral">Indicates whether the response should only be visible to the user.</param>
     protected async Task RespondOrFollowupInDMAsync(
         string? text = null,
         bool isTTS = false,
@@ -31,71 +81,105 @@ public abstract class BaseModule : InteractionModuleBase<SocketInteractionContex
         MessageFlags flags = MessageFlags.None,
         bool ephemeral = false)
     {
-        if (Context.Channel is IDMChannel)
+        try
         {
-            await RespondOrFollowupAsync(
-                text: text,
-                isTTS: isTTS,
-                embed: embed,
-                options: options,
-                allowedMentions: allowedMentions,
-                components: components,
-                embeds: embeds,
-                ephemeral: ephemeral);
+            if (Context.Channel is IDMChannel)
+            {
+                await RespondOrFollowupAsync(
+                    text: text,
+                    isTTS: isTTS,
+                    embed: embed,
+                    options: options,
+                    allowedMentions: allowedMentions,
+                    components: components,
+                    embeds: embeds,
+                    ephemeral: ephemeral);
+            }
+            else
+            {
+                await RespondOrFollowupAsync(TranslationService.GetString("follow-up-in-DM"), ephemeral: true);
+                IDMChannel dm = await Caller.CreateDMChannelAsync();
+                await dm.SendMessageAsync(
+                    text: text,
+                    isTTS: isTTS,
+                    embed: embed,
+                    options: options,
+                    allowedMentions: allowedMentions,
+                    messageReference: messageReference,
+                    components: components,
+                    stickers: stickers,
+                    embeds: embeds,
+                    flags: flags);
+            }
         }
-        else
+        catch (Exception ex)
         {
-            await RespondOrFollowupAsync(TranslationService.GetString("follow-up-in-DM"), ephemeral: true);
-            IDMChannel dm = await Caller.CreateDMChannelAsync();
-            await dm.SendMessageAsync(
-                text: text,
-                isTTS: isTTS,
-                embed: embed,
-                options: options,
-                allowedMentions: allowedMentions,
-                messageReference: messageReference,
-                components: components,
-                stickers: stickers,
-                embeds: embeds,
-                flags: flags);
+            Logger.Error(ex, "Failed to send DM response.");
+            await RespondOrFollowupAsync(TranslationService.GetString("error-sending-DM"));
         }
     }
 
+    /// <summary>
+    /// Sends a response or follow-up message based on whether the interaction has already been responded to.
+    /// </summary>
+    /// <param name="text">The text content of the message.</param>
+    /// <param name="isTTS">Indicates whether the message should be read aloud using text-to-speech.</param>
+    /// <param name="embed">The embed content to include in the message.</param>
+    /// <param name="options">Additional options for the message.</param>
+    /// <param name="allowedMentions">Specifies who can be mentioned in the message.</param>
+    /// <param name="components">Interactive components (e.g., buttons) to include with the message.</param>
+    /// <param name="embeds">An array of embeds to include in the message.</param>
+    /// <param name="ephemeral">Indicates whether the response should only be visible to the user.</param>
     protected async Task RespondOrFollowupAsync(
-    string? text = null,
-    bool isTTS = false,
-    Embed? embed = null,
-    RequestOptions? options = null,
-    AllowedMentions? allowedMentions = null,
-    MessageComponent? components = null,
-    Embed[]? embeds = null,
-    bool ephemeral = false)
+        string? text = null,
+        bool isTTS = false,
+        Embed? embed = null,
+        RequestOptions? options = null,
+        AllowedMentions? allowedMentions = null,
+        MessageComponent? components = null,
+        Embed[]? embeds = null,
+        bool ephemeral = false)
     {
-        if (Context.Interaction.HasResponded)
+        try
         {
-            await FollowupAsync(
-                text: text,
-                embeds: embeds,
-                isTTS: isTTS,
-                allowedMentions: allowedMentions,
-                options: options,
-                components: components,
-                embed: embed);
+            if (Context.Interaction.HasResponded)
+            {
+                await FollowupAsync(
+                    text: text,
+                    embeds: embeds,
+                    isTTS: isTTS,
+                    allowedMentions: allowedMentions,
+                    options: options,
+                    components: components,
+                    embed: embed);
+            }
+            else
+            {
+                await RespondAsync(
+                    text: text,
+                    embeds: embeds,
+                    isTTS: isTTS,
+                    ephemeral: ephemeral,
+                    allowedMentions: allowedMentions,
+                    options: options,
+                    components: components,
+                    embed: embed);
+            }
         }
-        else
+        catch (Exception ex)
         {
-            await RespondAsync(
-                text: text,
-                embeds: embeds,
-                isTTS: isTTS,
-                ephemeral: ephemeral,
-                allowedMentions: allowedMentions,
-                options: options,
-                components: components,
-                embed: embed);
+            Logger.Error(ex, "Failed to respond or follow up.");
         }
     }
 
+    #endregion
+
+    #region Helper Methods
+
+    /// <summary>
+    /// Creates a new embed builder with preset properties such as the author, timestamp, and footer.
+    /// </summary>
+    /// <returns>A configured <see cref="EmbedBuilder"/> instance.</returns>
     protected EmbedBuilder GetEmbedBuilder() => new()
     {
         Author = new EmbedAuthorBuilder
@@ -117,24 +201,6 @@ public abstract class BaseModule : InteractionModuleBase<SocketInteractionContex
     /// </summary>
     /// <param name="commandName">The name of the command method. Automatically derived from the calling method's name when not specified explicitly.</param>
     /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, containing true if the user is allowed to execute the command, false otherwise.</returns>
-    /// <example>
-    /// <code>
-    /// public class MySlashCommandModule : BaseBotService.Modules.BaseModule
-    /// {
-    ///     [SlashCommand("example", "An example slash command.")]
-    ///     [RateLimit(5, 60)] // Limit to 5 calls per 60 seconds
-    ///     public async Task ExampleCommandAsync()
-    ///     {
-    ///         if (!await CheckRateLimitAsync())
-    ///         {
-    ///             return;
-    ///         }
-    ///
-    ///         // Command implementation
-    ///     }
-    /// }
-    /// </code>
-    /// </example>
     protected async Task<bool> CheckRateLimitAsync([CallerMemberName] string commandName = "")
     {
         MethodInfo? method = GetType().GetMethod(commandName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
@@ -154,4 +220,6 @@ public abstract class BaseModule : InteractionModuleBase<SocketInteractionContex
 
         return true;
     }
+
+    #endregion
 }

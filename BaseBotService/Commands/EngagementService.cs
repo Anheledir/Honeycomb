@@ -3,37 +3,63 @@ using BaseBotService.Data.Interfaces;
 using BaseBotService.Data.Models;
 
 namespace BaseBotService.Commands;
+
 public class EngagementService : IEngagementService
 {
     private readonly ILogger _logger;
-    private readonly TimeSpan _activityPointInterval = TimeSpan.FromSeconds(864);
+    private readonly TimeSpan _activityPointInterval = TimeSpan.FromSeconds(864); // Approx. 14 minutes and 24 seconds
+    private readonly ILogger _logger1;
     private readonly IGuildMemberRepository _guildMemberRepository;
+    private readonly IGuildRepository _guildRepository;
+    private readonly IMemberRepository _memberRepository;
 
     public int MaxPointsPerDay => 100;
 
-    public EngagementService(ILogger logger, IGuildMemberRepository guildMemberRepository)
+    public EngagementService(ILogger logger, IGuildMemberRepository guildMemberRepository, IGuildRepository guildRepository, IMemberRepository memberRepository)
     {
         _logger = logger.ForContext<EngagementService>();
+        _logger1 = logger;
         _guildMemberRepository = guildMemberRepository;
+        _guildRepository = guildRepository;
+        _memberRepository = memberRepository;
     }
 
-    public Task AddActivityTick(ulong guildId, ulong userId)
+    public async Task AddActivityTickAsync(ulong guildId, ulong userId)
     {
         try
         {
-            GuildMemberHC usr = _guildMemberRepository.GetUser(guildId, userId);
+            // Ensure the Guild exists
+            var guild = await _guildRepository.GetGuildAsync(guildId);
+            if (guild == null)
+            {
+                // Add the guild or handle the missing guild case
+                guild = new GuildHC { GuildId = guildId };
+                await _guildRepository.AddGuildAsync(guild);
+            }
+
+            // Ensure the Member exists
+            var member = await _memberRepository.GetUserAsync(userId);
+            if (member == null)
+            {
+                // Add the member or handle the missing member case
+                member = new MemberHC { MemberId = userId };
+                await _memberRepository.AddUserAsync(member);
+            }
+
+            GuildMemberHC? usr = await _guildMemberRepository.GetUserAsync(guildId, userId);
             if (usr == null)
             {
                 // First time seeing this user in this guild
                 _logger.Information($"First time seeing user '{userId}' in '{guildId}'.");
-                _guildMemberRepository.AddUser(new GuildMemberHC
+                usr = new GuildMemberHC
                 {
                     MemberId = userId,
                     GuildId = guildId,
                     ActivityPoints = 1,
                     LastActive = DateTime.UtcNow,
                     LastActivityPoint = DateTime.UtcNow
-                });
+                };
+                await _guildMemberRepository.AddUserAsync(usr);
             }
             else
             {
@@ -46,15 +72,8 @@ public class EngagementService : IEngagementService
                     usr.LastActivityPoint = DateTime.UtcNow;
                 }
 
-                _ = _guildMemberRepository.UpdateUser(usr);
+                await _guildMemberRepository.UpdateUserAsync(usr);
             }
-            return Task.CompletedTask;
-        }
-        catch (InvalidCastException ex)
-        {
-            // There was a casting error, probably because of some deprecated data
-            _logger.Error(ex, $"Error happened in collection '{typeof(GuildMemberHC)}' for '{userId}' in '{guildId}'.");
-            return Task.CompletedTask;
         }
         catch (Exception ex)
         {
@@ -63,18 +82,12 @@ public class EngagementService : IEngagementService
         }
     }
 
-    public uint GetActivityPoints(ulong guildId, ulong userId)
+    public async Task<uint> GetActivityPointsAsync(ulong guildId, ulong userId)
     {
         try
         {
-            GuildMemberHC usr = _guildMemberRepository.GetUser(guildId, userId);
+            GuildMemberHC? usr = await _guildMemberRepository.GetUserAsync(guildId, userId);
             return usr?.ActivityPoints ?? 0;
-        }
-        catch (InvalidCastException ex)
-        {
-            // There was a casting error, probably because of some deprecated data
-            _logger.Error(ex, $"Error happened in collection '{typeof(GuildMemberHC)}' for '{userId}' in '{guildId}'.");
-            return 0;
         }
         catch (Exception ex)
         {
@@ -83,18 +96,12 @@ public class EngagementService : IEngagementService
         }
     }
 
-    public DateTime GetLastActive(ulong guildId, ulong userId)
+    public async Task<DateTime> GetLastActiveAsync(ulong guildId, ulong userId)
     {
         try
         {
-            GuildMemberHC usr = _guildMemberRepository.GetUser(guildId, userId);
+            GuildMemberHC? usr = await _guildMemberRepository.GetUserAsync(guildId, userId);
             return usr?.LastActive ?? DateTime.MinValue;
-        }
-        catch (InvalidCastException ex)
-        {
-            // There was a casting error, probably because of some deprecated data
-            _logger.Error(ex, $"Error happened in collection '{typeof(GuildMemberHC)}' for '{userId}' in '{guildId}'.");
-            return DateTime.MinValue;
         }
         catch (Exception ex)
         {

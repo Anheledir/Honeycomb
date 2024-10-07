@@ -32,25 +32,24 @@ public class UserModule : BaseModule
     [UserCommand("User Profile")]
     public async Task UserInfoCommandAsync(IUser user) =>
         await RespondOrFollowupAsync(
-            embed: GetUserProfileEmbed(user, true).Build(),
+            embed: await GetUserProfileEmbedAsync(user, true),
             ephemeral: true);
 
     [SlashCommand("profile", "Returns the profile of the current user, or the user parameter, if one is passed.")]
     public async Task UserinfoCommandAsync(
-        [Summary(description: "The users who's profile you want to see, leave empty for yourself.")]
-        IUser? user = null
-        )
+        [Summary(description: "The user whose profile you want to see, leave empty for yourself.")]
+        IUser? user = null)
     {
         user ??= Caller;
 
-        ComponentBuilder configBtn = new ComponentBuilder()
+        var configBtn = new ComponentBuilder()
             .WithButton(
                 _translationService.GetAttrString("profile-config", "button"),
                 "profile.config",
                 ButtonStyle.Primary,
                 Emoji.Parse(_translationService.GetAttrString("profile-config", "emoji")));
 
-        await RespondOrFollowupAsync(embed: GetUserProfileEmbed(user, false).Build(), components: configBtn.Build(), ephemeral: false);
+        await RespondOrFollowupAsync(embed: await GetUserProfileEmbedAsync(user, false), components: configBtn.Build(), ephemeral: false);
     }
 
     [SlashCommand("config", "Change the settings of your global Honeycomb profile.")]
@@ -78,7 +77,7 @@ public class UserModule : BaseModule
     public async Task CloseUserProfileAsync()
     {
         await DeferAsync();
-        SocketMessageComponent component = (SocketMessageComponent)Context.Interaction;
+        var component = (SocketMessageComponent)Context.Interaction;
         await component.ModifyOriginalResponseAsync(x =>
         {
             x.Content = _translationService.GetString("profile-saved");
@@ -91,7 +90,7 @@ public class UserModule : BaseModule
     public async Task GoBackProfileMainAsync()
     {
         await DeferAsync();
-        SocketMessageComponent component = (SocketMessageComponent)Context.Interaction;
+        var component = (SocketMessageComponent)Context.Interaction;
         await component.ModifyOriginalResponseAsync(x =>
         {
             x.Content = _translationService.GetString("profile-config");
@@ -102,33 +101,33 @@ public class UserModule : BaseModule
     [ComponentInteraction("user.profile.save.country", ignoreGroupNames: true)]
     public async Task SaveProfileCountryAsync(string[] selections)
     {
-        Countries selection = Enum.Parse<Countries>(selections.FirstOrDefault() ?? "0");
-        MemberHC member = _memberRepository.GetUser(Caller.Id, true)!;
+        var selection = Enum.Parse<Countries>(selections.FirstOrDefault() ?? "0");
+        var member = await _memberRepository.GetUserAsync(Caller.Id, true);
 
         member.Country = selection;
-        _memberRepository.UpdateUser(member);
+        await _memberRepository.UpdateUserAsync(member);
         await DeferAsync();
     }
 
     [ComponentInteraction("user.profile.save.gender", ignoreGroupNames: true)]
     public async Task SaveProfileGenderIdentityAsync(string[] selections)
     {
-        GenderIdentity selection = Enum.Parse<GenderIdentity>(selections.FirstOrDefault() ?? "0");
-        MemberHC member = _memberRepository.GetUser(Caller.Id, true)!;
+        var selection = Enum.Parse<GenderIdentity>(selections.FirstOrDefault() ?? "0");
+        var member = await _memberRepository.GetUserAsync(Caller.Id, true);
 
         member.GenderIdentity = selection;
-        _memberRepository.UpdateUser(member);
+        await _memberRepository.UpdateUserAsync(member);
         await DeferAsync();
     }
 
     [ComponentInteraction("user.profile.save.timezone", ignoreGroupNames: true)]
     public async Task SaveProfileTimezoneAsync(string[] selections)
     {
-        Timezone selection = Enum.Parse<Timezone>(selections.FirstOrDefault() ?? "0");
-        MemberHC member = _memberRepository.GetUser(Caller.Id, true)!;
+        var selection = Enum.Parse<Timezone>(selections.FirstOrDefault() ?? "0");
+        var member = await _memberRepository.GetUserAsync(Caller.Id, true);
 
         member.Timezone = selection;
-        _memberRepository.UpdateUser(member);
+        await _memberRepository.UpdateUserAsync(member);
         await DeferAsync();
     }
 
@@ -137,9 +136,9 @@ public class UserModule : BaseModule
     {
         if (data?.Validate() == true)
         {
-            MemberHC member = _memberRepository.GetUser(Caller.Id, true)!;
+            var member = await _memberRepository.GetUserAsync(Caller.Id, true);
             member.Birthday = data.GetBirthday();
-            _memberRepository.UpdateUser(member);
+            await _memberRepository.UpdateUserAsync(member);
         }
 
         await DeferAsync();
@@ -148,30 +147,24 @@ public class UserModule : BaseModule
     [ComponentInteraction("user.profile.save.languages", ignoreGroupNames: true)]
     public async Task SaveProfileLanguagesAsync(string[] selections)
     {
-        Languages selectedLanguages = 0;
+        var selectedLanguages = selections
+            .Select(value => Enum.TryParse(value, out Languages language) ? language : 0)
+            .Aggregate((current, next) => current | next);
 
-        foreach (var value in selections)
-        {
-            if (Enum.TryParse<Languages>(value, out var language))
-            {
-                selectedLanguages |= language;
-            }
-        }
-
-        MemberHC member = _memberRepository.GetUser(Caller.Id, true)!;
+        var member = await _memberRepository.GetUserAsync(Caller.Id, true);
 
         member.Languages = selectedLanguages;
-        _memberRepository.UpdateUser(member);
+        await _memberRepository.UpdateUserAsync(member);
         await DeferAsync();
     }
 
     [ComponentInteraction("user.profile.config", ignoreGroupNames: true)]
     public async Task UserProfileConfigAsync(string[] selections)
     {
-        UserConfigs selection = Enum.Parse<UserConfigs>(selections.FirstOrDefault() ?? "0");
-        MemberHC member = _memberRepository.GetUser(Caller.Id, true)!;
+        var selection = Enum.Parse<UserConfigs>(selections.FirstOrDefault() ?? "0");
+        var member = await _memberRepository.GetUserAsync(Caller.Id, true);
 
-        SelectMenuBuilder configSetting = new();
+        var configSetting = new SelectMenuBuilder();
         string message = string.Empty;
 
         switch (selection)
@@ -236,7 +229,7 @@ public class UserModule : BaseModule
 
         await DeferAsync();
 
-        ComponentBuilder components = new ComponentBuilder()
+        var components = new ComponentBuilder()
             .WithSelectMenu(configSetting)
             .WithButton(new ButtonBuilder(_translationService.GetString("button-back"), "user.profile.main", ButtonStyle.Primary));
 
@@ -247,7 +240,7 @@ public class UserModule : BaseModule
         });
     }
 
-    internal double GetActivityScore(IGuildUser user, IGuildUser bot)
+    internal async Task<double> GetActivityScoreAsync(IGuildUser user, IGuildUser bot)
     {
         const double averageOnlineHours = 4;
         const double scalingFactor = averageOnlineHours / 24;
@@ -264,10 +257,10 @@ public class UserModule : BaseModule
         double maxPoints = daysCounting * _engagementService.MaxPointsPerDay;
         double scaledMaxPoints = maxPoints * scalingFactor;
         Logger.Debug($"User {user!.Id} has been in the guild for {daysCounting} days, which would result in {maxPoints} points. The scaling factor is {scalingFactor}, so the maximum points are {scaledMaxPoints}.");
-        return Math.Min(100, _engagementService.GetActivityPoints(user.GuildId, user.Id) / scaledMaxPoints * 100);
+        return Math.Min(100, (await _engagementService.GetActivityPointsAsync(user.GuildId, user.Id)) / scaledMaxPoints * 100);
     }
 
-    private EmbedBuilder GetUserProfileEmbed(IUser user, bool includePermissions)
+    private async Task<Embed> GetUserProfileEmbedAsync(IUser user, bool includePermissions)
     {
         EmbedBuilder result = GetEmbedBuilder()
             .WithTitle(user.Username)
@@ -289,7 +282,7 @@ public class UserModule : BaseModule
             }
         };
 
-        MemberHC? member = _memberRepository.GetUser(user.Id);
+        MemberHC? member = await _memberRepository.GetUserAsync(user.Id);
         if (member != null)
         {
             fields.AddRange(new[] {
@@ -347,7 +340,7 @@ public class UserModule : BaseModule
             if (!user.IsBot && !user.IsWebhook)
             {
                 const int activityMaxSteps = 12;
-                double userActivityScore = GetActivityScore(gUser, Context.Guild.CurrentUser);
+                double userActivityScore = await GetActivityScoreAsync(gUser, Context.Guild.CurrentUser);
                 int userActivityProgress = (int)(userActivityScore / (100 / activityMaxSteps));
                 bool isTooNewForProgress = gUser.JoinedAt!.Value.AddDays(1) > DateTime.UtcNow;
                 StringBuilder progressBar = new();
@@ -368,7 +361,7 @@ public class UserModule : BaseModule
                     new EmbedFieldBuilder
                     {
                         Name = _translationService.GetAttrString("profile", "active"),
-                        Value = $"{_engagementService.GetLastActive(gUser.GuildId, user.Id).ToDiscordTimestamp(_translationService, DiscordTimestampFormat.ShortDateTime)}\n({_engagementService.GetLastActive(gUser.GuildId, user.Id).ToDiscordTimestamp(_translationService, DiscordTimestampFormat.RelativeTime)})",
+                        Value = $"{(await _engagementService.GetLastActiveAsync(gUser.GuildId, user.Id)).ToDiscordTimestamp(_translationService, DiscordTimestampFormat.ShortDateTime)}\n({(await _engagementService.GetLastActiveAsync(gUser.GuildId, user.Id)).ToDiscordTimestamp(_translationService, DiscordTimestampFormat.RelativeTime)})",
                         IsInline = true
                     },
                     new EmbedFieldBuilder
@@ -407,8 +400,8 @@ public class UserModule : BaseModule
             result.ThumbnailUrl = gUser.GetDisplayAvatarUrl();
         }
 
-        _ = result.WithFields(fields);
+        result.WithFields(fields);
 
-        return result;
+        return result.Build();
     }
 }

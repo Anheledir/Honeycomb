@@ -8,6 +8,7 @@ namespace BaseBotService.Tests.Infrastructure;
 public class AchievementFactoryTests
 {
     private IServiceProvider _serviceProvider;
+    private ILogger _logger;
 
     [SetUp]
     public void SetUp()
@@ -15,7 +16,8 @@ public class AchievementFactoryTests
         _serviceProvider = Substitute.For<IServiceProvider>();
         _serviceProvider.GetService(typeof(CustomHCAchievement)).Returns(new CustomHCAchievement());
         _serviceProvider.GetService(typeof(ILogger)).Returns(Substitute.For<ILogger>());
-        Program.ServiceProvider = _serviceProvider;
+
+        _logger = Substitute.For<ILogger>();
     }
 
     [Test]
@@ -26,7 +28,7 @@ public class AchievementFactoryTests
         GuildMemberHC guildMember = FakeDataHelper.GuildFaker.Generate().Members[0];
 
         // Act
-        var achievement = AchievementFactory.CreateAchievement<CustomHCAchievement>(guildMember);
+        var achievement = new AchievementFactory(_serviceProvider, _logger).CreateAchievement<CustomHCAchievement>(guildMember);
 
         // Assert
         achievement.ShouldNotBeNull();
@@ -42,7 +44,7 @@ public class AchievementFactoryTests
         MemberHC member = FakeDataHelper.MemberFaker.Generate();
 
         // Act
-        var achievement = AchievementFactory.CreateAchievement<CustomHCAchievement>(member);
+        var achievement = new AchievementFactory(_serviceProvider, _logger).CreateAchievement<CustomHCAchievement>(member);
 
         // Assert
         achievement.ShouldNotBeNull();

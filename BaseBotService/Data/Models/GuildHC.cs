@@ -1,18 +1,23 @@
 ﻿using BaseBotService.Core.Base;
 using BaseBotService.Data.Enums;
-using LiteDB;
+using System.ComponentModel.DataAnnotations;
 
 namespace BaseBotService.Data.Models;
-public class GuildHC : ModelBase
+
+public class GuildHC
 {
+    [Key]
     public ulong GuildId { get; set; }
+
     public GuildSettings Settings { get; set; }
     public string? ActivityPointsName { get; set; }
     public string? ActivityPointsSymbol { get; set; }
     public double ActivityPointsAverageActiveHours { get; set; }
     public List<ulong> ModeratorRoles { get; set; }
     public List<ulong> ArtistRoles { get; set; }
+    public List<AchievementBase> Achievements { get; set; } = new();
     public List<GuildMemberHC> Members { get; set; } = new();
+    public ulong InternalNotificationChannel { get; set; } = 0;
 
     public GuildHC()
     {
@@ -24,12 +29,5 @@ public class GuildHC : ModelBase
         ModeratorRoles = new List<ulong>();
         ArtistRoles = new List<ulong>();
         ActivityPointsAverageActiveHours = 4;
-    }
-
-    public static ILiteCollection<GuildHC> GetServiceRegistration(IServiceProvider services)
-    {
-        ILiteCollection<GuildHC> collection = GetServiceRegistration<GuildHC>(services);
-        _ = collection.EnsureIndex(x => x.GuildId, unique: true);
-        return collection;
     }
 }

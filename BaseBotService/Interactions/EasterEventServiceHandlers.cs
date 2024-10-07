@@ -1,29 +1,57 @@
-﻿using BaseBotService.Core.Interfaces;
+﻿using BaseBotService.Core;
+using BaseBotService.Core.Interfaces;
 using BaseBotService.Core.Messages;
 
 namespace BaseBotService.Interactions;
-public class EasterEventServiceHandlers : INotificationHandler<MessageReceivedNotification>, INotificationHandler<ReactionAddedNotification>
+
+/// <summary>
+/// Handles Easter event notifications related to messages received and reactions added.
+/// </summary>
+public class EasterEventServiceHandlers : INotificationHandler<MessageReceivedNotification>, INotificationHandler<DiscordEventListener.ReactionAddedNotification>
 {
     private readonly ILogger _logger;
     private readonly IEasterEventService _easterEvent;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EasterEventServiceHandlers"/> class.
+    /// </summary>
     public EasterEventServiceHandlers(ILogger logger, IEasterEventService easterEvent)
     {
         _logger = logger.ForContext<EasterEventServiceHandlers>();
         _easterEvent = easterEvent;
     }
 
-    public Task Handle(MessageReceivedNotification notification, CancellationToken cancellationToken)
+    /// <summary>
+    /// Handles the MessageReceivedNotification event and triggers the Easter event service.
+    /// </summary>
+    public async Task Handle(MessageReceivedNotification notification, CancellationToken cancellationToken)
     {
-        _logger.Debug($"{nameof(EasterEventServiceHandlers)} received {nameof(MessageReceivedNotification)}");
-        _easterEvent.HandleMessageReceivedAsync(notification);
-        return Task.CompletedTask;
+        _logger.Debug("{Handler} received {Notification}", nameof(EasterEventServiceHandlers), nameof(MessageReceivedNotification));
+
+        try
+        {
+            await _easterEvent.HandleMessageReceivedAsync(notification);
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Error handling {Notification} in {Handler}", nameof(MessageReceivedNotification), nameof(EasterEventServiceHandlers));
+        }
     }
 
-    public Task Handle(ReactionAddedNotification notification, CancellationToken cancellationToken)
+    /// <summary>
+    /// Handles the ReactionAddedNotification event and triggers the Easter event service.
+    /// </summary>
+    public async Task Handle(DiscordEventListener.ReactionAddedNotification notification, CancellationToken cancellationToken)
     {
-        _logger.Debug($"{nameof(EasterEventServiceHandlers)} received {nameof(ReactionAddedNotification)}");
-        _easterEvent.HandleReactionAddedAsync(notification);
-        return Task.CompletedTask;
+        _logger.Debug("{Handler} received {Notification}", nameof(EasterEventServiceHandlers), nameof(DiscordEventListener.ReactionAddedNotification));
+
+        try
+        {
+            await _easterEvent.HandleReactionAddedAsync(notification);
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Error handling {Notification} in {Handler}", nameof(DiscordEventListener.ReactionAddedNotification), nameof(EasterEventServiceHandlers));
+        }
     }
 }

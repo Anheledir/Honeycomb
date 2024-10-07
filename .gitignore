@@ -363,3 +363,5 @@ MigrationBackup/
 /BaseBotService/.DS_Store
 /BaseBotService/honeycomb.db
 /BaseBotService/honeycomb-log.db
+/BaseBotService/honeycomb2.db-shm
+/BaseBotService/honeycomb2.db-wal

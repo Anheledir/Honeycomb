@@ -2,6 +2,7 @@
 using BaseBotService.Core.Interfaces;
 using BaseBotService.Core.Messages;
 using BaseBotService.Data.Interfaces;
+using BaseBotService.Infrastructure;
 using BaseBotService.Infrastructure.Achievements;
 using BaseBotService.Infrastructure.Services;
 using BaseBotService.Utilities.Extensions;
@@ -25,6 +26,7 @@ public class EasterEventServiceTests
     private IEngagementService _engagementService;
     private IMediator _mediator;
     private Faker _faker;
+    private AchievementFactory _achievementFactory;
 
     [SetUp]
     public void SetUp()
@@ -38,8 +40,9 @@ public class EasterEventServiceTests
         _guildMemberHCRepository = Substitute.For<IGuildMemberRepository>();
         _engagementService = Substitute.For<IEngagementService>();
         _mediator = Substitute.For<IMediator>();
+        _achievementFactory = new AchievementFactory(Substitute.For<IServiceProvider>(), _logger);
 
-        _easterEventService = new EasterEventService(_logger, _dateTime, _client, _memberHCRepository, _translationService, _achievementRepository, _guildMemberHCRepository, _engagementService, _mediator);
+        _easterEventService = new EasterEventService(_logger, _dateTime, _client, _memberHCRepository, _translationService, _achievementRepository, _guildMemberHCRepository, _engagementService, _mediator, _achievementFactory);
 
         _faker = new Faker();
     }

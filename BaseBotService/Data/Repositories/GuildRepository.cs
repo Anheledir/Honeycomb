@@ -1,38 +1,52 @@
 ﻿using BaseBotService.Data.Interfaces;
 using BaseBotService.Data.Models;
-using LiteDB;
+using Microsoft.EntityFrameworkCore;
 
 namespace BaseBotService.Data.Repositories;
 
 public class GuildRepository : IGuildRepository
 {
-    private readonly ILiteCollection<GuildHC> _guilds;
+    private readonly HoneycombDbContext _context;
 
-    public GuildRepository(ILiteCollection<GuildHC> guilds) => _guilds = guilds;
-
-    public GuildHC? GetGuild(ulong guildId, bool create = false)
+    public GuildRepository(HoneycombDbContext context)
     {
-        GuildHC? guild = _guilds
-            .Include(m => m.Members)
-            .FindOne(g => g.GuildId == guildId);
+        _context = context;
+    }
+
+    public async Task<GuildHC?> GetGuildAsync(ulong guildId, bool create = false)
+    {
+        var guild = await _context.Guilds
+                                  .Include(g => g.Members)
+                                  .FirstOrDefaultAsync(g => g.GuildId == guildId);
         if (guild == null && create)
         {
-            _guilds.Insert(new GuildHC { GuildId = guildId });
-            return GetGuild(guildId, false);
+            guild = new GuildHC { GuildId = guildId };
+            _context.Guilds.Add(guild);
+            await _context.SaveChangesAsync();
+            return await GetGuildAsync(guildId, false);
         }
         return guild;
     }
 
-    public void AddGuild(GuildHC guild) => _guilds.Insert(guild);
-
-    public bool UpdateGuild(GuildHC guild) => _guilds.Update(guild);
-
-    public bool DeleteGuild(ulong guildId)
+    public async Task AddGuildAsync(GuildHC guild)
     {
-        var guild = GetGuild(guildId);
+        _context.Guilds.Add(guild);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<bool> UpdateGuildAsync(GuildHC guild)
+    {
+        _context.Guilds.Update(guild);
+        return await _context.SaveChangesAsync() > 0;
+    }
+
+    public async Task<bool> DeleteGuildAsync(ulong guildId)
+    {
+        var guild = await GetGuildAsync(guildId);
         if (guild != null)
         {
-            return _guilds.Delete(guild.Id);
+            _context.Guilds.Remove(guild);
+            return await _context.SaveChangesAsync() > 0;
         }
         return false;
     }

@@ -1,21 +1,26 @@
-﻿using BaseBotService.Core.Base;
-using LiteDB;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BaseBotService.Data.Models;
-public class GuildMemberHC : ModelBase
+
+public class GuildMemberHC
 {
+    [Key]
+    public int Id { get; set; } // Primary key for EF Core
+
+    // Foreign key properties
     public ulong GuildId { get; set; }
     public ulong MemberId { get; set; }
+
+    // Guild-specific properties
     public DateTime LastActive { get; set; }
     public uint ActivityPoints { get; set; }
     public DateTime LastActivityPoint { get; set; }
 
-    public static ILiteCollection<GuildMemberHC> GetServiceRegistration(IServiceProvider services)
-    {
-        ILiteCollection<GuildMemberHC> collection = GetServiceRegistration<GuildMemberHC>(services);
-        _ = collection.EnsureIndex(x => x.GuildId, unique: false);
-        _ = collection.EnsureIndex(x => x.MemberId, unique: false);
-        _ = collection.EnsureIndex(x => new { x.GuildId, x.MemberId }, unique: true);
-        return collection;
-    }
+    // Navigation properties
+    [ForeignKey(nameof(GuildId))]
+    public GuildHC Guild { get; set; } = default!;
+
+    [ForeignKey(nameof(MemberId))]
+    public MemberHC Member { get; set; } = default!;
 }

@@ -1,66 +1,93 @@
 ﻿using BaseBotService.Core.Base;
 using BaseBotService.Data.Interfaces;
-using LiteDB;
-using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
 namespace BaseBotService.Data.Repositories;
+
 public class AchievementRepository<T> : IAchievementRepository<T> where T : AchievementBase
 {
-    private readonly ILiteCollection<AchievementBase> _achievements;
+    private readonly HoneycombDbContext _context;
     public Guid Identifier => GetIdentifier();
 
-    public AchievementRepository(ILiteCollection<AchievementBase> achievements) => _achievements = achievements;
-
-    public List<T> GetByUserId(ulong userId)
-        => _achievements.Find(a => a.SourceIdentifier == Identifier && a.MemberId == userId).OfType<T>().ToList();
-
-    public List<T> GetByGuildId(ulong guildId)
-        => _achievements.Find(a => a.SourceIdentifier == Identifier && a.GuildId == guildId).OfType<T>().ToList();
-
-    public List<T> Get(ulong userId, ulong guildId)
-        => _achievements.Find(a => a.SourceIdentifier == Identifier && a.MemberId == userId && a.GuildId == guildId).OfType<T>().ToList();
-
-    /// <summary>
-    /// Retrieves all achievements of type T with the same Identifier value as the T type.
-    /// </summary>
-    /// <returns>An IEnumerable of achievements of type T with the specified Identifier value.</returns>
-    public List<T> GetAll()
+    public AchievementRepository(HoneycombDbContext context)
     {
-        // Filter the achievements based on the Identifier property value
-        return _achievements.Find(a => a.SourceIdentifier == Identifier).OfType<T>().ToList();
+        _context = context;
     }
 
-    [SuppressMessage("Roslynator", "RCS1158:Static member in generic type should use a type parameter.", Justification = "Only used internally.")]
+    public async Task<List<T>> GetByUserIdAsync(ulong userId)
+    {
+        // Uses the discriminator to filter the specific achievement type
+        return await _context.Achievements
+            .Where(a => a.SourceIdentifier == Identifier && a.MemberId == userId)
+            .OfType<T>()
+            .ToListAsync();
+    }
+
+    public async Task<List<T>> GetByGuildIdAsync(ulong guildId)
+    {
+        // Uses the discriminator to filter the specific achievement type
+        return await _context.Achievements
+            .Where(a => a.SourceIdentifier == Identifier && a.GuildId == guildId)
+            .OfType<T>()
+            .ToListAsync();
+    }
+
+    public async Task<List<T>> GetAsync(ulong userId, ulong guildId)
+    {
+        // Uses the discriminator to filter the specific achievement type
+        return await _context.Achievements
+            .Where(a => a.SourceIdentifier == Identifier && a.MemberId == userId && a.GuildId == guildId)
+            .OfType<T>()
+            .ToListAsync();
+    }
+
+    public async Task<List<T>> GetAllAsync()
+    {
+        // Retrieves all achievements of type T
+        return await _context.Achievements
+            .Where(a => a.SourceIdentifier == Identifier)
+            .OfType<T>()
+            .ToListAsync();
+    }
+
     internal static Guid GetIdentifier()
     {
-        // Get the Identifier property value for the T type
         const string propertyName = nameof(AchievementBase.Identifier);
-        PropertyInfo propertyInfo = typeof(T).GetProperty(propertyName, BindingFlags.Static | BindingFlags.Public)!;
+        PropertyInfo propertyInfo = typeof(T).GetProperty(propertyName, BindingFlags.Static | BindingFlags.Public);
 
-        // By passing null, we are telling the reflection API to get the value of the static property
-        // without referring to any specific instance of the type.
+        // Additional error handling to ensure the property exists
+        if (propertyInfo == null)
+        {
+            throw new InvalidOperationException($"Identifier property not found on {typeof(T).Name}");
+        }
+
         return new Guid((string)propertyInfo.GetValue(null)!);
     }
 
-    /// <summary>
-    /// Inserts a new achievement of type T into the LiteDB collection.
-    /// </summary>
-    /// <param name="entity">The achievement of type T to insert.</param>
-    /// <returns>The ObjectId of the inserted achievement.</returns>
-    public ObjectId Insert(T entity) => _achievements.Insert(entity);
+    public async Task<int> InsertAsync(T entity)
+    {
+        // Adds a new achievement entity to the database
+        _context.Achievements.Add(entity);
+        return await _context.SaveChangesAsync();
+    }
 
-    /// <summary>
-    /// Updates an existing achievement of type T in the LiteDB collection.
-    /// </summary>
-    /// <param name="entity">The achievement of type T to update.</param>
-    /// <returns>true if the achievement was updated successfully; otherwise, false.</returns>
-    public bool Update(T entity) => _achievements.Update(entity);
+    public async Task<bool> UpdateAsync(T entity)
+    {
+        // Updates an existing achievement entity in the database
+        _context.Achievements.Update(entity);
+        return await _context.SaveChangesAsync() > 0;
+    }
 
-    /// <summary>
-    /// Deletes an achievement of type T from the LiteDB collection by its ObjectId.
-    /// </summary>
-    /// <param name="id">The ObjectId of the achievement to delete.</param>
-    /// <returns>true if the achievement was deleted successfully; otherwise, false.</returns>
-    public bool Delete(ObjectId id) => _achievements.Delete(id);
+    public async Task<bool> DeleteAsync(Guid id)
+    {
+        // Deletes an achievement entity based on its ID
+        var achievement = await _context.Achievements.FindAsync(id);
+        if (achievement != null)
+        {
+            _context.Achievements.Remove(achievement);
+            return await _context.SaveChangesAsync() > 0;
+        }
+        return false;
+    }
 }
