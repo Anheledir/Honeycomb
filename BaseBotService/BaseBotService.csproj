@@ -37,8 +37,8 @@
         <PackageReference Include="Discord.Net" Version="3.16.0" />
         <PackageReference Include="Fluent.Net" Version="1.0.60" />
         <PackageReference Include="LiteDB" Version="5.0.21" />
-        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
         <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
