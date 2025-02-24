@@ -20,7 +20,7 @@
     <EmbeddedResource Include="Resources\es.ftl" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Bogus" Version="35.6.1" />
+    <PackageReference Include="Bogus" Version="35.6.2" />
     <PackageReference Include="FluentAssertions" Version="8.1.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
     <PackageReference Include="NetArchTest.eNhancedEdition" Version="1.4.4" />
