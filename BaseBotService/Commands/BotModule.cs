@@ -1,4 +1,4 @@
-﻿using BaseBotService.Core.Base;
+using BaseBotService.Core.Base;
 using BaseBotService.Utilities;
 using BaseBotService.Utilities.Attributes;
 
@@ -8,6 +8,9 @@ namespace BaseBotService.Commands;
 [CommandContextType(InteractionContextType.Guild, InteractionContextType.BotDm)]
 public class BotModule : BaseModule
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BotModule"/> class with a scoped logger.
+    /// </summary>
     public BotModule(ILogger logger)
     {
         Logger = logger.ForContext<BotModule>();
