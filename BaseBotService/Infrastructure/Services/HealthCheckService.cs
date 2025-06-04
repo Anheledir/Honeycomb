@@ -40,22 +40,29 @@ public class HealthCheckService : BackgroundService
         listener.Start();
         _logger.Information($"Listening for health-probe on port ::{_environment.HealthPort}.");
 
-        while (!stoppingToken.IsCancellationRequested)
+        try
         {
-            using TcpClient client = await listener.AcceptTcpClientAsync(stoppingToken);
-            _logger.Debug("Client connected");
-
-            using NetworkStream stream = client.GetStream();
-            string response = await CheckHealthAsync() switch
+            while (!stoppingToken.IsCancellationRequested)
             {
-                HealthCheckResult.Healthy => "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nConnected",
-                HealthCheckResult.Degraded => "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nConnecting",
-                _ => "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/plain\r\n\r\nDisconnected",
-            };
-            byte[] responseBytes = Encoding.UTF8.GetBytes(response);
-            await stream.WriteAsync(responseBytes, stoppingToken);
-            _logger.Debug("Response sent");
+                using TcpClient client = await listener.AcceptTcpClientAsync(stoppingToken);
+                _logger.Debug("Client connected");
+
+                using NetworkStream stream = client.GetStream();
+                string response = await CheckHealthAsync() switch
+                {
+                    HealthCheckResult.Healthy => "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nConnected",
+                    HealthCheckResult.Degraded => "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nConnecting",
+                    _ => "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/plain\r\n\r\nDisconnected",
+                };
+                byte[] responseBytes = Encoding.UTF8.GetBytes(response);
+                await stream.WriteAsync(responseBytes, stoppingToken);
+                _logger.Debug("Response sent");
+            }
         }
-        _logger.Information($"Stopped listener for health-probe on port ::{_environment.HealthPort}");
+        finally
+        {
+            listener.Stop();
+            _logger.Information($"Stopped listener for health-probe on port ::{_environment.HealthPort}");
+        }
     }
 }
