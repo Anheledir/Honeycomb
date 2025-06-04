@@ -5,7 +5,7 @@ using BaseBotService.Utilities.Attributes;
 namespace BaseBotService.Commands;
 
 [Group("bot", "The main bot information module of Honeycomb.")]
-[EnabledInDm(true)]
+[CommandContextType(InteractionContextType.Guild, InteractionContextType.BotDm)]
 public class BotModule : BaseModule
 {
     public BotModule(ILogger logger)
