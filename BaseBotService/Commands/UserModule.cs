@@ -20,13 +20,15 @@ public class UserModule : BaseModule
     private readonly ITranslationService _translationService;
     private readonly IEngagementService _engagementService;
     private readonly IMemberRepository _memberRepository;
+    private readonly IGuildMemberRepository _guildMemberRepository;
 
-    public UserModule(ILogger logger, ITranslationService translationService, IEngagementService engagementService, IMemberRepository memberRepository)
+    public UserModule(ILogger logger, ITranslationService translationService, IEngagementService engagementService, IMemberRepository memberRepository, IGuildMemberRepository guildMemberRepository)
     {
         Logger = logger.ForContext<UserModule>();
         _translationService = translationService;
         _engagementService = engagementService;
         _memberRepository = memberRepository;
+        _guildMemberRepository = guildMemberRepository;
     }
 
     [UserCommand("User Profile")]
@@ -245,6 +247,39 @@ public class UserModule : BaseModule
             x.Content = message;
             x.Components = components.Build();
         });
+    }
+
+    [SlashCommand("leaderboard", "Show the most active users on this server.")]
+    public async Task LeaderboardAsync(
+        [Summary(description: "Number of users to display (1-100)")] int amount = 10)
+    {
+        amount = Math.Clamp(amount, 1, 100);
+        var top = _guildMemberRepository.GetTopUsers(Context.Guild.Id, amount)
+            .ToList();
+
+        StringBuilder description = new();
+        for (int i = 0; i < top.Count; i++)
+        {
+            var member = top[i];
+            var user = Context.Guild.GetUser(member.MemberId);
+            string name = user?.Username ?? member.MemberId.ToString();
+            description.AppendLine(
+                _translationService.GetString(
+                    "leaderboard-entry",
+                    TranslationHelper.Arguments(
+                        "rank", i + 1,
+                        "user", name,
+                        "points", member.ActivityPoints)));
+        }
+
+        EmbedBuilder embed = GetEmbedBuilder()
+            .WithTitle(
+                _translationService.GetString(
+                    "leaderboard-title",
+                    TranslationHelper.Arguments("amount", amount)))
+            .WithDescription(description.ToString());
+
+        await RespondOrFollowupAsync(embed: embed.Build());
     }
 
     internal double GetActivityScore(IGuildUser user, IGuildUser bot)

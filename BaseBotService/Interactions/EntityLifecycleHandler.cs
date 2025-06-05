@@ -4,7 +4,7 @@ using BaseBotService.Data.Interfaces;
 using BaseBotService.Data.Models;
 
 namespace BaseBotService.Interactions;
-public class EntityLifecycleHandler : INotificationHandler<JoinedGuildNotification>, INotificationHandler<UserJoinedNotification>, INotificationHandler<LeftGuildNotification>
+public class EntityLifecycleHandler : INotificationHandler<JoinedGuildNotification>, INotificationHandler<UserJoinedNotification>, INotificationHandler<LeftGuildNotification>, INotificationHandler<UserLeftNotification>
 {
     private readonly ILogger _logger;
     private readonly IMemberRepository _memberRepository;
@@ -51,6 +51,21 @@ public class EntityLifecycleHandler : INotificationHandler<JoinedGuildNotificati
 
         _guildRepository.AddGuild(new GuildHC { GuildId = notification.Guild.Id });
         _logger.Information($"Bot joined {notification.Guild.Id}, created GuildHC.");
+
+        return Task.CompletedTask;
+    }
+
+    public Task Handle(UserLeftNotification notification, CancellationToken cancellationToken)
+    {
+        _logger.Debug($"{nameof(EntityLifecycleHandler)} received {nameof(UserLeftNotification)}");
+
+        GuildMemberHC? member = _guildMemberRepository.GetUser(notification.Guild.Id, notification.User.Id);
+        if (member != null)
+        {
+            member.ActivityPoints = 0;
+            _guildMemberRepository.UpdateUser(member);
+            _logger.Information($"User {notification.User.Id} left {notification.Guild.Id}, reset ActivityPoints.");
+        }
 
         return Task.CompletedTask;
     }

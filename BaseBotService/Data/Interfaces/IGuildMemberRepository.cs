@@ -36,4 +36,12 @@ public interface IGuildMemberRepository
     /// <returns>True if the delete was successful, otherwise false.</returns>
     bool DeleteUser(ulong guildId, ulong userId);
     int DeleteGuild(ulong guildId);
+
+    /// <summary>
+    /// Gets the top users of a guild ordered by their activity points.
+    /// </summary>
+    /// <param name="guildId">The unique identifier of the guild.</param>
+    /// <param name="limit">The maximum number of users to return.</param>
+    /// <returns>An enumerable of <see cref="GuildMemberHC"/> ordered by activity points.</returns>
+    IEnumerable<GuildMemberHC> GetTopUsers(ulong guildId, int limit);
 }

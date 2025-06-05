@@ -41,6 +41,7 @@ public class DiscordEventListener
         _client.JoinedGuild += (guild) => _mediator.Publish(new JoinedGuildNotification(guild), _cancellationToken);
         _client.LeftGuild += (guild) => _mediator.Publish(new LeftGuildNotification(guild), _cancellationToken);
         _client.UserJoined += (user) => _mediator.Publish(new UserJoinedNotification(user), _cancellationToken);
+        _client.UserLeft += (guild, user) => _mediator.Publish(new UserLeftNotification(guild, user), _cancellationToken);
         _handler.Log += (msg) => _mediator.Publish(new LogNotification(msg), _cancellationToken);
 
         _ = await _handler.AddModulesAsync(Assembly.GetEntryAssembly(), _services);

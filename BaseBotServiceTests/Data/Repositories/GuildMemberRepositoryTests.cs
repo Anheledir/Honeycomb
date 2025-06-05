@@ -91,4 +91,28 @@ public class GuildMemberRepositoryTests
         var deletedUser = _guildMembers.FindOne(u => u.MemberId == existingUser.MemberId && u.GuildId == existingUser.GuildId);
         deletedUser.ShouldBeNull();
     }
+
+    [Test]
+    public void GetTopUsers_ShouldReturnOrderedLimitedList()
+    {
+        // Arrange
+        var guild = FakeDataHelper.GuildFaker.Generate();
+        _guilds.Insert(guild);
+        foreach (var member in guild.Members)
+        {
+            _guildMembers.Insert(member);
+        }
+        int limit = Math.Min(3, guild.Members.Count);
+
+        // Act
+        var result = _repository.GetTopUsers(guild.GuildId, limit).ToList();
+
+        // Assert
+        result.Count.ShouldBe(limit);
+        var expected = guild.Members
+            .OrderByDescending(m => m.ActivityPoints)
+            .Take(limit)
+            .Select(m => m.MemberId);
+        result.Select(r => r.MemberId).ShouldBe(expected);
+    }
 }
