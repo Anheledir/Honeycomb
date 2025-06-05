@@ -26,7 +26,7 @@ Project Honeycomb is a Discord bot designed to provide artists with some useful 
 - **Raffles:** Organize raffles on Discord or Twitter and randomly draw the winners.
 - **Artist Discovery:** Opt-in to be discoverable when being open for commissions within a global catalogue.
 - **Ideas & Suggestions:** Collect new ideas for your drawings from your fans and let them vote for their favorites.
-- **Portfolio Webpage:** Publish all your information also on a public website, making them accessable worldwide even outside of Discord.
+- **Portfolio Webpage:** Publish all your information also on a public website, making them accessible worldwide even outside of Discord.
 
 ## Installation
 
@@ -38,7 +38,7 @@ Project Honeycomb is a Discord bot designed to provide artists with some useful 
 
 ## License
 
-📝 Project Honeycomb is released under the [MIT License](LICENSE.txt).
+📝 Project Honeycomb is released under the [MIT License](LICENSE).
 
 [Logo](https://www.flaticon.com/free-icon/bee_7299846?term=bee&page=1&position=41&origin=tag&related_id=7299846): <a href="https://www.flaticon.com/free-icons/bee" title="bee icons">Bee icons created by Deylotus Creative Design - Flaticon</a>
 

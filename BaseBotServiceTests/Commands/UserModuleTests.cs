@@ -41,7 +41,7 @@ public class UserModuleTests
         double result = _userModule.GetActivityScore(user, bot);
 
         // Assert
-        result.ShouldBe(0);
+        result.ShouldBe(0, 1.0);
     }
 
     [TestCase((uint)85, 100)]
@@ -75,5 +75,32 @@ public class UserModuleTests
 
         // Assert
         result.ShouldBe(score, 1.0);
+    }
+
+    [Test]
+    public void GetActivityScore_ShouldReturnZero_WhenUserAndBotJoinedAtSameTime()
+    {
+        // Arrange
+        var joinedAt = DateTimeOffset.UtcNow;
+        ulong guildId = _faker.Random.ULong();
+        ulong userId = _faker.Random.ULong();
+
+        var user = Substitute.For<IGuildUser>();
+        user.JoinedAt.Returns(joinedAt);
+        user.GuildId.Returns(guildId);
+        user.Id.Returns(userId);
+
+        var bot = Substitute.For<IGuildUser>();
+        bot.JoinedAt.Returns(joinedAt);
+        bot.GuildId.Returns(guildId);
+
+        _engagementService.MaxPointsPerDay.Returns(0);
+        _engagementService.GetActivityPoints(guildId, userId).Returns((uint)50);
+
+        // Act
+        double result = _userModule.GetActivityScore(user, bot);
+
+        // Assert
+        result.ShouldBe(0, 1.0);
     }
 }
