@@ -21,6 +21,7 @@ Project Honeycomb is a Discord bot designed to provide artists with some useful 
 - **Commission Request Form:** Users can request a commission by filling out a form with necessary details.
 - **OC Reference Management:** Users can add references with descriptions for their OCs to easily access them when needed.
 - **Loyalty Points:** Artists can reward their loyal customers by awarding loyalty points, which can be redeemed for future commissions.
+- **Activity Leaderboard:** See which members are most active in your server.
 - **Announcement of New Art:** Artists can announce their new artwork with references to different platforms like Twitter, DeviantArt, FurAffinity, Patreon, and more.
 - **Progress Tracking of Commissions:** Artists can track the progress of their commissions using the bot.
 - **Raffles:** Organize raffles on Discord or Twitter and randomly draw the winners.

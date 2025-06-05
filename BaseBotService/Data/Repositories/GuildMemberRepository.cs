@@ -38,4 +38,10 @@ public class GuildMemberRepository : IGuildMemberRepository
         }
         return 0;
     }
+
+    public IEnumerable<GuildMemberHC> GetTopUsers(ulong guildId, int limit)
+        => _guildMembers
+            .Find(a => a.GuildId == guildId)
+            .OrderByDescending(u => u.ActivityPoints)
+            .Take(limit);
 }
