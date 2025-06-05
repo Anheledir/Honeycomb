@@ -264,6 +264,10 @@ public class UserModule : BaseModule
         double maxPoints = daysCounting * _engagementService.MaxPointsPerDay;
         double scaledMaxPoints = maxPoints * scalingFactor;
         Logger.Debug($"User {user!.Id} has been in the guild for {daysCounting} days, which would result in {maxPoints} points. The scaling factor is {scalingFactor}, so the maximum points are {scaledMaxPoints}.");
+        if (scaledMaxPoints == 0)
+        {
+            return 0;
+        }
         return Math.Min(100, _engagementService.GetActivityPoints(user.GuildId, user.Id) / scaledMaxPoints * 100);
     }
 
