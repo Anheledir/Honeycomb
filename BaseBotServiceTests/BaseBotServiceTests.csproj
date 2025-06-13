@@ -31,7 +31,7 @@
     </PackageReference>
     <PackageReference Include="NUnit" Version="4.3.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
-    <PackageReference Include="NUnit.Analyzers" Version="4.8.1">
+    <PackageReference Include="NUnit.Analyzers" Version="4.9.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -40,8 +40,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Shouldly" Version="4.3.0" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.6" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.6" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BaseBotService\BaseBotService.csproj" />
