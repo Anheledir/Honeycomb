@@ -12,10 +12,9 @@ namespace BaseBotService.Infrastructure.Services;
 public class EasterEventService : IEasterEventService
 {
     /// <summary>
-    /// The probability of reacting to a message (0.05 = 5%)
+    /// The probability of reacting to a message (0.2 = 20%)
     /// </summary>
-    public const double ReactionProbability = 0.2
-    ;
+    public const double ReactionProbability = 0.2;
 
     /// <summary>
     /// If the user has already received the achievement, the points will be scaled down by this factor (0.1 = 10%)
