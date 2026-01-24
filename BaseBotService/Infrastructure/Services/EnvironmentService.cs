@@ -12,13 +12,16 @@ public class EnvironmentService : IEnvironmentService
 
     public EnvironmentService(ILogger logger, ITranslationService translationService, CancellationTokenSource cts)
     {
-        DiscordBotToken = Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN")!;
+        DiscordBotToken = Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN") ?? string.Empty;
         if (string.IsNullOrWhiteSpace(DiscordBotToken))
         {
             logger.Fatal("Environment variable 'DISCORD_BOT_TOKEN' not set.");
             cts.Cancel();
         }
-        logger.Information($"Environment variable 'DISCORD_BOT_TOKEN' set to '{DiscordBotToken.MaskToken()}.'");
+        else
+        {
+            logger.Information($"Environment variable 'DISCORD_BOT_TOKEN' set to '{DiscordBotToken.MaskToken()}.'");
+        }
 
         RegisterCommands = Environment.GetEnvironmentVariable("COMMAND_REGISTER") switch
         {
@@ -28,7 +31,13 @@ public class EnvironmentService : IEnvironmentService
         };
         logger.Information($"Mode for registering commands: '{(int)RegisterCommands}' ({RegisterCommands}).");
 
-        HealthPort = int.Parse(Environment.GetEnvironmentVariable("HEALTH_PORT") ?? "8080");
+        string? healthPortValue = Environment.GetEnvironmentVariable("HEALTH_PORT");
+        if (!int.TryParse(healthPortValue, out int healthPort) || healthPort is < 1 or > 65535)
+        {
+            logger.Warning("Environment variable 'HEALTH_PORT' value '{HealthPortValue}' is invalid. Using default port 8080.", healthPortValue);
+            healthPort = 8080;
+        }
+        HealthPort = healthPort;
         logger.Information($"http-port for health probe set to '{HealthPort}'.");
 
         ConnectionString = Environment.GetEnvironmentVariable("ConnectionString") ?? "Filename=honeycomb.db;";
