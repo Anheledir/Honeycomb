@@ -134,6 +134,9 @@ profile = { $username } @ { $guildname }
    *[other] Invalid activity score
 }
 
+leaderboard-title = Top { $amount } active users
+leaderboard-entry = { $rank }. { $user } - { $points } pts
+
 
 
 

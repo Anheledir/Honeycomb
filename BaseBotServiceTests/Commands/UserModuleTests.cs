@@ -13,6 +13,7 @@ public class UserModuleTests
     private ITranslationService _translationService;
     private IEngagementService _engagementService;
     private IMemberRepository _memberRepository;
+    private IGuildMemberRepository _guildMemberRepository;
     private ILogger _logger;
     private UserModule _userModule;
     private readonly Faker _faker = new();
@@ -23,9 +24,10 @@ public class UserModuleTests
         _translationService = Substitute.For<ITranslationService>();
         _engagementService = Substitute.For<IEngagementService>();
         _memberRepository = Substitute.For<IMemberRepository>();
+        _guildMemberRepository = Substitute.For<IGuildMemberRepository>();
         _logger = Substitute.For<ILogger>();
 
-        _userModule = new UserModule(_logger, _translationService, _engagementService, _memberRepository);
+        _userModule = new UserModule(_logger, _translationService, _engagementService, _memberRepository, _guildMemberRepository);
     }
 
     [Test]
