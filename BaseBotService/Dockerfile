@@ -3,7 +3,7 @@
 FROM mcr.microsoft.com/dotnet/runtime:10.0 AS base
 WORKDIR /app
 
-FROM mcr.microsoft.com/dotnet/sdk:10.0.102 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0.201 AS build
 WORKDIR /src
 COPY ["BaseBotService/BaseBotService.csproj", "BaseBotService/"]
 RUN dotnet restore "BaseBotService/BaseBotService.csproj"
