@@ -17,7 +17,7 @@ jobs:
 
     - name: Add Reviewer for Core or Infrastructure Labels
       if: contains(steps.labeler.outputs.all-labels, 'core') || contains(steps.labeler.outputs.all-labels, 'infrastructure')
-      uses: actions/github-script@v8
+      uses: actions/github-script@v9
       with:
         github-token: ${{secrets.GITHUB_TOKEN}}
         script: |
